@@ -91,6 +91,6 @@ ga.contract <- contract202201 %>%
 
 # Save outputs ------------------------------------------------------------
 
-write_csv(ga.enroll, "data/output/ma-snippets/ga-enrollment-202201.csv")
-write_csv(ga.sa, "data/output/ma-snippets/ga-service-area-202201.csv")
-write_csv(ga.contract, "data/output/ma-snippets/ga-contract-202201.csv")
+write_csv(ga.enroll, "data/output/ma-snippets/ga-enrollment.csv")
+write_csv(ga.sa, "data/output/ma-snippets/ga-service-area.csv")
+write_csv(ga.contract, "data/output/ma-snippets/ga-contract.csv")
