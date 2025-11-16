@@ -189,14 +189,14 @@ Assumes **SUTVA** (stable unit treatment value assumption)...no interference acr
 
 :::: {.columns}
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 ![](../images/EmoryPicture.jpg)
 
 $Y_{1}$= \$75,000
 :::
 
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 ![](../images/UNTPicture.jpg)
 
 $Y_{0}$= \$60,000
