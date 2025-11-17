@@ -11,7 +11,6 @@ format:
     width: 1600
     height: 900    
 #    embed-resources: true
-from: markdown+emoji
 execute: 
   echo: true
 ---
@@ -22,4 +21,677 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
                hrbrthemes, gganimate, OECD, here, readxl)
 ```
+
+## Outline for Today
+
+1. Loading Data
+2. Looking at Your Data
+3. Cleaning Data
+4. Merging and Reshaping Data
+5. Saving Data and Output
+
+# Loading Data
+
+## Common file types and functions
+
+- Most common formats you’ll see in this course:
+  - **CSV/TSV**: `.csv`, `.tsv`
+  - **Excel**: `.xlsx`, `.xls`
+- We’ll use tidyverse-friendly readers in R and pandas in Python:
+  - R: `readr::read_csv()`, `readr::read_tsv()`, `readxl::read_excel()`
+  - Python: `pandas.read_csv()`, `pandas.read_excel()`
+- Assumption: your working directory is set so that the **relative paths** below work
+
+## Examples for CSV files
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+library(readr)
+library(dplyr)
+
+# Medicare Advantage enrollment (Georgia)
+ga_enrollment <- read_csv("data/output/ma-snippets/ga-enrollment.csv")
+
+# Medicare Advantage contracts (Georgia)
+ga_contract   <- read_csv("data/output/ma-snippets/ga-contract.csv")
+
+# Medicare Advantage service areas (Georgia)
+ga_service    <- read_csv("data/output/ma-snippets/ga-service-area.csv")
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Medicare Advantage enrollment (Georgia)
+ga_enrollment = pd.read_csv("data/output/ma-snippets/ga-enrollment.csv")
+
+# Medicare Advantage contracts (Georgia)
+ga_contract   = pd.read_csv("data/output/ma-snippets/ga-contract.csv")
+
+# Medicare Advantage service areas (Georgia)
+ga_service    = pd.read_csv("data/output/ma-snippets/ga-service-area.csv")
+```
+:::
+
+- Each call to `read_csv()` / `pd.read_csv()`:
+  - Reads a CSV file from `data/output/ma-snippets/`
+  - Returns a tibble / DataFrame you can work with
+  - Stores it in an object (`ga_enrollment`, `ga_contract`, `ga_service`)
+
+
+## Example: loading Excel files (for comparison)
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+library(readxl)
+
+# Suppose we had an Excel version of the enrollment data
+ga_enrollment_xlsx <- read_excel("data/output/ma-snippets/ga-enrollment.xlsx")
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Suppose we had an Excel version of the enrollment data
+ga_enrollment_xlsx = pd.read_excel("data/output/ma-snippets/ga-enrollment.xlsx")
+```
+:::
+
+- Same pattern, but use `read_excel()` / `pd.read_excel()` for `.xlsx` files
+- Once loaded, you work with `ga_enrollment_xlsx` like any other data frame / DataFrame
+
+
+# Looking at Your Data
+
+## First checks after loading
+
+- After you load a dataset, always do a few quick checks:
+  - What type of object is it?
+  - How many rows and columns?
+  - What do the first few rows look like?
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+# Basic info about ga_enrollment
+class(ga_enrollment)
+dim(ga_enrollment)
+nrow(ga_enrollment)
+ncol(ga_enrollment)
+
+# Peek at the data
+head(ga_enrollment)
+```
+
+### Python
+
+```{python}
+#| eval: false
+# Basic info about ga_enrollment
+type(ga_enrollment)
+ga_enrollment.shape
+ga_enrollment.shape[0]   # rows
+ga_enrollment.shape[1]   # columns
+
+# Peek at the data
+ga_enrollment.head()
+```
+:::
+
+
+## Structure and summaries
+
+- Next: check variable names, types, and simple summaries
+- Goal: spot obvious problems early (wrong types, strange ranges, lots of missing values)
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+
+# Structure
+glimpse(ga_enrollment)
+
+# Basic numeric summaries
+summary(ga_enrollment)
+```
+
+### Python
+
+```{python}
+#| eval: false
+# Structure (column names and types)
+ga_enrollment.info()
+
+# Basic numeric summaries
+ga_enrollment.describe()
+```
+:::
+
+
+## What to look for
+
+- **Ranges and typical values**
+  - Are there negative ages, impossible years, or absurd enrollment counts?
+- **Missingness**
+  - Are key variables mostly missing? Are there patterns (e.g., missing only in some years)?
+- **Outliers**
+  - A few very large or very small values that might be data errors
+- **Types**
+  - Are IDs/codes stored as strings? Are dates actually dates?
+
+
+## Simple summaries and counts
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+
+# How many plans per year?
+ga_enrollment %>%
+  count(year)
+
+# Average enrollment by year
+ga_enrollment %>%
+  group_by(year) %>%
+  summarise(
+    avg_enrollment = mean(enrollment, na.rm = TRUE),
+    n_plans        = n()
+  )
+```
+
+### Python
+
+```{python}
+#| eval: false
+# How many plans per year?
+ga_enrollment.groupby("year").size()
+
+# Average enrollment by year
+ga_enrollment.groupby("year").agg(
+    avg_enrollment=("enrollment", "mean"),
+    n_plans=("enrollment", "size")
+)
+```
+:::
+
+- These quick summaries help you understand what’s in the data **before** you start estimating models
+
+
+# Cleaning Data
+
+## Goals of data management / cleaning
+
+- Take **raw** files and turn them into **analysis-ready** data sets   
+- Typical tasks:
+  - Select the rows and columns you actually need
+  - Create and transform variables (e.g., indicators, logs, aggregates)
+  - Fix obvious issues (types, missing values, impossible values)
+  - Prepare the data at the **right unit of observation** for your question
+- Idea is similar in R and Python: read → inspect → clean → save
+
+
+## Selecting variables and filtering rows
+
+- First step is often to **drop** unneeded columns and focus on the sample you care about
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+
+# Keep only key vars and a subset of years
+ga_enrollment_small <- ga_enrollment %>%
+  select(year, contract_id, plan_id, county, enrollment) %>%
+  filter(year >= 2015, enrollment > 0)
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Keep only key vars and a subset of years
+ga_enrollment_small = (
+    ga_enrollment
+      [["year", "contract_id", "plan_id", "county", "enrollment"]]
+      .loc[(ga_enrollment["year"] >= 2015) & (ga_enrollment["enrollment"] > 0)]
+)
+```
+:::
+
+- This kind of early trimming makes later manipulation and merging much easier
+
+
+## Creating and transforming variables
+
+- Cleaning usually involves new variables: indicators, logs, categories
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+ga_enrollment_clean <- ga_enrollment_small %>%
+  mutate(
+    log_enrollment = log(enrollment),
+    rural          = if_else(county_type == "Rural", 1L, 0L),
+    year_factor    = factor(year)
+  )
+```
+
+### Python
+
+```{python}
+#| eval: false
+ga_enrollment_clean = ga_enrollment_small.copy()
+ga_enrollment_clean["log_enrollment"] = np.log(ga_enrollment_clean["enrollment"])
+ga_enrollment_clean["rural"] = (ga_enrollment_clean["county_type"] == "Rural").astype(int)
+ga_enrollment_clean["year_factor"] = ga_enrollment_clean["year"].astype("category")
+```
+:::
+
+- Aim is to get variables into forms that line up with the models you’ll eventually estimate
+
+
+## Handling missing and implausible values
+
+- Cleaning also means dealing with **missing** and **nonsense** values
+  - Drop rows where key variables are missing
+  - Recode clearly impossible values (e.g., negative enrollment) to `NA` and then decide what to do
+
+::: {.panel-tabset}
+### R
+
+```{r}
+#| eval: false
+ga_enrollment_checked <- ga_enrollment_clean %>%
+  mutate(
+    enrollment = if_else(enrollment < 0, NA_real_, enrollment)
+  ) %>%
+  filter(!is.na(enrollment), !is.na(contract_id))
+```
+
+### Python
+
+```{python}
+#| eval: false
+ga_enrollment_checked = ga_enrollment_clean.copy()
+
+# Recode negative enrollment as missing
+ga_enrollment_checked.loc[
+    ga_enrollment_checked["enrollment"] < 0,
+    "enrollment"
+] = pd.NA
+
+# Drop rows missing key fields
+ga_enrollment_checked = ga_enrollment_checked.dropna(
+    subset=["enrollment", "contract_id"]
+)
+```
+:::
+
+- These are judgment calls; the key is to make them **explicit** and reproducible in code
+
+# Merging and Reshaping Data
+
+## Why merge and reshape?
+
+- In practice, data rarely arrive as a single, perfect table
+- You’ll often need to:
+  - **Merge** information across multiple files (contracts, enrollment, service areas)
+  - **Stack** or **Append** similar datasets (e.g., multiple years)
+  - **Reshape** between wide and long formats for analysis
+- Core idea in both R and Python: work with **keys/IDs** and be explicit about how you join
+
+
+## Merging tables with keys
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+
+# Merge enrollment with contract-level info
+ga_enroll_contract <- ga_enrollment |>
+  left_join(
+    ga_contract,
+    by = c("contract_id", "year")
+  )
+
+# Add service area info
+ga_enroll_full <- ga_enroll_contract |>
+  left_join(
+    ga_service,
+    by = c("contract_id", "plan_id", "county", "year")
+  )
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Merge enrollment with contract-level info
+ga_enroll_contract = ga_enrollment.merge(
+    ga_contract,
+    on=["contract_id", "year"],
+    how="left"
+)
+
+# Add service area info
+ga_enroll_full = ga_enroll_contract.merge(
+    ga_service,
+    on=["contract_id", "plan_id", "county", "year"],
+    how="left"
+)
+```
+
+:::
+
+- **`left_join` / `how="left"`**: keep all rows from the “main” table, match where possible
+- Other options (for later):
+  - `inner_join` / `how="inner"`: only rows with matches in both tables
+  - `full_join` / `how="outer"`: keep everything; fill with missing where there’s no match
+- Always check row counts **before and after** merges and be careful with duplicated keys (many-to-many joins)
+
+
+## Stacking (binding) multiple datasets
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+library(purrr)
+library(readr)
+
+years <- 2015:2018
+
+ga_enrollment_multi <- map_dfr(
+  years,
+  ~ read_csv(paste0("data/output/ma-snippets/ga-enrollment-", .x, ".csv")) |>
+      mutate(year = .x)
+)
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+years = list(range(2015, 2019))
+
+frames = []
+for y in years:
+    df_y = pd.read_csv(f"data/output/ma-snippets/ga-enrollment-{y}.csv")
+    df_y["year"] = y
+    frames.append(df_y)
+
+ga_enrollment_multi = pd.concat(frames, ignore_index=True)
+```
+
+:::
+
+- Use `bind_rows()` / `pd.concat()` when you have:
+  - The **same columns** across files
+  - Different time periods or subsets (e.g., one CSV per year)
+- Result is one longer dataset that’s easier to work with in analysis
+
+
+## Reshaping: wide vs long
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+library(tidyr)
+
+# Aggregate enrollment by contract and year
+ga_contract_year <- ga_enrollment |>
+  group_by(contract_id, year) |>
+  summarise(
+    total_enrollment = sum(enrollment, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Long → wide: years as columns
+ga_contract_wide <- ga_contract_year |>
+  pivot_wider(
+    names_from = year,
+    values_from = total_enrollment,
+    names_prefix = "enroll_"
+  )
+
+# Wide → long: back to year/enrollment columns
+ga_contract_long <- ga_contract_wide |>
+  pivot_longer(
+    cols = starts_with("enroll_"),
+    names_to = "year",
+    names_prefix = "enroll_",
+    values_to = "total_enrollment"
+  ) |>
+  mutate(year = as.integer(year))
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Aggregate enrollment by contract and year
+ga_contract_year = (
+    ga_enrollment
+      .groupby(["contract_id", "year"], as_index=False)
+      .agg(total_enrollment=("enrollment", "sum"))
+)
+
+# Long → wide: years as columns
+ga_contract_wide = ga_contract_year.pivot(
+    index="contract_id",
+    columns="year",
+    values="total_enrollment"
+).add_prefix("enroll_").reset_index()
+
+# Wide → long: back to year/enrollment columns
+ga_contract_long = ga_contract_wide.melt(
+    id_vars="contract_id",
+    var_name="year",
+    value_name="total_enrollment"
+)
+
+# Strip prefix and convert year to int
+ga_contract_long["year"] = (
+    ga_contract_long["year"].str.replace("enroll_", "", regex=False).astype(int)
+)
+```
+
+:::
+
+## When to reshape?
+
+- You might want **wide** data when:
+  - Fitting models that expect one row per unit and many time-typed columns
+  - Making certain tables or plots
+- You want **long** data when:
+  - Working with panel / time series methods (one row per unit–time)
+  - Using most tidyverse/pandas tools, which like one observation per row
+- The key is to know your **unit of observation** and reshape accordingly
+
+# Saving Data and Output
+
+## Principles for saving data
+
+- **Never overwrite raw data**
+  - Read from something like `data/input/` or `data/raw/`
+  - Write cleaned/analytic files to `data/output/` or `data/clean/`
+- Use **clear filenames** and avoid spaces:
+  - e.g., `ga-enrollment-clean.csv`, `ga-enrollment-analysis.rds`
+
+
+## Saving cleaned data to CSV
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+library(readr)
+
+# Save cleaned enrollment data as CSV
+write_csv(
+  ga_enrollment_checked,
+  "data/output/ma-snippets/ga-enrollment-clean.csv"
+)
+```
+
+### Python
+
+```{python}
+#| eval: false
+import pandas as pd
+
+# Save cleaned enrollment data as CSV
+ga_enrollment_checked.to_csv(
+    "data/output/ma-snippets/ga-enrollment-clean.csv",
+    index=False
+)
+```
+
+:::
+
+- CSV is:
+  - Human-readable
+  - Easy to open in other software (Excel, Stata, etc.)
+  - A good default for sharing
+
+
+## Saving in native formats
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+# Save as R object (preserves types and attributes)
+saveRDS(
+  ga_enrollment_checked,
+  "data/output/ma-snippets/ga-enrollment-clean.rds"
+)
+
+# Later: read it back in
+ga_enrollment_checked <- readRDS(
+  "data/output/ma-snippets/ga-enrollment-clean.rds"
+)
+```
+
+### Python
+
+```{python}
+#| eval: false
+# Save as a pickle (Python-native)
+ga_enrollment_checked.to_pickle(
+    "data/output/ma-snippets/ga-enrollment-clean.pkl"
+)
+
+# Later: read it back in
+ga_enrollment_checked = pd.read_pickle(
+    "data/output/ma-snippets/ga-enrollment-clean.pkl"
+)
+```
+
+:::
+
+- Native formats:
+  - Preserve more detail (types, categories)
+  - Are faster to read/write
+  - But are **less portable** across languages/software
+
+
+## Saving model output / summaries
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: false
+library(dplyr)
+library(readr)
+
+# Example: summary table by year and rural status
+enroll_summary <- ga_enrollment_checked |>
+  group_by(year, rural) |>
+  summarise(
+    avg_enrollment = mean(enrollment, na.rm = TRUE),
+    n_plans        = n(),
+    .groups        = "drop"
+  )
+
+write_csv(
+  enroll_summary,
+  "data/output/ma-snippets/enroll-summary-by-year-rural.csv"
+)
+```
+
+### Python
+
+```{python}
+#| eval: false
+enroll_summary = (
+    ga_enrollment_checked
+      .groupby(["year", "rural"], as_index=False)
+      .agg(
+          avg_enrollment=("enrollment", "mean"),
+          n_plans=("enrollment", "size")
+      )
+)
+
+enroll_summary.to_csv(
+    "data/output/ma-snippets/enroll-summary-by-year-rural.csv",
+    index=False
+)
+```
+
+:::
+
+- Often you’ll save:
+  - Cleaned **datasets**
+  - Key **summary tables** used in papers or reports
+  - (Optionally) model outputs in a compact format
 

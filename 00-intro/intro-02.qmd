@@ -1,5 +1,5 @@
 ---
-title: "Software Setup"
+title: "Workflow and Version Control"
 author: "Ian McCarthy | Emory University"
 format: 
   revealjs:
@@ -20,47 +20,49 @@ execute:
 #| include: false
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, reticulate)
+               hrbrthemes, gganimate, OECD, here, reticulate, purrr)
 ```
 
-## Software Installation
+## Outline for Today
+
+1. Basic Software Requirements
+2. Understanding Version Control
+3. Folder Structure and Gitignore
+4. Symbolic Links
+5. Practice
+
+# Software Requirements
+
+## Steps
 
 1. Download [R](https://www.r-project.org/) and/or [Python](https://www.python.org/)
 2. Download [Visual Studio Code](https://code.visualstudio.com/)
 3. Download [Git](https://git-scm.com/downloads)
 4. Create an account on [GitHub](https://github.com/)
 5. Download [GitHub Desktop](https://desktop.github.com/download/), [authenticate](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/authenticating-to-github-in-github-desktop) your account, and [configure](https://docs.github.com/en/desktop/configuring-and-customizing-github-desktop/configuring-git-for-github-desktop) Git for GitHub Desktop
-
----
-
-## Checklist
-
-- Do you have the most recent version of R?
-```{r}
-version$version.string
-```
-
-- What version of Python do you have?
-```{python}
-import sys
-print(f"Python version: {sys.version}")
-```
-
-
-- Have you installed the proper extensions in VS Code?
+6. Ensure proper extensions in VS Code...
   - GitHub Copilot and GitHub Copilot Chat
   - Python and Jupyter
   - Quarto
   - R and R Extension Pack
 
+## Checklist (for R)
 
-- If using R, have you updated all of your R packages? 
+1. Download [R](https://www.r-project.org/)
+2. Install R Extension Pack in VS Code
+
+- Confirm R Version
+```{r}
+version$version.string
+```
+
+- Update R Packages
+
 ```{r, eval=FALSE}
 update.packages(ask = FALSE, checkBuilt = TRUE, repos='https://cran.us.r-project.org')
 ```
   
 
----
 
 ## Checklist (for Python)
 
@@ -71,10 +73,14 @@ update.packages(ask = FALSE, checkBuilt = TRUE, repos='https://cran.us.r-project
    - Click on the Python interpreter selector in the bottom-left corner of the VS Code window (or use `Ctrl+Shift+P` and search for **"Python: Select Interpreter"**).
 4. Install python libraries, `pip install <library>` from terminal
 
+- Confirm Python version:
+```{python}
+import sys
+print(f"Python version: {sys.version}")
+```
 
----
 
-## Checklist 
+## Checklist (for Git)
 
 - Which version of Git have you installed?
 ```{bash}
@@ -88,23 +94,12 @@ git --version
 
 
 
+# Basics of Version Control
 
-# Practice with Git, GitHub, VS Code, and GitHub Desktop
-
-
----
-
-1. Start a repository on GitHub
-2. Clone repository to your local computer
-3. Create a basic folder structure
-4. Create a ReadMe and a gitignore file in VS Code
-5. Commit changes to git
-6. Push changes to GitHub
+- [Git Intro](https://git-scm.com/video/what-is-version-control)
 
 
----
-
-## Some common mistakes for windows users
+## Heads up
 
 - Windows folders are *not* files...there is no content without a file. You can't commit or push changes without content.
 - If you're working across devices on your own repo, be sure to pull before starting and push afterward.
@@ -112,8 +107,6 @@ git --version
 
 >*"A space in a file name is a space in your soul."*
 
-
----
 
 ## Ideal workflow
 
@@ -124,7 +117,100 @@ Until you are a Git(Hub) expert...
 3. Set up structure and basic files
 
 
----
+# Folder Structure
+
+## Idea
+
+- Need a uniform structure that you can deploy across projects
+- For this class...we also need a good naming convention for assignments
+- Also need to optimize storage space and avoid pushing things that shouldn't be under version control
+  - e.g., large data sets or documents with significant "code overhead"
+
+
+## File paths
+
+- Two types of file paths:
+  - Absolute paths, like `C:\Users\username\projects\...`
+  - Relative paths, like `data/code/...`
+
+- Slashes...
+  - Windows defaults to backslash `\` but can understand forward slashes `/`. Reason is historic related to forward slash already being taken in MS-DOS for command line options.
+  - Mac and Linux (basically everything else) uses forward slashes by default.
+  - So...use forward slashes in your file paths
+
+- Some relative path tricks
+  - a new slash `/` implies a subfolder or subdirectory
+  - `..` says go "up" one level into an outer directory. e.g., `../data` would say to go out of the current folder into it's outer directory and then back to the other `data` subdirectory
+
+## Why use a `.gitignore`?
+
+- Keeps *unnecessary* or *sensitive* files out of version control
+- Located in initial directory of project
+- Avoids cluttering your repo with:
+  - Large generated files
+  - Machine-specific files
+  - Temporary or secret files (e.g., tokens, API keys)
+
+## Examples of files to ignore
+
+- Editor / IDE files
+  - `.Rproj.user/`, `.Rhistory`, `.RData`
+  - `.vscode/`, `.DS_Store`
+  - These things change constantly and are machine specific
+
+- Large or generated data files or entire folders
+  - `data/output/`
+  - `*.log`
+  - `*.tmp`
+
+## gitignore example
+
+```gitignore
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Generated data / logs
+data/output/
+*.log
+*.tmp
+
+# Quarto build files
+*_files/
+*_cache/
+_freeze/
+
+```
+
+## gitignore and large data analysis
+
+We need to be careful with version control when working with large datasets:
+
+- Definitely add raw data folder(s) to `.gitignore`
+- What about `.ipynb` files?
+  - Tend to embed images and other outputs into the notebook (not what you want under version control)
+  - Be sure to "Clear All Outputs" before commit (or use `jupytext` to do this automatically)
+  - One reason why separating analysis from output/presentation is good practice
+
+## Analysis versus "presentation"
+
+- With large datasets, keep a **data/analysis layer** (scripts, notebooks, pipelines)  
+  - Reads/wrangles data  
+  - Produces cleaned data, tables, and figures as outputs
+
+- Keep a separate **presentation layer** (Quarto/LaTeX/qmd)  
+  - Uses the *outputs* (tables, figures, summaries)  
+  - Does **not** store heavy data or binary state
+
+- Tools like **Jupytext** follow this principle  
+  - Strip outputs / state  
+  - Store only the **code and structure** in plain text for version control
+
 
 ## Recommended Structure
 
@@ -151,3 +237,45 @@ homework1
 |   |   mccarthy-i-hwk1-2.pdf
 |
 ```
+
+
+# Symbolic links
+
+
+## What is a symbolic link?
+
+- Symbolic link **points** to another file or folder  
+- Lets you use the **same data across projects** without copying it  
+- Changes to the original data are visible everywhere the link is used  
+
+
+## Examples
+
+In macOS/Linux:
+```bash
+ln -s /Users/username/data/claims_100pct \
+      /Users/username/projects/ma-project/data
+```
+- First path is the real data folder
+- Second path is the location of the new link
+
+
+Windows:
+```bat
+mklink /D "C:\projects\ma-project\data" "D:\shared\data\claims_100pct"
+```
+- `/D` creates a directory (e.g., entire folder instead of a file)
+- First path is the location of the new link
+- Second path is the real data folder
+
+
+
+# Practice!
+
+1. Start a repository on GitHub
+2. Clone repository to your local computer
+3. Create a basic folder structure
+4. Create a ReadMe and a gitignore file in VS Code
+5. Create symbolic link
+6. Commit changes to git
+7. Push changes to GitHub

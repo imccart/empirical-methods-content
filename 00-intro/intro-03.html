@@ -11,7 +11,7 @@
   <meta name="generator" content="quarto-1.5.57">
 
   <meta name="author" content="Ian McCarthy | Emory University">
-  <title>Introduction to Causal Inference</title>
+  <title>Basics of Data Management</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -393,7 +393,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Introduction to Causal Inference</h1>
+  <h1 class="title">Basics of Data Management</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -404,295 +404,736 @@ Ian McCarthy | Emory University
 </div>
 
 </section>
-<section id="why-causal-inference" class="slide level2">
-<h2>Why causal inference?</h2>
-<div class="cell" data-layout-align="center">
-<details class="code-fold">
-<summary>R Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">ggplot</span>(<span class="at">data =</span> (dartmouth.data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Year<span class="sc">==</span><span class="dv">2015</span>)), </span>
-<span id="cb1-2"><a href=""></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Expenditures, <span class="at">y =</span> Total_Mortality)) <span class="sc">+</span> </span>
-<span id="cb1-3"><a href=""></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">label =</span> comma) <span class="sc">+</span></span>
-<span id="cb1-4"><a href=""></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="at">se=</span><span class="cn">FALSE</span>, <span class="at">color=</span><span class="st">"blue"</span>, <span class="at">size=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb1-5"><a href=""></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Spending Per Capita ($US)"</span>,</span>
-<span id="cb1-6"><a href=""></a>       <span class="at">y =</span> <span class="st">"Mortality Rate"</span>,</span>
-<span id="cb1-7"><a href=""></a>       <span class="at">title =</span> <span class="st">"Mortality and Health Care Spending"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-
-</div>
-<img data-src="intro-03_files/figure-revealjs/unnamed-chunk-3-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
-<section id="why-causal-inference-1" class="slide level2">
-<h2>Why causal inference?</h2>
-<p>Another example: <strong>What price should we charge for a night in a hotel?</strong></p>
-<div class="fragment">
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>Machine Learning</strong></p>
-<ul>
-<li>Focuses on prediction</li>
-<li>High prices are strongly correlated with higher sales</li>
-<li>Increase prices to attract more people?</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<p><strong>Causal Inference</strong></p>
-<ul>
-<li>Focuses on <strong>counterfactuals</strong></li>
-<li>What would sales look like if prices were higher?</li>
-</ul>
-</div></div>
-</div>
-</section>
-<section id="goal-of-causal-inference" class="slide level2">
-<h2>Goal of Causal Inference</h2>
-<ul>
-<li><strong>Goal:</strong> Estimate effect of some policy or program</li>
-<li>Key building block for causal inference is the idea of <strong>potential outcomes</strong></li>
-</ul>
-</section>
-<section id="some-notation" class="slide level2">
-<h2>Some notation</h2>
-<p><strong>Treatment</strong> <span class="math inline">\(D_{i}\)</span></p>
-<p><span class="math display">\[D_{i}=\begin{cases}
-1 \text{ with treatment} \\
-0 \text{ without treatment}
-\end{cases}\]</span></p>
-</section>
-<section id="some-notation-1" class="slide level2">
-<h2>Some notation</h2>
-<p><strong>Potential outcomes</strong></p>
-<ul>
-<li><span class="math inline">\(Y_{1i}\)</span> is the potential outcome for unit <span class="math inline">\(i\)</span> with treatment</li>
-<li><span class="math inline">\(Y_{0i}\)</span> is the potential outcome for unit <span class="math inline">\(i\)</span> without treatment</li>
-</ul>
-</section>
-<section id="some-notation-2" class="slide level2">
-<h2>Some notation</h2>
-<p><strong>Observed outcome</strong></p>
-<p><span class="math display">\[Y_{i}=Y_{1i} \times D_{i} + Y_{0i} \times (1-D_{i})\]</span> or</p>
-<p><span class="math display">\[Y_{i}=\begin{cases}
-Y_{1i} \text{ if } D_{i}=1 \\
-Y_{0i} \text{ if } D_{i}=0
-\end{cases}\]</span></p>
-
-<aside><div>
-<p>Assumes <strong>SUTVA</strong> (stable unit treatment value assumption)…no interference across units</p>
-</div></aside></section>
-<section id="example-of-potential-outcomes" class="slide level2">
-<h2>Example of “Potential Outcomes”</h2>
-<div class="columns">
-<div class="column" style="width:40%;">
-<p><img data-src="../images/EmoryPicture.jpg"></p>
-<p><span class="math inline">\(Y_{1}\)</span>= $75,000</p>
-</div><div class="column" style="width:40%;">
-<p><img data-src="../images/UNTPicture.jpg"></p>
-<p><span class="math inline">\(Y_{0}\)</span>= $60,000</p>
-</div></div>
-<div class="fragment">
-<p>Single-year earnings due to Emory = <span class="math inline">\(Y_{1}-Y_{0}\)</span> = $15,000</p>
-</div>
-</section>
-<section id="example-of-potential-outcomes-1" class="slide level2">
-<h2>Example of “Potential Outcomes”</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="../images/EmoryPicture.jpg"></p>
-<p><span class="math inline">\(Y_{1}\)</span>= $75,000</p>
-</div><div class="column" style="width:50%;">
-<p><img data-src="../images/UNTPicture.jpg"></p>
-<p><span class="math inline">\(Y_{0}\)</span>= ?</p>
-</div></div>
-<div class="fragment">
-<p>Earnings due to Emory = <span class="math inline">\(Y_{1}-Y_{0}\)</span> = ?</p>
-</div>
-</section>
-<section id="do-we-ever-observe-the-potential-outcomes" class="slide level2">
-<h2>Do we ever observe the potential outcomes?</h2>
-
-<img data-src="https://media.giphy.com/media/zZeCRfPyXi9UI/giphy.gif" class="r-stretch"><div class="fragment">
-<p>Without a time machine…not possible to get <em>individual</em> effects.</p>
-</div>
-</section>
-<section id="fundamental-problem-of-causal-inference" class="slide level2">
-<h2>Fundamental Problem of Causal Inference</h2>
-<ul>
-<li>We don’t observe the counterfactual outcome…what would have happened if a treated unit was actually untreated.</li>
-<li><em>ALL</em> attempts at causal inference represent some attempt at estimating the counterfactual outcome. We need an estimate for <span class="math inline">\(Y_{0}\)</span> among those that were treated, and vice versa for <span class="math inline">\(Y_{1}\)</span>.</li>
-</ul>
+<section id="outline-for-today" class="slide level2">
+<h2>Outline for Today</h2>
+<ol type="1">
+<li>Loading Data</li>
+<li>Looking at Your Data</li>
+<li>Cleaning Data</li>
+<li>Merging and Reshaping Data</li>
+<li>Saving Data and Output</li>
+</ol>
 </section>
 <section>
-<section id="average-treatment-effects" class="title-slide slide level1 center">
-<h1>Average Treatment Effects</h1>
+<section id="loading-data" class="title-slide slide level1 center">
+<h1>Loading Data</h1>
 
 </section>
-<section id="different-treatment-effects" class="slide level2">
-<h2>Different treatment effects</h2>
-<p>Tend to focus on <strong>averages</strong>:</p>
+<section id="common-file-types-and-functions" class="slide level2">
+<h2>Common file types and functions</h2>
 <ul>
-<li><strong>ATE</strong>: <span class="math inline">\(\delta_{ATE} = E[ Y_{1} - Y_{0}]\)</span></li>
-<li><strong>ATT</strong>: <span class="math inline">\(\delta_{ATT} = E[ Y_{1} - Y_{0} | D=1]\)</span></li>
-<li><strong>ATU</strong>: <span class="math inline">\(\delta_{ATU} = E[ Y_{1} - Y_{0} | D=0]\)</span></li>
+<li>Most common formats you’ll see in this course:
+<ul>
+<li><strong>CSV/TSV</strong>: <code>.csv</code>, <code>.tsv</code></li>
+<li><strong>Excel</strong>: <code>.xlsx</code>, <code>.xls</code></li>
+</ul></li>
+<li>We’ll use tidyverse-friendly readers in R and pandas in Python:
+<ul>
+<li>R: <code>readr::read_csv()</code>, <code>readr::read_tsv()</code>, <code>readxl::read_excel()</code></li>
+<li>Python: <code>pandas.read_csv()</code>, <code>pandas.read_excel()</code></li>
+</ul></li>
+<li>Assumption: your working directory is set so that the <strong>relative paths</strong> below work</li>
 </ul>
-
-<aside><div>
-<p>or similar measures such as medians or quantiles</p>
-</div></aside></section>
-<section id="average-treatment-effects-1" class="slide level2">
-<h2>Average Treatment Effects</h2>
+</section>
+<section id="examples-for-csv-files" class="slide level2">
+<h2>Examples for CSV files</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">R</a></li><li><a href="#tabset-1-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-2"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href=""></a></span>
+<span id="cb1-4"><a href=""></a><span class="co"># Medicare Advantage enrollment (Georgia)</span></span>
+<span id="cb1-5"><a href=""></a>ga_enrollment <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/output/ma-snippets/ga-enrollment.csv"</span>)</span>
+<span id="cb1-6"><a href=""></a></span>
+<span id="cb1-7"><a href=""></a><span class="co"># Medicare Advantage contracts (Georgia)</span></span>
+<span id="cb1-8"><a href=""></a>ga_contract   <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/output/ma-snippets/ga-contract.csv"</span>)</span>
+<span id="cb1-9"><a href=""></a></span>
+<span id="cb1-10"><a href=""></a><span class="co"># Medicare Advantage service areas (Georgia)</span></span>
+<span id="cb1-11"><a href=""></a>ga_service    <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/output/ma-snippets/ga-service-area.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-1-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-2"><a href=""></a></span>
+<span id="cb2-3"><a href=""></a><span class="co"># Medicare Advantage enrollment (Georgia)</span></span>
+<span id="cb2-4"><a href=""></a>ga_enrollment <span class="op">=</span> pd.read_csv(<span class="st">"data/output/ma-snippets/ga-enrollment.csv"</span>)</span>
+<span id="cb2-5"><a href=""></a></span>
+<span id="cb2-6"><a href=""></a><span class="co"># Medicare Advantage contracts (Georgia)</span></span>
+<span id="cb2-7"><a href=""></a>ga_contract   <span class="op">=</span> pd.read_csv(<span class="st">"data/output/ma-snippets/ga-contract.csv"</span>)</span>
+<span id="cb2-8"><a href=""></a></span>
+<span id="cb2-9"><a href=""></a><span class="co"># Medicare Advantage service areas (Georgia)</span></span>
+<span id="cb2-10"><a href=""></a>ga_service    <span class="op">=</span> pd.read_csv(<span class="st">"data/output/ma-snippets/ga-service-area.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
 <ul>
-<li><strong>Estimand</strong>: <span class="math display">\[\delta_{ATE} = E[Y_{1} - Y_{0}] = E[Y | D=1] - E[Y | D=0]\]</span></li>
-<li><strong>Estimate</strong>: <span class="math display">\[\hat{\delta}_{ATE} = \frac{1}{N_{1}} \sum_{D_{i}=1} Y_{i} - \frac{1}{N_{0}} \sum_{D_{i}=0} Y_{i},\]</span> where <span class="math inline">\(N_{1}\)</span> is number of treated and <span class="math inline">\(N_{0}\)</span> is number untreated (control)</li>
-<li>With random assignment and equal groups, inference/hypothesis testing with standard two-sample t-test</li>
+<li>Each call to <code>read_csv()</code> / <code>pd.read_csv()</code>:
+<ul>
+<li>Reads a CSV file from <code>data/output/ma-snippets/</code></li>
+<li>Returns a tibble / DataFrame you can work with</li>
+<li>Stores it in an object (<code>ga_enrollment</code>, <code>ga_contract</code>, <code>ga_service</code>)</li>
+</ul></li>
+</ul>
+</section>
+<section id="example-loading-excel-files-for-comparison" class="slide level2">
+<h2>Example: loading Excel files (for comparison)</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">R</a></li><li><a href="#tabset-2-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(readxl)</span>
+<span id="cb3-2"><a href=""></a></span>
+<span id="cb3-3"><a href=""></a><span class="co"># Suppose we had an Excel version of the enrollment data</span></span>
+<span id="cb3-4"><a href=""></a>ga_enrollment_xlsx <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data/output/ma-snippets/ga-enrollment.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-2-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href=""></a></span>
+<span id="cb4-3"><a href=""></a><span class="co"># Suppose we had an Excel version of the enrollment data</span></span>
+<span id="cb4-4"><a href=""></a>ga_enrollment_xlsx <span class="op">=</span> pd.read_excel(<span class="st">"data/output/ma-snippets/ga-enrollment.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Same pattern, but use <code>read_excel()</code> / <code>pd.read_excel()</code> for <code>.xlsx</code> files</li>
+<li>Once loaded, you work with <code>ga_enrollment_xlsx</code> like any other data frame / DataFrame</li>
 </ul>
 </section></section>
 <section>
-<section id="problem-of-non-random-assignment" class="title-slide slide level1 center">
-<h1>Problem of non-random assignment</h1>
+<section id="looking-at-your-data" class="title-slide slide level1 center">
+<h1>Looking at Your Data</h1>
 
 </section>
-<section id="selection-bias" class="slide level2">
-<h2>Selection bias</h2>
+<section id="first-checks-after-loading" class="slide level2">
+<h2>First checks after loading</h2>
 <ul>
-<li>Assume (for simplicity) constant effects, <span class="math inline">\(Y_{1i}=Y_{0i} + \delta\)</span></li>
-<li>Since we don’t observe <span class="math inline">\(Y_{0}\)</span> and <span class="math inline">\(Y_{1}\)</span>, we have to use the observed outcomes, <span class="math inline">\(Y_{i}\)</span></li>
-</ul>
-<p><span class="math display">\[\begin{align}
-E[Y_{i} | D_{i}=1] &amp;- E[Y_{i} | D_{i}=0] \\
-=&amp; E[Y_{1i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \\
-=&amp; \delta + E[Y_{0i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \\
-=&amp; \text{ATE } + \text{ Selection Bias}
-\end{align}\]</span></p>
-</section>
-<section id="selection-bias-1" class="slide level2">
-<h2>Selection bias</h2>
+<li>After you load a dataset, always do a few quick checks:
 <ul>
-<li>Selection bias means <span class="math inline">\(E[Y_{0i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \neq 0\)</span></li>
-<li>In words, the potential outcome without treatment, <span class="math inline">\(Y_{0i}\)</span>, is different between those that ultimately did and did not receive treatment.</li>
-<li>e.g., treated group was going to be better on average even without treatment (higher wages, healthier, etc.)</li>
+<li>What type of object is it?</li>
+<li>How many rows and columns?</li>
+<li>What do the first few rows look like?</li>
+</ul></li>
 </ul>
-</section>
-<section id="selection-bias-2" class="slide level2">
-<h2>Selection bias</h2>
-<ul>
-<li>How to “remove” selection bias?</li>
-<li>How about random assignment?</li>
-<li>In this case, treatment assignment doesn’t tell us anything about <span class="math inline">\(Y_{0i}\)</span> <span class="math display">\[E[Y_{0i}|D_{i}=1] = E[Y_{0i}|D_{i}=0],\]</span> such that <span class="math display">\[E[Y_{i}|D_{i}=1] - E[Y_{i} | D_{i}=0] = \delta_{ATE} = \delta_{ATT} = \delta_{ATU}\]</span></li>
-</ul>
-</section>
-<section id="selection-bias-3" class="slide level2">
-<h2>Selection bias</h2>
-<ul>
-<li>Without random assignment, there’s a high probability that <span class="math display">\[E[Y_{0i}|D_{i}=1] \neq E[Y_{0i}|D_{i}=0]\]</span></li>
-<li>i.e., outcomes without treatment are different for the treated group</li>
-</ul>
-</section>
-<section id="omitted-variables-bias" class="slide level2">
-<h2>Omitted variables bias</h2>
-<ul>
-<li>In a regression setting, selection bias is the same problem as omitted variables bias (OVB)</li>
-<li>Quick review: Goal of OLS is to find <span class="math inline">\(\hat{\beta}\)</span> to “best fit” the linear equation <span class="math inline">\(y_{i} = \alpha + x_{i} \beta + \epsilon_{i}\)</span></li>
-</ul>
-</section>
-<section id="regression-review" class="slide level2">
-<h2>Regression review</h2>
-<p><span class="math display">\[\begin{align}
-\min_{\beta} &amp; \sum_{i=1}^{N} \left(y_{i} - \alpha - x_{i} \beta\right)^{2}  = \min_{\beta} \sum_{i=1}^{N} \left(y_{i} - (\bar{y} - \bar{x}\beta) - x_{i} \beta\right)^{2}\\
-0 &amp;= \sum_{i=1}^{N} \left(y_{i} - \bar{y} - (x_{i} - \bar{x})\hat{\beta} \right)(x_{i} - \bar{x}) \\
-0 &amp;= \sum_{i=1}^{N} (y_{i} - \bar{y})(x_{i} - \bar{x}) - \hat{\beta} \sum_{i=1}^{N}(x_{i} - \bar{x})^{2} \\
-\hat{\beta} &amp;= \frac{\sum_{i=1}^{N} (y_{i} - \bar{y})(x_{i} - \bar{x})}{\sum_{i=1}^{N} (x_{i} - \bar{x})^{2}} = \frac{Cov(y,x)}{Var(x)}
-\end{align}\]</span></p>
-</section>
-<section id="omitted-variables-bias-1" class="slide level2">
-<h2>Omitted variables bias</h2>
-<ul>
-<li>Interested in estimate of the effect of schooling on wages <span class="math display">\[Y_{i} = \alpha + \beta s_{i} + \gamma A_{i} + \epsilon_{i}\]</span></li>
-<li>But we don’t observe ability, <span class="math inline">\(A_{i}\)</span>, so we estimate <span class="math display">\[Y_{i} = \alpha + \beta s_{i} + u_{i}\]</span></li>
-<li>What is our estimate of <span class="math inline">\(\beta\)</span> from this regression?</li>
-</ul>
-</section>
-<section id="omitted-variables-bias-2" class="slide level2">
-<h2>Omitted variables bias</h2>
-<p><span class="math display">\[\begin{align}
-\hat{\beta} &amp;= \frac{Cov(Y_{i}, s_{i})}{Var(s_{i})} \\
-&amp;= \frac{Cov(\alpha + \beta s_{i} + \gamma A_{i} + \epsilon_{i}, s_{i})}{Var(s_{i})} \\
-&amp;= \frac{\beta Cov(s_{i}, s_{i}) + \gamma Cov(A_{i},s_{i}) + Cov(\epsilon_{i}, s_{i})}{Var(s_{i})}\\
-&amp;= \beta \frac{Var(s_{i})}{Var(s_{i})} + \gamma \frac{Cov(A_{i},s_{i})}{Var(s_{i})} + 0\\
-&amp;= \beta + \gamma \times \theta_{as}
-\end{align}\]</span></p>
-</section>
-<section id="removing-selection-bias-without-rct" class="slide level2">
-<h2>Removing selection bias without RCT</h2>
-<ul>
-<li>The field of causal inference is all about different strategies to remove selection bias</li>
-<li>The first strategy (really, assumption) in this class: <strong>selection on observables</strong> or <strong>conditional indpendence</strong></li>
-</ul>
-</section>
-<section id="intuition" class="slide level2">
-<h2>Intuition</h2>
-<ul>
-<li>Example: Does having health insurance, <span class="math inline">\(D_{i}=1\)</span>, improve your health relative to someone without health insurance, <span class="math inline">\(D_{i}=0\)</span>?</li>
-<li><span class="math inline">\(Y_{1i}\)</span> denotes health with insurance, and <span class="math inline">\(Y_{0i}\)</span> health without insurance (these are <strong>potential</strong> outcomes)</li>
-<li>In raw data, <span class="math inline">\([Y_{i} | D_{i}=1] &gt; E[Y_{i} | D_{i}=0]\)</span>, but is that causal?</li>
-</ul>
-</section>
-<section id="intuition-1" class="slide level2">
-<h2>Intuition</h2>
-<p>Some assumptions:</p>
-<ul>
-<li><span class="math inline">\(Y_{0i}=\alpha + \eta_{i}\)</span></li>
-<li><span class="math inline">\(Y_{1i} - Y_{0i} = \delta\)</span></li>
-<li>There is some set of “controls”, <span class="math inline">\(x_{i}\)</span>, such that <span class="math inline">\(\eta_{i} = \beta x_{i} + u_{i}\)</span> and <span class="math inline">\(E[u_{i} | x_{i}]=0\)</span> (conditional independence assumption, or CIA)</li>
-</ul>
-<div class="fragment">
-<p><span class="math display">\[\begin{align}
-Y_{i} &amp;= Y_{1i} \times D_{i} + Y_{0i} \times (1-D_{i}) \\
-&amp;= \delta D_{i} + Y_{0i} D_{i} + Y_{0i} - Y_{0i} D_{i} \\
-&amp;= \delta D_{i} + \alpha + \eta_{i} \\
-&amp;= \delta D_{i} + \alpha + \beta x_{i} + u_{i}
-\end{align}\]</span></p>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">R</a></li><li><a href="#tabset-3-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># Basic info about ga_enrollment</span></span>
+<span id="cb5-2"><a href=""></a><span class="fu">class</span>(ga_enrollment)</span>
+<span id="cb5-3"><a href=""></a><span class="fu">dim</span>(ga_enrollment)</span>
+<span id="cb5-4"><a href=""></a><span class="fu">nrow</span>(ga_enrollment)</span>
+<span id="cb5-5"><a href=""></a><span class="fu">ncol</span>(ga_enrollment)</span>
+<span id="cb5-6"><a href=""></a></span>
+<span id="cb5-7"><a href=""></a><span class="co"># Peek at the data</span></span>
+<span id="cb5-8"><a href=""></a><span class="fu">head</span>(ga_enrollment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-3-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a><span class="co"># Basic info about ga_enrollment</span></span>
+<span id="cb6-2"><a href=""></a><span class="bu">type</span>(ga_enrollment)</span>
+<span id="cb6-3"><a href=""></a>ga_enrollment.shape</span>
+<span id="cb6-4"><a href=""></a>ga_enrollment.shape[<span class="dv">0</span>]   <span class="co"># rows</span></span>
+<span id="cb6-5"><a href=""></a>ga_enrollment.shape[<span class="dv">1</span>]   <span class="co"># columns</span></span>
+<span id="cb6-6"><a href=""></a></span>
+<span id="cb6-7"><a href=""></a><span class="co"># Peek at the data</span></span>
+<span id="cb6-8"><a href=""></a>ga_enrollment.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
-<section id="ates-versus-regression-coefficients" class="slide level2">
-<h2>ATEs versus regression coefficients</h2>
+<section id="structure-and-summaries" class="slide level2">
+<h2>Structure and summaries</h2>
 <ul>
-<li>Estimating the regression equation, <span class="math display">\[Y_{i} = \alpha + \delta D_{i} + \beta x_{i} + u_{i}\]</span> provides a causal estimate of the effect of <span class="math inline">\(D_{i}\)</span> on <span class="math inline">\(Y_{i}\)</span></li>
-<li>But what does that really mean?</li>
+<li>Next: check variable names, types, and simple summaries</li>
+<li>Goal: spot obvious problems early (wrong types, strange ranges, lots of missing values)</li>
 </ul>
-</section>
-<section id="ates-vs-regression-coefficients" class="slide level2">
-<h2>ATEs vs regression coefficients</h2>
-<ul>
-<li><em>Ceteris paribus</em> (“with other conditions remaining the same”), a change in <span class="math inline">\(D_{i}\)</span> will lead to a change in <span class="math inline">\(Y_{i}\)</span> in the amount of <span class="math inline">\(\hat{\delta}\)</span></li>
-<li>But is <em>ceteris paribus</em> informative about policy?</li>
-</ul>
-</section>
-<section id="ates-vs-regression-coefficients-1" class="slide level2">
-<h2>ATEs vs regression coefficients</h2>
-<ul>
-<li><span class="math inline">\(Y_{1i} = Y_{0i} + \delta_{i} D_{i}\)</span> (allows for heterogeneous effects)</li>
-<li><span class="math inline">\(Y_{i} = \alpha + \beta D_{i} + \gamma X_{i} + \epsilon_{i}\)</span>, with <span class="math inline">\(Y_{0i}, Y_{1i} \perp\!\!\!\perp D_{i} | X_{i}\)</span></li>
-<li>Aronow and Samii, 2016, show that: <span class="math display">\[\hat{\beta} \rightarrow_{p} \frac{E[w_{i} \delta_{i}]}{E[w_{i}]},\]</span> where <span class="math inline">\(w_{i} = (D_{i} - E[D_{i} | X_{i}])^{2}\)</span></li>
-</ul>
-</section>
-<section id="ates-vs-regression-coefficients-2" class="slide level2">
-<h2>ATEs vs regression coefficients</h2>
-<ul>
-<li>Simplify to ATT and ATU</li>
-<li><span class="math inline">\(Y_{1i} = Y_{0i} + \delta_{ATT} D_{i} + \delta_{ATU} (1-D_{i})\)</span></li>
-<li><span class="math inline">\(Y_{i} = \alpha + \beta D_{i} + \gamma X_{i} + \epsilon_{i}\)</span>, with <span class="math inline">\(Y_{0i}, Y_{1i} \perp\!\!\!\perp D_{i} | X_{i}\)</span></li>
-</ul>
-<div class="fragment">
-<p><span class="math display">\[\begin{align}
-\beta = &amp; \frac{P(D_{i}=1) \times \pi (X_{i} | D_{i}=1) \times (1- \pi (X_{i} | D_{i}=1))}{\sum_{j=0,1} P(D_{i}=j) \times \pi (X_{i} | D_{i}=j) \times (1- \pi (X_{i} | D_{i}=j))} \delta_{ATU} \\
-&amp; + \frac{P(D_{i}=0) \times \pi (X_{i} | D_{i}=0) \times (1- \pi (X_{i} | D_{i}=0))}{\sum_{j=0,1} P(D_{i}=j) \times \pi (X_{i} | D_{i}=j) \times (1- \pi (X_{i} | D_{i}=j))} \delta_{ATT}
-\end{align}\]</span></p>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">R</a></li><li><a href="#tabset-4-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-2"><a href=""></a></span>
+<span id="cb7-3"><a href=""></a><span class="co"># Structure</span></span>
+<span id="cb7-4"><a href=""></a><span class="fu">glimpse</span>(ga_enrollment)</span>
+<span id="cb7-5"><a href=""></a></span>
+<span id="cb7-6"><a href=""></a><span class="co"># Basic numeric summaries</span></span>
+<span id="cb7-7"><a href=""></a><span class="fu">summary</span>(ga_enrollment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-4-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a><span class="co"># Structure (column names and types)</span></span>
+<span id="cb8-2"><a href=""></a>ga_enrollment.info()</span>
+<span id="cb8-3"><a href=""></a></span>
+<span id="cb8-4"><a href=""></a><span class="co"># Basic numeric summaries</span></span>
+<span id="cb8-5"><a href=""></a>ga_enrollment.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
-<section id="ates-vs-regression-coefficients-3" class="slide level2">
-<h2>ATEs vs regression coefficients</h2>
-<p>What does this mean?</p>
+<section id="what-to-look-for" class="slide level2">
+<h2>What to look for</h2>
 <ul>
-<li>OLS puts more weight on observations with treatment <span class="math inline">\(D_{i}\)</span> “unexplained” by <span class="math inline">\(X_{i}\)</span></li>
-<li>“Reverse” weighting such that the proportion of treated units are used to weight the ATU while the proportion of untreated units enter the weights of the ATT</li>
-<li>This is <em>an</em> average effect, but probably not the average we want</li>
+<li><strong>Ranges and typical values</strong>
+<ul>
+<li>Are there negative ages, impossible years, or absurd enrollment counts?</li>
+</ul></li>
+<li><strong>Missingness</strong>
+<ul>
+<li>Are key variables mostly missing? Are there patterns (e.g., missing only in some years)?</li>
+</ul></li>
+<li><strong>Outliers</strong>
+<ul>
+<li>A few very large or very small values that might be data errors</li>
+</ul></li>
+<li><strong>Types</strong>
+<ul>
+<li>Are IDs/codes stored as strings? Are dates actually dates?</li>
+</ul></li>
+</ul>
+</section>
+<section id="simple-summaries-and-counts" class="slide level2">
+<h2>Simple summaries and counts</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">R</a></li><li><a href="#tabset-5-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-2"><a href=""></a></span>
+<span id="cb9-3"><a href=""></a><span class="co"># How many plans per year?</span></span>
+<span id="cb9-4"><a href=""></a>ga_enrollment <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href=""></a>  <span class="fu">count</span>(year)</span>
+<span id="cb9-6"><a href=""></a></span>
+<span id="cb9-7"><a href=""></a><span class="co"># Average enrollment by year</span></span>
+<span id="cb9-8"><a href=""></a>ga_enrollment <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href=""></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href=""></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-11"><a href=""></a>    <span class="at">avg_enrollment =</span> <span class="fu">mean</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-12"><a href=""></a>    <span class="at">n_plans        =</span> <span class="fu">n</span>()</span>
+<span id="cb9-13"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-5-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a><span class="co"># How many plans per year?</span></span>
+<span id="cb10-2"><a href=""></a>ga_enrollment.groupby(<span class="st">"year"</span>).size()</span>
+<span id="cb10-3"><a href=""></a></span>
+<span id="cb10-4"><a href=""></a><span class="co"># Average enrollment by year</span></span>
+<span id="cb10-5"><a href=""></a>ga_enrollment.groupby(<span class="st">"year"</span>).agg(</span>
+<span id="cb10-6"><a href=""></a>    avg_enrollment<span class="op">=</span>(<span class="st">"enrollment"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb10-7"><a href=""></a>    n_plans<span class="op">=</span>(<span class="st">"enrollment"</span>, <span class="st">"size"</span>)</span>
+<span id="cb10-8"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>These quick summaries help you understand what’s in the data <strong>before</strong> you start estimating models</li>
+</ul>
+</section></section>
+<section>
+<section id="cleaning-data" class="title-slide slide level1 center">
+<h1>Cleaning Data</h1>
+
+</section>
+<section id="goals-of-data-management-cleaning" class="slide level2">
+<h2>Goals of data management / cleaning</h2>
+<ul>
+<li>Take <strong>raw</strong> files and turn them into <strong>analysis-ready</strong> data sets<br>
+</li>
+<li>Typical tasks:
+<ul>
+<li>Select the rows and columns you actually need</li>
+<li>Create and transform variables (e.g., indicators, logs, aggregates)</li>
+<li>Fix obvious issues (types, missing values, impossible values)</li>
+<li>Prepare the data at the <strong>right unit of observation</strong> for your question</li>
+</ul></li>
+<li>Idea is similar in R and Python: read → inspect → clean → save</li>
+</ul>
+</section>
+<section id="selecting-variables-and-filtering-rows" class="slide level2">
+<h2>Selecting variables and filtering rows</h2>
+<ul>
+<li>First step is often to <strong>drop</strong> unneeded columns and focus on the sample you care about</li>
+</ul>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">R</a></li><li><a href="#tabset-6-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb11-2"><a href=""></a></span>
+<span id="cb11-3"><a href=""></a><span class="co"># Keep only key vars and a subset of years</span></span>
+<span id="cb11-4"><a href=""></a>ga_enrollment_small <span class="ot">&lt;-</span> ga_enrollment <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href=""></a>  <span class="fu">select</span>(year, contract_id, plan_id, county, enrollment) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">2015</span>, enrollment <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-6-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-2"><a href=""></a></span>
+<span id="cb12-3"><a href=""></a><span class="co"># Keep only key vars and a subset of years</span></span>
+<span id="cb12-4"><a href=""></a>ga_enrollment_small <span class="op">=</span> (</span>
+<span id="cb12-5"><a href=""></a>    ga_enrollment</span>
+<span id="cb12-6"><a href=""></a>      [[<span class="st">"year"</span>, <span class="st">"contract_id"</span>, <span class="st">"plan_id"</span>, <span class="st">"county"</span>, <span class="st">"enrollment"</span>]]</span>
+<span id="cb12-7"><a href=""></a>      .loc[(ga_enrollment[<span class="st">"year"</span>] <span class="op">&gt;=</span> <span class="dv">2015</span>) <span class="op">&amp;</span> (ga_enrollment[<span class="st">"enrollment"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)]</span>
+<span id="cb12-8"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>This kind of early trimming makes later manipulation and merging much easier</li>
+</ul>
+</section>
+<section id="creating-and-transforming-variables" class="slide level2">
+<h2>Creating and transforming variables</h2>
+<ul>
+<li>Cleaning usually involves new variables: indicators, logs, categories</li>
+</ul>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">R</a></li><li><a href="#tabset-7-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>ga_enrollment_clean <span class="ot">&lt;-</span> ga_enrollment_small <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-3"><a href=""></a>    <span class="at">log_enrollment =</span> <span class="fu">log</span>(enrollment),</span>
+<span id="cb13-4"><a href=""></a>    <span class="at">rural          =</span> <span class="fu">if_else</span>(county_type <span class="sc">==</span> <span class="st">"Rural"</span>, <span class="dv">1</span>L, <span class="dv">0</span>L),</span>
+<span id="cb13-5"><a href=""></a>    <span class="at">year_factor    =</span> <span class="fu">factor</span>(year)</span>
+<span id="cb13-6"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-7-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a>ga_enrollment_clean <span class="op">=</span> ga_enrollment_small.copy()</span>
+<span id="cb14-2"><a href=""></a>ga_enrollment_clean[<span class="st">"log_enrollment"</span>] <span class="op">=</span> np.log(ga_enrollment_clean[<span class="st">"enrollment"</span>])</span>
+<span id="cb14-3"><a href=""></a>ga_enrollment_clean[<span class="st">"rural"</span>] <span class="op">=</span> (ga_enrollment_clean[<span class="st">"county_type"</span>] <span class="op">==</span> <span class="st">"Rural"</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb14-4"><a href=""></a>ga_enrollment_clean[<span class="st">"year_factor"</span>] <span class="op">=</span> ga_enrollment_clean[<span class="st">"year"</span>].astype(<span class="st">"category"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Aim is to get variables into forms that line up with the models you’ll eventually estimate</li>
+</ul>
+</section>
+<section id="handling-missing-and-implausible-values" class="slide level2">
+<h2>Handling missing and implausible values</h2>
+<ul>
+<li>Cleaning also means dealing with <strong>missing</strong> and <strong>nonsense</strong> values
+<ul>
+<li>Drop rows where key variables are missing</li>
+<li>Recode clearly impossible values (e.g., negative enrollment) to <code>NA</code> and then decide what to do</li>
+</ul></li>
+</ul>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">R</a></li><li><a href="#tabset-8-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>ga_enrollment_checked <span class="ot">&lt;-</span> ga_enrollment_clean <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-3"><a href=""></a>    <span class="at">enrollment =</span> <span class="fu">if_else</span>(enrollment <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="cn">NA_real_</span>, enrollment)</span>
+<span id="cb15-4"><a href=""></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-5"><a href=""></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(enrollment), <span class="sc">!</span><span class="fu">is.na</span>(contract_id))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-8-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a>ga_enrollment_checked <span class="op">=</span> ga_enrollment_clean.copy()</span>
+<span id="cb16-2"><a href=""></a></span>
+<span id="cb16-3"><a href=""></a><span class="co"># Recode negative enrollment as missing</span></span>
+<span id="cb16-4"><a href=""></a>ga_enrollment_checked.loc[</span>
+<span id="cb16-5"><a href=""></a>    ga_enrollment_checked[<span class="st">"enrollment"</span>] <span class="op">&lt;</span> <span class="dv">0</span>,</span>
+<span id="cb16-6"><a href=""></a>    <span class="st">"enrollment"</span></span>
+<span id="cb16-7"><a href=""></a>] <span class="op">=</span> pd.NA</span>
+<span id="cb16-8"><a href=""></a></span>
+<span id="cb16-9"><a href=""></a><span class="co"># Drop rows missing key fields</span></span>
+<span id="cb16-10"><a href=""></a>ga_enrollment_checked <span class="op">=</span> ga_enrollment_checked.dropna(</span>
+<span id="cb16-11"><a href=""></a>    subset<span class="op">=</span>[<span class="st">"enrollment"</span>, <span class="st">"contract_id"</span>]</span>
+<span id="cb16-12"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>These are judgment calls; the key is to make them <strong>explicit</strong> and reproducible in code</li>
+</ul>
+</section></section>
+<section>
+<section id="merging-and-reshaping-data" class="title-slide slide level1 center">
+<h1>Merging and Reshaping Data</h1>
+
+</section>
+<section id="why-merge-and-reshape" class="slide level2">
+<h2>Why merge and reshape?</h2>
+<ul>
+<li>In practice, data rarely arrive as a single, perfect table</li>
+<li>You’ll often need to:
+<ul>
+<li><strong>Merge</strong> information across multiple files (contracts, enrollment, service areas)</li>
+<li><strong>Stack</strong> or <strong>Append</strong> similar datasets (e.g., multiple years)</li>
+<li><strong>Reshape</strong> between wide and long formats for analysis</li>
+</ul></li>
+<li>Core idea in both R and Python: work with <strong>keys/IDs</strong> and be explicit about how you join</li>
+</ul>
+</section>
+<section id="merging-tables-with-keys" class="slide level2">
+<h2>Merging tables with keys</h2>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">R</a></li><li><a href="#tabset-9-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb17-2"><a href=""></a></span>
+<span id="cb17-3"><a href=""></a><span class="co"># Merge enrollment with contract-level info</span></span>
+<span id="cb17-4"><a href=""></a>ga_enroll_contract <span class="ot">&lt;-</span> ga_enrollment <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href=""></a>  <span class="fu">left_join</span>(</span>
+<span id="cb17-6"><a href=""></a>    ga_contract,</span>
+<span id="cb17-7"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contract_id"</span>, <span class="st">"year"</span>)</span>
+<span id="cb17-8"><a href=""></a>  )</span>
+<span id="cb17-9"><a href=""></a></span>
+<span id="cb17-10"><a href=""></a><span class="co"># Add service area info</span></span>
+<span id="cb17-11"><a href=""></a>ga_enroll_full <span class="ot">&lt;-</span> ga_enroll_contract <span class="sc">|&gt;</span></span>
+<span id="cb17-12"><a href=""></a>  <span class="fu">left_join</span>(</span>
+<span id="cb17-13"><a href=""></a>    ga_service,</span>
+<span id="cb17-14"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contract_id"</span>, <span class="st">"plan_id"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>)</span>
+<span id="cb17-15"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-9-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb18-2"><a href=""></a></span>
+<span id="cb18-3"><a href=""></a><span class="co"># Merge enrollment with contract-level info</span></span>
+<span id="cb18-4"><a href=""></a>ga_enroll_contract <span class="op">=</span> ga_enrollment.merge(</span>
+<span id="cb18-5"><a href=""></a>    ga_contract,</span>
+<span id="cb18-6"><a href=""></a>    on<span class="op">=</span>[<span class="st">"contract_id"</span>, <span class="st">"year"</span>],</span>
+<span id="cb18-7"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb18-8"><a href=""></a>)</span>
+<span id="cb18-9"><a href=""></a></span>
+<span id="cb18-10"><a href=""></a><span class="co"># Add service area info</span></span>
+<span id="cb18-11"><a href=""></a>ga_enroll_full <span class="op">=</span> ga_enroll_contract.merge(</span>
+<span id="cb18-12"><a href=""></a>    ga_service,</span>
+<span id="cb18-13"><a href=""></a>    on<span class="op">=</span>[<span class="st">"contract_id"</span>, <span class="st">"plan_id"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>],</span>
+<span id="cb18-14"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb18-15"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li><strong><code>left_join</code> / <code>how="left"</code></strong>: keep all rows from the “main” table, match where possible</li>
+<li>Other options (for later):
+<ul>
+<li><code>inner_join</code> / <code>how="inner"</code>: only rows with matches in both tables</li>
+<li><code>full_join</code> / <code>how="outer"</code>: keep everything; fill with missing where there’s no match</li>
+</ul></li>
+<li>Always check row counts <strong>before and after</strong> merges and be careful with duplicated keys (many-to-many joins)</li>
+</ul>
+</section>
+<section id="stacking-binding-multiple-datasets" class="slide level2">
+<h2>Stacking (binding) multiple datasets</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">R</a></li><li><a href="#tabset-10-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb19-2"><a href=""></a><span class="fu">library</span>(purrr)</span>
+<span id="cb19-3"><a href=""></a><span class="fu">library</span>(readr)</span>
+<span id="cb19-4"><a href=""></a></span>
+<span id="cb19-5"><a href=""></a>years <span class="ot">&lt;-</span> <span class="dv">2015</span><span class="sc">:</span><span class="dv">2018</span></span>
+<span id="cb19-6"><a href=""></a></span>
+<span id="cb19-7"><a href=""></a>ga_enrollment_multi <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb19-8"><a href=""></a>  years,</span>
+<span id="cb19-9"><a href=""></a>  <span class="sc">~</span> <span class="fu">read_csv</span>(<span class="fu">paste0</span>(<span class="st">"data/output/ma-snippets/ga-enrollment-"</span>, .x, <span class="st">".csv"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb19-10"><a href=""></a>      <span class="fu">mutate</span>(<span class="at">year =</span> .x)</span>
+<span id="cb19-11"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-10-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb20-2"><a href=""></a></span>
+<span id="cb20-3"><a href=""></a>years <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">2015</span>, <span class="dv">2019</span>))</span>
+<span id="cb20-4"><a href=""></a></span>
+<span id="cb20-5"><a href=""></a>frames <span class="op">=</span> []</span>
+<span id="cb20-6"><a href=""></a><span class="cf">for</span> y <span class="kw">in</span> years:</span>
+<span id="cb20-7"><a href=""></a>    df_y <span class="op">=</span> pd.read_csv(<span class="ss">f"data/output/ma-snippets/ga-enrollment-</span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">.csv"</span>)</span>
+<span id="cb20-8"><a href=""></a>    df_y[<span class="st">"year"</span>] <span class="op">=</span> y</span>
+<span id="cb20-9"><a href=""></a>    frames.append(df_y)</span>
+<span id="cb20-10"><a href=""></a></span>
+<span id="cb20-11"><a href=""></a>ga_enrollment_multi <span class="op">=</span> pd.concat(frames, ignore_index<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Use <code>bind_rows()</code> / <code>pd.concat()</code> when you have:
+<ul>
+<li>The <strong>same columns</strong> across files</li>
+<li>Different time periods or subsets (e.g., one CSV per year)</li>
+</ul></li>
+<li>Result is one longer dataset that’s easier to work with in analysis</li>
+</ul>
+</section>
+<section id="reshaping-wide-vs-long" class="slide level2">
+<h2>Reshaping: wide vs long</h2>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">R</a></li><li><a href="#tabset-11-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb21-2"><a href=""></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb21-3"><a href=""></a></span>
+<span id="cb21-4"><a href=""></a><span class="co"># Aggregate enrollment by contract and year</span></span>
+<span id="cb21-5"><a href=""></a>ga_contract_year <span class="ot">&lt;-</span> ga_enrollment <span class="sc">|&gt;</span></span>
+<span id="cb21-6"><a href=""></a>  <span class="fu">group_by</span>(contract_id, year) <span class="sc">|&gt;</span></span>
+<span id="cb21-7"><a href=""></a>  <span class="fu">summarise</span>(</span>
+<span id="cb21-8"><a href=""></a>    <span class="at">total_enrollment =</span> <span class="fu">sum</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-9"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb21-10"><a href=""></a>  )</span>
+<span id="cb21-11"><a href=""></a></span>
+<span id="cb21-12"><a href=""></a><span class="co"># Long → wide: years as columns</span></span>
+<span id="cb21-13"><a href=""></a>ga_contract_wide <span class="ot">&lt;-</span> ga_contract_year <span class="sc">|&gt;</span></span>
+<span id="cb21-14"><a href=""></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb21-15"><a href=""></a>    <span class="at">names_from =</span> year,</span>
+<span id="cb21-16"><a href=""></a>    <span class="at">values_from =</span> total_enrollment,</span>
+<span id="cb21-17"><a href=""></a>    <span class="at">names_prefix =</span> <span class="st">"enroll_"</span></span>
+<span id="cb21-18"><a href=""></a>  )</span>
+<span id="cb21-19"><a href=""></a></span>
+<span id="cb21-20"><a href=""></a><span class="co"># Wide → long: back to year/enrollment columns</span></span>
+<span id="cb21-21"><a href=""></a>ga_contract_long <span class="ot">&lt;-</span> ga_contract_wide <span class="sc">|&gt;</span></span>
+<span id="cb21-22"><a href=""></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb21-23"><a href=""></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"enroll_"</span>),</span>
+<span id="cb21-24"><a href=""></a>    <span class="at">names_to =</span> <span class="st">"year"</span>,</span>
+<span id="cb21-25"><a href=""></a>    <span class="at">names_prefix =</span> <span class="st">"enroll_"</span>,</span>
+<span id="cb21-26"><a href=""></a>    <span class="at">values_to =</span> <span class="st">"total_enrollment"</span></span>
+<span id="cb21-27"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb21-28"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.integer</span>(year))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-11-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb22-2"><a href=""></a></span>
+<span id="cb22-3"><a href=""></a><span class="co"># Aggregate enrollment by contract and year</span></span>
+<span id="cb22-4"><a href=""></a>ga_contract_year <span class="op">=</span> (</span>
+<span id="cb22-5"><a href=""></a>    ga_enrollment</span>
+<span id="cb22-6"><a href=""></a>      .groupby([<span class="st">"contract_id"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb22-7"><a href=""></a>      .agg(total_enrollment<span class="op">=</span>(<span class="st">"enrollment"</span>, <span class="st">"sum"</span>))</span>
+<span id="cb22-8"><a href=""></a>)</span>
+<span id="cb22-9"><a href=""></a></span>
+<span id="cb22-10"><a href=""></a><span class="co"># Long → wide: years as columns</span></span>
+<span id="cb22-11"><a href=""></a>ga_contract_wide <span class="op">=</span> ga_contract_year.pivot(</span>
+<span id="cb22-12"><a href=""></a>    index<span class="op">=</span><span class="st">"contract_id"</span>,</span>
+<span id="cb22-13"><a href=""></a>    columns<span class="op">=</span><span class="st">"year"</span>,</span>
+<span id="cb22-14"><a href=""></a>    values<span class="op">=</span><span class="st">"total_enrollment"</span></span>
+<span id="cb22-15"><a href=""></a>).add_prefix(<span class="st">"enroll_"</span>).reset_index()</span>
+<span id="cb22-16"><a href=""></a></span>
+<span id="cb22-17"><a href=""></a><span class="co"># Wide → long: back to year/enrollment columns</span></span>
+<span id="cb22-18"><a href=""></a>ga_contract_long <span class="op">=</span> ga_contract_wide.melt(</span>
+<span id="cb22-19"><a href=""></a>    id_vars<span class="op">=</span><span class="st">"contract_id"</span>,</span>
+<span id="cb22-20"><a href=""></a>    var_name<span class="op">=</span><span class="st">"year"</span>,</span>
+<span id="cb22-21"><a href=""></a>    value_name<span class="op">=</span><span class="st">"total_enrollment"</span></span>
+<span id="cb22-22"><a href=""></a>)</span>
+<span id="cb22-23"><a href=""></a></span>
+<span id="cb22-24"><a href=""></a><span class="co"># Strip prefix and convert year to int</span></span>
+<span id="cb22-25"><a href=""></a>ga_contract_long[<span class="st">"year"</span>] <span class="op">=</span> (</span>
+<span id="cb22-26"><a href=""></a>    ga_contract_long[<span class="st">"year"</span>].<span class="bu">str</span>.replace(<span class="st">"enroll_"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb22-27"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="when-to-reshape" class="slide level2">
+<h2>When to reshape?</h2>
+<ul>
+<li>You might want <strong>wide</strong> data when:
+<ul>
+<li>Fitting models that expect one row per unit and many time-typed columns</li>
+<li>Making certain tables or plots</li>
+</ul></li>
+<li>You want <strong>long</strong> data when:
+<ul>
+<li>Working with panel / time series methods (one row per unit–time)</li>
+<li>Using most tidyverse/pandas tools, which like one observation per row</li>
+</ul></li>
+<li>The key is to know your <strong>unit of observation</strong> and reshape accordingly</li>
+</ul>
+</section></section>
+<section>
+<section id="saving-data-and-output" class="title-slide slide level1 center">
+<h1>Saving Data and Output</h1>
+
+</section>
+<section id="principles-for-saving-data" class="slide level2">
+<h2>Principles for saving data</h2>
+<ul>
+<li><strong>Never overwrite raw data</strong>
+<ul>
+<li>Read from something like <code>data/input/</code> or <code>data/raw/</code></li>
+<li>Write cleaned/analytic files to <code>data/output/</code> or <code>data/clean/</code></li>
+</ul></li>
+<li>Use <strong>clear filenames</strong> and avoid spaces:
+<ul>
+<li>e.g., <code>ga-enrollment-clean.csv</code>, <code>ga-enrollment-analysis.rds</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="saving-cleaned-data-to-csv" class="slide level2">
+<h2>Saving cleaned data to CSV</h2>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">R</a></li><li><a href="#tabset-12-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a><span class="fu">library</span>(readr)</span>
+<span id="cb23-2"><a href=""></a></span>
+<span id="cb23-3"><a href=""></a><span class="co"># Save cleaned enrollment data as CSV</span></span>
+<span id="cb23-4"><a href=""></a><span class="fu">write_csv</span>(</span>
+<span id="cb23-5"><a href=""></a>  ga_enrollment_checked,</span>
+<span id="cb23-6"><a href=""></a>  <span class="st">"data/output/ma-snippets/ga-enrollment-clean.csv"</span></span>
+<span id="cb23-7"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-12-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb24-2"><a href=""></a></span>
+<span id="cb24-3"><a href=""></a><span class="co"># Save cleaned enrollment data as CSV</span></span>
+<span id="cb24-4"><a href=""></a>ga_enrollment_checked.to_csv(</span>
+<span id="cb24-5"><a href=""></a>    <span class="st">"data/output/ma-snippets/ga-enrollment-clean.csv"</span>,</span>
+<span id="cb24-6"><a href=""></a>    index<span class="op">=</span><span class="va">False</span></span>
+<span id="cb24-7"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>CSV is:
+<ul>
+<li>Human-readable</li>
+<li>Easy to open in other software (Excel, Stata, etc.)</li>
+<li>A good default for sharing</li>
+</ul></li>
+</ul>
+</section>
+<section id="saving-in-native-formats" class="slide level2">
+<h2>Saving in native formats</h2>
+<div class="panel-tabset">
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">R</a></li><li><a href="#tabset-13-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-13-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href=""></a><span class="co"># Save as R object (preserves types and attributes)</span></span>
+<span id="cb25-2"><a href=""></a><span class="fu">saveRDS</span>(</span>
+<span id="cb25-3"><a href=""></a>  ga_enrollment_checked,</span>
+<span id="cb25-4"><a href=""></a>  <span class="st">"data/output/ma-snippets/ga-enrollment-clean.rds"</span></span>
+<span id="cb25-5"><a href=""></a>)</span>
+<span id="cb25-6"><a href=""></a></span>
+<span id="cb25-7"><a href=""></a><span class="co"># Later: read it back in</span></span>
+<span id="cb25-8"><a href=""></a>ga_enrollment_checked <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(</span>
+<span id="cb25-9"><a href=""></a>  <span class="st">"data/output/ma-snippets/ga-enrollment-clean.rds"</span></span>
+<span id="cb25-10"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-13-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href=""></a><span class="co"># Save as a pickle (Python-native)</span></span>
+<span id="cb26-2"><a href=""></a>ga_enrollment_checked.to_pickle(</span>
+<span id="cb26-3"><a href=""></a>    <span class="st">"data/output/ma-snippets/ga-enrollment-clean.pkl"</span></span>
+<span id="cb26-4"><a href=""></a>)</span>
+<span id="cb26-5"><a href=""></a></span>
+<span id="cb26-6"><a href=""></a><span class="co"># Later: read it back in</span></span>
+<span id="cb26-7"><a href=""></a>ga_enrollment_checked <span class="op">=</span> pd.read_pickle(</span>
+<span id="cb26-8"><a href=""></a>    <span class="st">"data/output/ma-snippets/ga-enrollment-clean.pkl"</span></span>
+<span id="cb26-9"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Native formats:
+<ul>
+<li>Preserve more detail (types, categories)</li>
+<li>Are faster to read/write</li>
+<li>But are <strong>less portable</strong> across languages/software</li>
+</ul></li>
+</ul>
+</section>
+<section id="saving-model-output-summaries" class="slide level2">
+<h2>Saving model output / summaries</h2>
+<div class="panel-tabset">
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">R</a></li><li><a href="#tabset-14-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-14-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb27-2"><a href=""></a><span class="fu">library</span>(readr)</span>
+<span id="cb27-3"><a href=""></a></span>
+<span id="cb27-4"><a href=""></a><span class="co"># Example: summary table by year and rural status</span></span>
+<span id="cb27-5"><a href=""></a>enroll_summary <span class="ot">&lt;-</span> ga_enrollment_checked <span class="sc">|&gt;</span></span>
+<span id="cb27-6"><a href=""></a>  <span class="fu">group_by</span>(year, rural) <span class="sc">|&gt;</span></span>
+<span id="cb27-7"><a href=""></a>  <span class="fu">summarise</span>(</span>
+<span id="cb27-8"><a href=""></a>    <span class="at">avg_enrollment =</span> <span class="fu">mean</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb27-9"><a href=""></a>    <span class="at">n_plans        =</span> <span class="fu">n</span>(),</span>
+<span id="cb27-10"><a href=""></a>    <span class="at">.groups        =</span> <span class="st">"drop"</span></span>
+<span id="cb27-11"><a href=""></a>  )</span>
+<span id="cb27-12"><a href=""></a></span>
+<span id="cb27-13"><a href=""></a><span class="fu">write_csv</span>(</span>
+<span id="cb27-14"><a href=""></a>  enroll_summary,</span>
+<span id="cb27-15"><a href=""></a>  <span class="st">"data/output/ma-snippets/enroll-summary-by-year-rural.csv"</span></span>
+<span id="cb27-16"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-14-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href=""></a>enroll_summary <span class="op">=</span> (</span>
+<span id="cb28-2"><a href=""></a>    ga_enrollment_checked</span>
+<span id="cb28-3"><a href=""></a>      .groupby([<span class="st">"year"</span>, <span class="st">"rural"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb28-4"><a href=""></a>      .agg(</span>
+<span id="cb28-5"><a href=""></a>          avg_enrollment<span class="op">=</span>(<span class="st">"enrollment"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb28-6"><a href=""></a>          n_plans<span class="op">=</span>(<span class="st">"enrollment"</span>, <span class="st">"size"</span>)</span>
+<span id="cb28-7"><a href=""></a>      )</span>
+<span id="cb28-8"><a href=""></a>)</span>
+<span id="cb28-9"><a href=""></a></span>
+<span id="cb28-10"><a href=""></a>enroll_summary.to_csv(</span>
+<span id="cb28-11"><a href=""></a>    <span class="st">"data/output/ma-snippets/enroll-summary-by-year-rural.csv"</span>,</span>
+<span id="cb28-12"><a href=""></a>    index<span class="op">=</span><span class="va">False</span></span>
+<span id="cb28-13"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Often you’ll save:
+<ul>
+<li>Cleaned <strong>datasets</strong></li>
+<li>Key <strong>summary tables</strong> used in papers or reports</li>
+<li>(Optionally) model outputs in a compact format</li>
+</ul></li>
 </ul>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
