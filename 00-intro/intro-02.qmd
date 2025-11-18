@@ -11,7 +11,6 @@ format:
     width: 1600
     height: 900    
 #    embed-resources: true
-from: markdown+emoji
 execute: 
   echo: true
 ---
@@ -50,13 +49,11 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 
 1. Download [R](https://www.r-project.org/)
 2. Install R Extension Pack in VS Code
-
-- Confirm R Version
+   - Confirm R Version
 ```{r}
 version$version.string
-```
-
-- Update R Packages
+``` 
+   - Update R Packages
 
 ```{r, eval=FALSE}
 update.packages(ask = FALSE, checkBuilt = TRUE, repos='https://cran.us.r-project.org')
@@ -73,7 +70,7 @@ update.packages(ask = FALSE, checkBuilt = TRUE, repos='https://cran.us.r-project
    - Click on the Python interpreter selector in the bottom-left corner of the VS Code window (or use `Ctrl+Shift+P` and search for **"Python: Select Interpreter"**).
 4. Install python libraries, `pip install <library>` from terminal
 
-- Confirm Python version:
+   - Confirm Python version:
 ```{python}
 import sys
 print(f"Python version: {sys.version}")
@@ -92,6 +89,30 @@ git --version
 
 - Did you [authenticate](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/authenticating-to-github-in-github-desktop) your account and [configure](https://docs.github.com/en/desktop/configuring-and-customizing-github-desktop/configuring-git-for-github-desktop) your local Git for GitHub Desktop?
 
+
+## What about Open OnDemand?
+
+- Alternative environment to access high-performance computing (HPC) resources in a web-based application
+- Simplified interface and setup
+  - Installation already handled
+  - Data already uploaded
+  - Significantly more computing resources than available on individual computers
+  - Can still render PDFs using a quarto from within Jupyter Notebook
+- Costs?
+  - Monetary and personnel costs to Emory
+  - Sacrifice some flexibility (not necessarily bad when learning)
+  - No VS Code or GitHub Desktop (may require some command line interface)
+
+## Steps with Open OnDemand
+
+- Access via a standard web browser
+- Authenticate GitHub [TBD]
+- Familiarize yourself with command line and basic git commands
+  - `git status`
+  - `git add`
+  - `git commit -m 'comment'`
+  - `git push`
+  - `git pull` (if needed)
 
 
 # Basics of Version Control
@@ -273,9 +294,9 @@ mklink /D "C:\projects\ma-project\data" "D:\shared\data\claims_100pct"
 # Practice!
 
 1. Start a repository on GitHub
-2. Clone repository to your local computer
+2. Clone repository to your local computer or Open OnDemand
 3. Create a basic folder structure
-4. Create a ReadMe and a gitignore file in VS Code
+4. Create a ReadMe and a .gitignore file
 5. Create symbolic link
 6. Commit changes to git
 7. Push changes to GitHub
