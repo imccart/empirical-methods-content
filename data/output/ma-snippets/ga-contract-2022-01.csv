@@ -1,0 +1,173 @@
+contractid,planid,org_type,plan_type,partd,snp,eghp,org_name,org_marketing_name,plan_name,parent_org,contract_date
+H0111,1,Local CCP,Local PPO,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium Open (PPO),Centene Corporation,01/01/2018
+H0111,2,Local CCP,Local PPO,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Low Premium Open (PPO),Centene Corporation,01/01/2018
+H0111,3,Local CCP,Local PPO,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Premium Enhanced Open (PPO),Centene Corporation,01/01/2018
+H0111,4,Local CCP,Local PPO,Yes,Yes,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Dual Access Open (PPO D-SNP),Centene Corporation,01/01/2018
+H0111,5,Local CCP,Local PPO,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Endurance Open (PPO),Centene Corporation,01/01/2018
+H0271,16,Local CCP,Local PPO,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Dual Complete (PPO D-SNP),"UnitedHealth Group, Inc.",01/01/2019
+H0439,2,Local CCP,HMO/HMOPOS,Yes,Yes,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna TotalCare (HMO D-SNP),CIGNA,01/01/2014
+H0439,3,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred GA Medicare (HMO),CIGNA,01/01/2014
+H0439,6,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Plus Medicare (HMO),CIGNA,01/01/2014
+H0439,7,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,01/01/2014
+H0439,8,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,01/01/2014
+H0439,9,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,01/01/2014
+H0439,10,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,01/01/2014
+H0439,11,Local CCP,HMO/HMOPOS,Yes,No,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,01/01/2014
+H0439,12,Local CCP,HMO/HMOPOS,Yes,Yes,No,"CIGNA HEALTHCARE OF GEORGIA, INC.",Cigna,Cigna TotalCare Plus (HMO D-SNP),CIGNA,01/01/2014
+H0710,33,Local CCP,Local PPO,Yes,Yes,No,"SIERRA HEALTH AND LIFE INSURANCE COMPANY, INC.",UnitedHealthcare,UnitedHealthcare Nursing Home Plan 2 (PPO I-SNP),"UnitedHealth Group, Inc.",07/01/2004
+H1109,5,Local CCP,HMO/HMOPOS,Yes,No,No,AETNA HEALTH INC.(GA),Aetna Medicare,Aetna Medicare Select Plan (HMO),CVS Health Corporation,07/01/2005
+H1109,6,Local CCP,HMO/HMOPOS,Yes,No,No,AETNA HEALTH INC.(GA),Aetna Medicare,Aetna Medicare Select Plan (HMO),CVS Health Corporation,07/01/2005
+H1111,11,Local CCP,HMO/HMOPOS,Yes,No,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,AARP Medicare Advantage Walgreens (HMO),"UnitedHealth Group, Inc.",07/01/2005
+H1112,6,Local CCP,HMO/HMOPOS,Yes,Yes,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Dual Access (HMO D-SNP),Centene Corporation,07/01/2005
+H1112,33,Local CCP,HMO/HMOPOS,Yes,Yes,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Dual Liberty (HMO D-SNP),Centene Corporation,07/01/2005
+H1112,34,Local CCP,HMO/HMOPOS,No,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Patriot No Premium (HMO-POS),Centene Corporation,07/01/2005
+H1112,35,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium Choice (HMO),Centene Corporation,07/01/2005
+H1112,37,Local CCP,HMO/HMOPOS,Yes,Yes,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Specialty No Premium (HMO C-SNP),Centene Corporation,07/01/2005
+H1112,38,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium (HMO),Centene Corporation,07/01/2005
+H1112,39,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium (HMO),Centene Corporation,07/01/2005
+H1112,40,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium Focus (HMO),Centene Corporation,07/01/2005
+H1112,42,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Giveback (HMO),Centene Corporation,07/01/2005
+H1112,43,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare Assist (HMO),Centene Corporation,07/01/2005
+H1112,44,Local CCP,HMO/HMOPOS,Yes,No,No,"WELLCARE OF GEORGIA, INC.",Wellcare,Wellcare No Premium (HMO),Centene Corporation,07/01/2005
+H1170,2,Local CCP,HMO/HMOPOS,Yes,No,No,"KAISER FOUNDATION HP OF GA, INC.",Kaiser Permanente,Kaiser Permanente Senior Advantage Enhanced 1 (HMO),"Kaiser Foundation Health Plan, Inc.",01/01/1997
+H1170,8,Local CCP,HMO/HMOPOS,Yes,Yes,No,"KAISER FOUNDATION HP OF GA, INC.",Kaiser Permanente,Senior Advantage Medicare Medicaid Plan 1 (HMO D-SNP),"Kaiser Foundation Health Plan, Inc.",01/01/1997
+H1170,9,Local CCP,HMO/HMOPOS,Yes,No,No,"KAISER FOUNDATION HP OF GA, INC.",Kaiser Permanente,Kaiser Permanente Senior Advantage Basic 1 (HMO),"Kaiser Foundation Health Plan, Inc.",01/01/1997
+H1170,10,Local CCP,HMO/HMOPOS,Yes,No,No,"KAISER FOUNDATION HP OF GA, INC.",Kaiser Permanente,Kaiser Permanente Senior Advantage Enhanced 2 (HMO),"Kaiser Foundation Health Plan, Inc.",01/01/1997
+H1170,12,Local CCP,HMO/HMOPOS,Yes,No,No,"KAISER FOUNDATION HP OF GA, INC.",Kaiser Permanente,Kaiser Permanente Senior Advantage Basic 2 (HMO),"Kaiser Foundation Health Plan, Inc.",01/01/1997
+H1608,28,Local CCP,Local PPO,Yes,No,No,COVENTRY HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Advantra Preferred Plan (PPO),CVS Health Corporation,07/01/2005
+H1748,1,Local CCP,HMO/HMOPOS,Yes,No,No,"SONDER HEALTH PLANS, INC.","Sonder Health Plan, Inc.",Sonder Complete Health Medicare Advantage (HMO),"Avian Health Holdings, LLC",01/01/2021
+H1924,1,MSA,MSA,No,No,No,"PORT HOLDINGS, INC.",Lasso Healthcare,Lasso Healthcare Growth (MSA),"Port Holdings, Inc.",01/01/2019
+H2228,13,Local CCP,Local PPO,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Nursing Home Plan 1 (PPO I-SNP),"UnitedHealth Group, Inc.",01/01/2005
+H2228,44,Local CCP,Local PPO,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Dual Complete (PPO D-SNP),"UnitedHealth Group, Inc.",01/01/2005
+H2944,114,PFFS,PFFS,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Gold Choice H2944-114 (PFFS),Humana Inc.,01/01/2010
+H3256,1,Local CCP,Local PPO,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Dual Complete Choice LP (PPO D-SNP),"UnitedHealth Group, Inc.",01/01/2021
+H3256,2,Local CCP,Local PPO,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Dual Complete Choice Select LP (PPO D-SNP),"UnitedHealth Group, Inc.",01/01/2021
+H3288,23,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,24,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,25,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,26,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,27,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,28,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,29,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,30,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,31,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,32,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,33,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,34,Local CCP,Local PPO,No,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Eagle Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,35,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,36,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,37,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,38,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,39,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,40,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,41,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,42,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,43,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,44,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Preferred Premium Plan (PPO),CVS Health Corporation,01/01/2020
+H3288,45,Local CCP,Local PPO,Yes,No,No,AETNA HEALTH AND LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Plus Plan (PPO),CVS Health Corporation,01/01/2020
+H3291,1,Local CCP,HMO/HMOPOS,Yes,Yes,No,"PRUITTHEALTH PREMIER, INC.",PruittHealth Premier,PruittHealth Premier (HMO I-SNP),"UNICO Premier, LLC",01/01/2016
+H4141,3,Local CCP,HMO/HMOPOS,Yes,Yes,No,"HUMANA EMPLOYERS HEALTH PLAN OF GEORGIA, INC.",Humana,Humana Gold Plus SNP-DE H4141-003 (HMO D-SNP),Humana Inc.,01/01/2010
+H4141,15,Local CCP,HMO/HMOPOS,Yes,No,No,"HUMANA EMPLOYERS HEALTH PLAN OF GEORGIA, INC.",Humana,Humana Gold Plus H4141-015 (HMO),Humana Inc.,01/01/2010
+H4141,17,Local CCP,HMO/HMOPOS,Yes,No,No,"HUMANA EMPLOYERS HEALTH PLAN OF GEORGIA, INC.",Humana,Humana Gold Plus H4141-017 (HMO),Humana Inc.,01/01/2010
+H4513,30,Local CCP,HMO/HMOPOS,Yes,No,No,"HEALTHSPRING LIFE & HEALTH INSURANCE COMPANY, INC.",Cigna,Cigna Preferred Medicare (HMO),CIGNA,03/01/2001
+H5141,26,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5141,45,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy Value (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5141,46,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5141,47,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy Value (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5141,48,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5141,49,Local CCP,Local PPO,Yes,No,No,CLOVER INSURANCE COMPANY,Clover Health,Clover Health LiveHealthy Value (PPO),"Clover Health Holdings, Inc.",01/01/2013
+H5216,71,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-071 (PPO),Humana Inc.,07/01/2005
+H5216,73,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-073 (PPO),Humana Inc.,07/01/2005
+H5216,142,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-142 (PPO),Humana Inc.,07/01/2005
+H5216,143,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-143 (PPO),Humana Inc.,07/01/2005
+H5216,154,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-154 (PPO),Humana Inc.,07/01/2005
+H5216,157,Local CCP,Local PPO,No,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-157 (PPO),Humana Inc.,07/01/2005
+H5216,203,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-203 (PPO),Humana Inc.,07/01/2005
+H5216,205,Local CCP,Local PPO,Yes,Yes,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice SNP-DE H5216-205 (PPO D-SNP),Humana Inc.,07/01/2005
+H5216,206,Local CCP,Local PPO,Yes,Yes,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice SNP-DE H5216-206 (PPO D-SNP),Humana Inc.,07/01/2005
+H5216,207,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-207 (PPO),Humana Inc.,07/01/2005
+H5216,217,Local CCP,Local PPO,No,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Honor (PPO),Humana Inc.,07/01/2005
+H5216,239,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Care Extra (PPO),Humana Inc.,07/01/2005
+H5216,240,Local CCP,Local PPO,Yes,Yes,No,HUMANA INSURANCE COMPANY,Humana,Humana Care Extra (PPO D-SNP),Humana Inc.,07/01/2005
+H5216,246,Local CCP,Local PPO,Yes,Yes,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice - Diabetes and Heart (PPO C-SNP),Humana Inc.,07/01/2005
+H5216,280,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-280 (PPO),Humana Inc.,07/01/2005
+H5216,282,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-282 (PPO),Humana Inc.,07/01/2005
+H5216,284,Local CCP,Local PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice H5216-284 (PPO),Humana Inc.,07/01/2005
+H5216,286,Local CCP,Local PPO,No,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Honor (PPO),Humana Inc.,07/01/2005
+H5302,12,Local CCP,HMO/HMOPOS,Yes,Yes,No,AETNA HEALTH INC. (GA),Aetna Medicare,Aetna Medicare Dual Preferred Plan (HMO D-SNP),CVS Health Corporation,01/01/2007
+H5302,13,Local CCP,HMO/HMOPOS,Yes,Yes,No,AETNA HEALTH INC. (GA),Aetna Medicare,Aetna Medicare Dual Preferred Plan (HMO D-SNP),CVS Health Corporation,01/01/2007
+H5302,14,Local CCP,HMO/HMOPOS,Yes,Yes,No,AETNA HEALTH INC. (GA),Aetna Medicare,Aetna Medicare Dual Preferred Plan (HMO D-SNP),CVS Health Corporation,01/01/2007
+H5302,18,Local CCP,HMO/HMOPOS,Yes,No,No,AETNA HEALTH INC. (GA),Aetna Medicare,Aetna Medicare Premier Plan (HMO),CVS Health Corporation,01/01/2007
+H5302,19,Local CCP,HMO/HMOPOS,Yes,No,No,AETNA HEALTH INC. (GA),Aetna Medicare,Aetna Medicare Premier Plan (HMO),CVS Health Corporation,01/01/2007
+H5322,4,Local CCP,HMO/HMOPOS,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Nursing Home Plan (HMO-POS I-SNP),"UnitedHealth Group, Inc.",01/01/2014
+H5322,30,Local CCP,HMO/HMOPOS,Yes,Yes,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Dual Complete (HMO-POS D-SNP),"UnitedHealth Group, Inc.",01/01/2014
+H5422,7,Local CCP,HMO/HMOPOS,Yes,Yes,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue Dual Advantage (HMO D-SNP),Anthem Inc.,01/01/2006
+H5422,8,Local CCP,HMO/HMOPOS,Yes,No,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue Essential (HMO),Anthem Inc.,01/01/2006
+H5422,11,Local CCP,HMO/HMOPOS,Yes,No,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue Plus (HMO),Anthem Inc.,01/01/2006
+H5422,13,Local CCP,HMO/HMOPOS,Yes,No,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue Extra (HMO),Anthem Inc.,01/01/2006
+H5422,14,Local CCP,HMO/HMOPOS,No,No,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue Service (HMO),Anthem Inc.,01/01/2006
+H5422,16,Local CCP,HMO/HMOPOS,Yes,Yes,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue + Kroger Dual Advantage (HMO D-SNP),Anthem Inc.,01/01/2006
+H5422,17,Local CCP,HMO/HMOPOS,Yes,No,No,BLUE CROSS BLUE SHIELD HEALTHCARE PLAN OF GEORGIA,Anthem Blue Cross and Blue Shield,Anthem MediBlue + Kroger (HMO),Anthem Inc.,01/01/2006
+H5521,91,Local CCP,Local PPO,Yes,No,No,AETNA LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Essential Plan (PPO),CVS Health Corporation,01/01/2006
+H5521,177,Local CCP,Local PPO,Yes,No,No,AETNA LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Freedom Plan (PPO),CVS Health Corporation,01/01/2006
+H5521,328,Local CCP,Local PPO,Yes,No,No,AETNA LIFE INSURANCE COMPANY,Aetna Medicare,Aetna Medicare Choice Plan (PPO),CVS Health Corporation,01/01/2006
+H5525,24,Local CCP,Local PPO,Yes,No,No,"HUMANA BENEFIT PLAN OF ILLINOIS, INC.",Humana,HumanaChoice H5525-024 (PPO),Humana Inc.,01/01/2006
+H6528,6,Local CCP,Local PPO,Yes,No,No,CARE IMPROVEMENT PLUS SOUTH CENTRAL INSURANCE CO.,UnitedHealthcare,UnitedHealthcare Medicare Advantage Choice Plan 1 (PPO),"UnitedHealth Group, Inc.",01/01/2009
+H7173,1,Local CCP,HMO/HMOPOS,Yes,Yes,No,"PEACH STATE HEALTH PLAN, INC.",Wellcare by Allwell,Wellcare Dual Access Medicare (HMO D-SNP),Centene Corporation,01/01/2011
+H7173,2,Local CCP,HMO/HMOPOS,Yes,No,No,"PEACH STATE HEALTH PLAN, INC.",Wellcare by Allwell,Wellcare No Premium Medicare (HMO),Centene Corporation,01/01/2011
+H7173,7,Local CCP,HMO/HMOPOS,Yes,No,No,"PEACH STATE HEALTH PLAN, INC.",Wellcare by Allwell,Wellcare Giveback Medicare (HMO),Centene Corporation,01/01/2011
+H7728,5,Local CCP,Local PPO,Yes,No,No,"ANTHEM HEALTH PLANS OF NEW HAMPSHIRE, INC.",Anthem Blue Cross and Blue Shield,Anthem MediBlue Access (PPO),Anthem Inc.,01/01/2013
+H7728,6,Local CCP,Local PPO,Yes,No,No,"ANTHEM HEALTH PLANS OF NEW HAMPSHIRE, INC.",Anthem Blue Cross and Blue Shield,Anthem MediBlue Access Basic (PPO),Anthem Inc.,01/01/2013
+H7728,11,Local CCP,Local PPO,Yes,Yes,No,"ANTHEM HEALTH PLANS OF NEW HAMPSHIRE, INC.",Anthem Blue Cross and Blue Shield,Anthem MediBlue Dual Access (PPO D-SNP),Anthem Inc.,01/01/2013
+H7728,12,Local CCP,Local PPO,Yes,No,No,"ANTHEM HEALTH PLANS OF NEW HAMPSHIRE, INC.",Anthem Blue Cross and Blue Shield,Anthem MediBlue + Kroger Access (PPO),Anthem Inc.,01/01/2013
+H7849,3,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H7849,20,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H7849,21,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H7849,22,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H7849,23,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H7849,35,Local CCP,Local PPO,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna True Choice Medicare (PPO),CIGNA,01/01/2020
+H8093,1,Local CCP,HMO/HMOPOS,Yes,Yes,No,"GEORGIA ASSURANCE, INC.",Georgia Health Advantage,Georgia Health Advantage (HMO I-SNP),"American Health Companies, Inc.",01/01/2020
+H8093,2,Local CCP,HMO/HMOPOS,Yes,Yes,No,"GEORGIA ASSURANCE, INC.",Georgia Health Advantage,Georgia Health Advantage Choice (HMO I-SNP),"American Health Companies, Inc.",01/01/2020
+H8145,69,PFFS,PFFS,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Gold Choice H8145-069 (PFFS),Humana Inc.,01/01/2011
+H8748,8,Local CCP,HMO/HMOPOS,Yes,No,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,AARP Medicare Advantage Plus Plan 1 (HMO-POS),"UnitedHealth Group, Inc.",01/01/2009
+H8748,9,Local CCP,HMO/HMOPOS,Yes,No,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,AARP Medicare Advantage Plus Plan 2 (HMO-POS),"UnitedHealth Group, Inc.",01/01/2009
+R2604,1,Regional CCP,Regional PPO,Yes,No,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,UnitedHealthcare Medicare Advantage Choice (Regional PPO),"UnitedHealth Group, Inc.",01/01/2020
+R2604,2,Regional CCP,Regional PPO,Yes,Yes,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,UnitedHealthcare Medicare Silver (Regional PPO C-SNP),"UnitedHealth Group, Inc.",01/01/2020
+R2604,3,Regional CCP,Regional PPO,Yes,Yes,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,UnitedHealthcare Medicare Gold (Regional PPO C-SNP),"UnitedHealth Group, Inc.",01/01/2020
+R2604,5,Regional CCP,Regional PPO,No,No,No,Care Improvement Plus South Central Insurance Co.,UnitedHealthcare,UnitedHealthcare Medicare Advantage Patriot (Regional PPO),"UnitedHealth Group, Inc.",01/01/2020
+R3392,1,Regional CCP,Regional PPO,No,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice R3392-001 (Regional PPO),Humana Inc.,01/01/2018
+R3392,2,Regional CCP,Regional PPO,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,HumanaChoice R3392-002 (Regional PPO),Humana Inc.,01/01/2018
+S4802,82,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"WELLCARE PRESCRIPTION INSURANCE, INC.",Wellcare,Wellcare Classic (PDP),Centene Corporation,01/01/2006
+S4802,94,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"WELLCARE PRESCRIPTION INSURANCE, INC.",Wellcare,Wellcare Classic (PDP),Centene Corporation,01/01/2006
+S4802,145,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"WELLCARE PRESCRIPTION INSURANCE, INC.",Wellcare,Wellcare Value Script (PDP),Centene Corporation,01/01/2006
+S4802,213,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"WELLCARE PRESCRIPTION INSURANCE, INC.",Wellcare,Wellcare Medicare Rx Value Plus (PDP),Centene Corporation,01/01/2006
+S5552,4,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,HUMANA INSURANCE COMPANY OF NEW YORK,Humana,Humana Basic Rx Plan (PDP),Humana Inc.,01/01/2006
+S5596,85,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"ANTHEM INSURANCE COMPANIES, INC.",Anthem / Anthem or Blue KC in Missouri,Anthem MediBlue Rx Standard (PDP),Anthem Inc.,01/01/2006
+S5596,86,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,"ANTHEM INSURANCE COMPANIES, INC.",Anthem / Anthem or Blue KC in Missouri,Anthem MediBlue Rx Plus (PDP),Anthem Inc.,01/01/2006
+S5601,6,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,14,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,18,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,20,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,21,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Plus (PDP),CVS Health Corporation,01/01/2006
+S5601,22,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,24,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,64,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript Choice (PDP),CVS Health Corporation,01/01/2006
+S5601,185,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,SILVERSCRIPT INSURANCE COMPANY,Aetna Medicare,SilverScript SmartRx (PDP),CVS Health Corporation,01/01/2006
+S5617,13,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna Secure Rx (PDP),CIGNA,01/01/2006
+S5617,219,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna Secure Rx (PDP),CIGNA,01/01/2006
+S5617,255,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna Extra Rx (PDP),CIGNA,01/01/2006
+S5617,289,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CIGNA HEALTH AND LIFE INSURANCE COMPANY,Cigna,Cigna Essential Rx (PDP),CIGNA,01/01/2006
+S5820,9,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,UNITEDHEALTHCARE INSURANCE COMPANY,UnitedHealthcare,AARP MedicareRx Preferred (PDP),"UnitedHealth Group, Inc.",01/01/2006
+S5884,106,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Basic Rx Plan (PDP),Humana Inc.,01/01/2006
+S5884,135,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Basic Rx Plan (PDP),Humana Inc.,01/01/2006
+S5884,156,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Premier Rx Plan (PDP),Humana Inc.,01/01/2006
+S5884,189,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,HUMANA INSURANCE COMPANY,Humana,Humana Walmart Value Rx Plan (PDP),Humana Inc.,01/01/2006
+S5921,355,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,UNITEDHEALTHCARE INS. CO. & UHC INS. CO. OF NY,UnitedHealthcare,AARP MedicareRx Saver Plus (PDP),"UnitedHealth Group, Inc.",01/01/2006
+S5921,392,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,UNITEDHEALTHCARE INS. CO. & UHC INS. CO. OF NY,UnitedHealthcare,AARP MedicareRx Walgreens (PDP),"UnitedHealth Group, Inc.",01/01/2006
+S6946,7,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CLEAR SPRING HEALTH INSURANCE COMPANY,Clear Spring Health,Clear Spring Health Value Rx (PDP),Group 1001,01/01/2020
+S6946,36,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,CLEAR SPRING HEALTH INSURANCE COMPANY,Clear Spring Health,Clear Spring Health Premier Rx (PDP),Group 1001,01/01/2020
+S7126,9,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,OMAHA HEALTH INSURANCE COMPANY,Mutual of Omaha Rx,Mutual of Omaha Rx Plus (PDP),Mutual of Omaha Insurance Company,01/01/2019
+S7126,79,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,OMAHA HEALTH INSURANCE COMPANY,Mutual of Omaha Rx,Mutual of Omaha Rx Premier (PDP),Mutual of Omaha Insurance Company,01/01/2019
+S7694,9,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,ELIXIR INSURANCE COMPANY,Elixir Insurance,Elixir RxSecure (PDP),Rite Aid Corporation,01/01/2007
+S7694,10,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,ELIXIR INSURANCE COMPANY,Elixir Insurance,Elixir RxSecure (PDP),Rite Aid Corporation,01/01/2007
+S7694,129,Medicare Prescription Drug Plan,Medicare Prescription Drug Plan,Yes,No,No,ELIXIR INSURANCE COMPANY,Elixir Insurance,Elixir RxPlus (PDP),Rite Aid Corporation,01/01/2007
