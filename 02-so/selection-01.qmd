@@ -1,0 +1,199 @@
+---
+title: "Competition and Pricing in Medicare Advantage"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+               hrbrthemes, gganimate, OECD, here)
+```
+
+## Outline for Today
+
+1. Competition and Pricing
+2. What is Medicare Advantage?
+3. Overview of Medicare Advantage Data
+   
+
+# Competition and Pricing
+
+## Big picture
+
+- Question: How do more firms affect market prices?
+- From earlier micro:
+  - Firms compare marginal revenue (MR) and marginal cost (MC).
+  - Market power is the ability to set $p > MC$.
+- Guiding idea:
+  - When there are more firms, competition is stronger and prices tend to be lower, all else equal.
+
+## Benchmarks from earlier courses
+
+- Perfect competition:
+  - Many firms, identical product, free entry.
+  - Each firm is a price taker, so $p = MC$ and markups are zero.
+- Monopoly:
+  - One firm facing the market demand curve.
+  - Chooses $q$ so that $MR = MC$, which implies $p > MC$ and a positive markup.
+- These two cases give a range:
+  - The competitive price is at the low end, the monopoly price is at the high end.
+
+## Oligopoly and number of firms
+
+- Oligopoly: a few firms that interact strategically.
+- Examples from intermediate micro:
+  - Cournot competition, where firms choose quantities.
+  - Bertrand competition, where firms choose prices.
+- With homogeneous products:
+  - As the number of firms increases, outcomes become closer to perfect competition.
+  - Prices move closer to $MC$ as the number of firms grows.
+
+## Differentiated products and markups
+
+- In many markets, products are differentiated by brand, quality, or features.
+- Even with Bertrand-style price setting:
+  - Each firm faces its own residual demand curve.
+  - Demand for each firm is less elastic than demand for the whole market.
+  - This allows $p > MC$ and positive markups, even when there are several firms.
+- Adding more firms usually:
+  - Makes each firm’s demand more elastic.
+  - Reduces prices and markups, but prices typically remain above $MC$ because of differentiation.
+
+
+## Takeaways
+
+- Perfect competition: many firms, $p = MC$, no market power.
+- Monopoly: one firm, $p > MC$, strong market power.
+- Oligopoly with differentiated products:
+  - Firms still choose prices above marginal cost.
+  - More firms and lower concentration generally mean lower prices and smaller markups, but not zero markups when products remain differentiated.
+
+
+## A simple model: more firms, lower price
+
+- Inverse demand: $P(Q) = a - bQ$, with $a > c$ and constant marginal cost $c$.
+- There are $n$ identical firms. Firm $i$ chooses $q_i$ to maximize
+  $$\pi_i = \big(P(Q) - c\big) q_i = \big(a - b(q_i + Q_{-i}) - c\big) q_i.$$
+- In a symmetric Cournot equilibrium, $q_i = q$ for all $i$, so $Q = nq$ and
+  $$Q^*(n) = \frac{n(a - c)}{b(n + 1)}, \qquad
+  p^*(n) = P(Q^*(n)) = \frac{a + nc}{n + 1}.$$
+- As $n$ increases, $p^*(n)$ falls:
+  $$\frac{dp^*(n)}{dn} = \frac{c - a}{(n + 1)^2} < 0 \quad \text{when } a > c.$$
+- IRL, effect of $n$ will depend on substitutability of products/firms
+
+
+## Differentiated-products Bertrand: more firms, lower price
+
+- Firm $i$ chooses its price $p_i$ to maximize
+  $$\max_{p_i} \ \pi_i(p_i, p_{-i}) = (p_i - c)\, q_i(p_i, p_{-i}).$$
+- First-order condition:
+  $$\frac{\partial \pi_i}{\partial p_i}
+    = q_i(p_i, p_{-i}) + (p_i - c)\frac{\partial q_i}{\partial p_i} = 0.$$
+- Define the own-price elasticity of demand
+  $$\varepsilon_i = \frac{\partial q_i}{\partial p_i}\frac{p_i}{q_i} < 0.$$
+  Rearranging the first-order condition gives the Lerner condition
+  $$\frac{p_i - c}{p_i} = -\frac{1}{\varepsilon_i}.$$
+- Markup $(p_i - c)/p_i$ falls with the number of firms, assuming entry increases own-price elasticity due to presence of substitutes
+
+
+## Measuring Competition
+
+Many ways to think about measuring competition:
+
+- Hirfindahl-Hirshman Index (HHI): $\sum_{i=1}^{N} s_{i}^{2}$
+- Simple count of firms
+- Indicators for monopoly, duopoly, triopoly, etc.
+
+# Medicare Advantage
+
+## Very Basic Description...
+
+- Private provision of health insurance for Medicare beneficiaries
+- Medicare "replacement" plans
+
+::: {.fragment}
+- It's just private insurance for those eligible for Medicare
+:::
+
+
+## Some History
+
+- Existed since 1980s, formalized in the 1990s, expanded in 2000s
+- Medicare+Choice as part of Balanced Budget Act in 1997
+- Largest expansion: Medicare Modernization Act in 2003 (also brought Medicare Part D)
+
+
+## Bidding (in the background)
+
+In its current form...
+
+- Insurers submit plan details and a price needed to cover traditional Medicare ("bid")
+- If approved, Medicare pays risk-adjusted bid *or* benchmark
+- Bid $<$ benchmark, insurer gets a rebate and sets premiums to 0
+- Bid $>$ benchmark, insurer charges premium
+- Seperate bidding for Part D
+
+
+## Medicare Advantage in Real Life
+
+Let's take a look at the Medicare Advantage plan options...
+
+::: {.fragment}
+[Medicare Plan Finder](https://www.medicare.gov/plan-compare/)
+:::
+
+## Pricing in MA
+
+- Premiums are relative to standard Medicare Part B premiums
+- Many plans listed as \$0 premium 
+  - Enrollees stil pay Part B premium (\$185 per month in 2025)
+
+## Insurers, Contracts, Plans...oh my!
+
+Definition of "product" in MA is a little complicated...
+
+- Insurer is the corporate entity like UnitedHealth, Humana, etc.
+- Insurers seek approval to offer a "contract"
+  - Dictates the type (HMO, PPO, etc.)
+  - Sets legal terms of CMS/Insurer relationship, including counties in which contract can be offered (service area)
+  - Level of quality measurement (more on this in the next module)
+- Within a contract, insurers offer "plans" (i.e., benefit packages)
+  - Networks, formularies, covered services
+  - Premiums, deductibles, co-insurance, co-payments
+  
+
+# Introduction to Medicare Advantage Data
+
+## Overview
+
+- **Tons** of Medicare Advantage data publicly available from CMS
+- For this section, we're focused on "pricing" and "competition"
+  - Measure competition based on HHI
+  - Measure price in two ways: 1) average premiums; and 2) count of positive premiums
+
+## Data Needed
+
+- Enrollment and plan/contract info: enrollment files
+- Approved counties and contracts: service area files
+- Denominator for market share: penetration files
+- Premium data: landscape files (i.e., plan characteristics)
+
+## Data NOT (yet) Needed
+
+- Star ratings
+- CMS payment data (rebates)
+- Benchmark rates
+- CMS FFS costs

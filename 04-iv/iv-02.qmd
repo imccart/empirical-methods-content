@@ -1,0 +1,314 @@
+---
+title: "HCRIS Data"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+from: markdown+emoji
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+               hrbrthemes, gganimate, OECD, here)
+```
+
+
+# Understanding HCRIS Data
+
+---
+
+## What is HCRIS?
+
+Healthcare Cost Report Information System ('cost reports')
+
+- Nursing Homes (SNFs)
+- Hospice
+- Home Health Agencies
+- Hospitals 
+
+---
+
+## Hospital Cost Reports
+
+![](../images/HCRIS.png)
+
+
+---
+
+## The Data
+
+Let's work with the [HCRIS GitHub repository](https://github.com/imccart/HCRIS).
+
+- Database structure (alphanumeric, numeric, report info)
+- Understanding where to find variables of interest
+- Quirks in versions and duplicate reports
+
+---
+
+## The Data
+
+```{r}
+#| include: false
+#| eval: true
+hcris.data <- read_rds(here("data/HCRIS_Data.rds"))
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+#| fig-align: center
+
+hcris.data %>% 
+  ggplot(aes(x=as.factor(year))) + 
+  geom_bar() +
+  labs(
+    x="Year",
+    y="Number of Hospitals",
+    title="Number of Hospitals per Year"
+  ) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust=1))
+```
+
+
+
+---
+
+## Estimating hospital prices
+
+```{r}
+#| include: true
+#| eval: true
+hcris.data <- hcris.data %>%
+  mutate( discount_factor = 1-tot_discounts/tot_charges,
+          price_num = (ip_charges + icu_charges + ancillary_charges)*discount_factor - tot_mcare_payment,
+          price_denom = tot_discharges - mcare_discharges,
+          price = price_num/price_denom)
+```
+
+---
+
+## Estimating hospital prices
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+#| fig-align: center
+
+hcris.data %>% group_by(year) %>% 
+  filter(price_denom>10, !is.na(price_denom), 
+         price_num>0, !is.na(price_num)) %>%  
+  select(price, year) %>% 
+  summarize(mean_price=mean(price, na.rm=TRUE)) %>%
+  ggplot(aes(x=as.factor(year), y=mean_price)) + 
+  geom_line(aes(group=1)) +
+  labs(
+    x="Year",
+    y="Average Hospital Price",
+    title="Hospital Prices per Year"
+  ) + scale_y_continuous(labels=comma) +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust=1))
+```
+
+
+---
+
+## Removing very high prices
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+#| fig-align: center
+
+hcris.data %>% group_by(year) %>% 
+  filter(price_denom>100, !is.na(price_denom), 
+         price_num>0, !is.na(price_num),
+         price<100000) %>%   #<<
+  select(price, year) %>% 
+  summarize(mean_price=mean(price, na.rm=TRUE)) %>%
+  ggplot(aes(x=as.factor(year), y=mean_price)) + 
+  geom_line(aes(group=1)) +
+  labs(
+    x="Year",
+    y="Average Hospital Price",
+    title="Hospital Prices per Year"
+  ) + scale_y_continuous(labels=comma) +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust=1))
+```
+
+
+
+
+# Introduction to Instrumental Variables
+
+---
+
+## What is instrumental variables
+
+Instrumental Variables (IV) is a way to identify causal effects using variation in treatment particpation that is due to an *exogenous* variable that is only related to the outcome through treatment.
+
+
+---
+
+## Why bother with IV?
+
+Two reasons to consider IV:
+
+1. Selection on unobservables
+2. Reverse causation
+
+::: {.fragment}
+Either problem is sometimes loosely referred to as *endogeneity*
+:::
+
+---
+
+## Simple example
+
+Consider simple regression equation: $$y = \beta x + \varepsilon (x),$$
+where $\varepsilon(x)$ reflects the dependence between our observed variable and the error term.<br>
+
+::: {.fragment}
+Simple OLS will yield
+$$\frac{dy}{dx} = \beta + \frac{d\varepsilon}{dx} \neq \beta$$
+:::
+
+---
+
+## What does IV do?
+
+- The regression we want to do, $$y_{i} = \alpha + \delta D_{i} + \gamma A_{i} + \epsilon_{i},$$
+where $D_{i}$ is treatment (think of schooling for now) and $A_{i}$ is something like ability.
+
+- $A_{i}$ is unobserved, so instead we run $$y_{i} = \alpha + \beta D_{i} + \epsilon_{i}$$
+
+- From this "short" regression, we don't actually estimate $\delta$. Instead, we get an estimate of $$\beta = \delta + \lambda_{ds}\gamma \neq \delta,$$
+where $\lambda_{ds}$ is the coefficient of a regression of $A_{i}$ on $D_{i}$. 
+
+---
+
+## Intuition
+
+IV will recover the "long" regression without observing underlying ability<br>
+
+::: {.fragment}
+*IF* our IV satisfies all of the necessary assumptions.
+:::
+
+---
+
+## More formally
+
+- We want to estimate $$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0]$$
+
+- With instrument $Z_{i}$ that satisfies relevant assumptions, we can estimate this as
+$$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0] = \frac{E[Y_{i} | Z_{i}=1] - E[Y_{i} | Z_{i}=0]}{E[D_{i} | Z_{i}=1] - E[D_{i} | Z_{i}=0]}$$
+
+- In words, this is effect of the instrument on the outcome ("reduced form") divided by the effect of the instrument on treatment ("first stage")
+
+---
+
+## Derivation
+
+Recall "long" regression: $Y=\alpha + \delta S + \gamma A + \epsilon$.
+
+$$\begin{align}
+COV(Y,Z) & = E[YZ] - E[Y] E[Z] \\
+         & = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon)]E[Z] \\
+         & = \alpha E[Z] + \delta E[SZ] + \gamma E[AZ] + E[\epsilon Z] \\
+         & \hspace{.2in} - \alpha E[Z] - \delta E[S]E[Z] - \gamma E[A] E[Z] - E[\epsilon]E[Z] \\
+         & = \delta (E[SZ] - E[S] E[Z]) + \gamma (E[AZ] - E[A] E[Z]) \\
+         & \hspace{.2in} + E[\epsilon Z] - E[\epsilon] E[Z] \\
+         & = \delta C(S,Z) + \gamma C(A,Z) + C(\epsilon, Z)
+\end{align}$$
+
+---
+
+## Derivation
+
+Working from $COV(Y,Z) = \delta COV(S,Z) + \gamma COV(A,Z) + COV(\epsilon,Z)$, we find
+
+$$\delta = \frac{COV(Y,Z)}{COV(S,Z)}$$
+
+if $COV(A,Z)=COV(\epsilon, Z)=0$
+
+---
+
+## IVs in practice
+
+Easy to think of in terms of randomized controlled trial...
+
+::: {.fragment}
+ Measure    | Offered Seat | Not Offered Seat | Difference 
+ ---------- | ------------ | ---------------- | ---------- 
+ Score      | -0.003       | -0.358           | 0.355      
+ % Enrolled | 0.787        | 0.046            | 0.741   
+ Effect     |              |                  | 0.48
+
+
+Angrist *et al.*, 2012. "Who Benefits from KIPP?" *Journal of Policy Analysis and Management*.
+
+:::
+
+
+---
+
+## What is IV *really* doing
+
+Think of IV as two-steps:
+
+1. Isolate variation due to the instrument only (not due to endogenous stuff)
+2. Estimate effect on outcome using only this source of variation
+
+---
+
+## In regression terms
+
+Interested in estimating $\delta$ from $y_{i} = \alpha + \beta x_{i} + \delta D_{i} + \varepsilon_{i}$, but $D_{i}$ is endogenous (no pure "selection on observables").
+
+::: {.fragment}
+- **Step 1:** With instrument $Z_{i}$, we can regress $D_{i}$ on $Z_{i}$ and $x_{i}$: $$D_{i} = \lambda + \theta Z_{i} + \kappa x_{i} + \nu,$$
+and form prediction $\hat{D}_{i}$.
+
+- **Step 2:** Regress $y_{i}$ on $x_{i}$ and $\hat{D}_{i}$: $$y_{i} = \alpha + \beta x_{i} + \delta \hat{D}_{i} + \xi_{i}$$
+:::
+
+---
+
+## Derivation
+
+Recall our first-stage, $S=\theta Z + \varepsilon$, where $\hat{\theta}=\frac{C(Z,S)}{V(Z)}$, or $\hat{\theta}V(Z) = C(Z,S)$. Then:
+
+$$\begin{align}
+\hat{\delta}  & = \frac{COV(Y,Z)}{COV(S,Z)} \\
+        & = \frac{\hat{\theta}C(Y,Z)}{\hat{\theta}C(S,Z)} = \frac{\hat{\theta}C(Y,Z)}{\hat{\theta}^{2}V(Z)} \\
+        & = \frac{C(\hat{\theta}Z,Y)}{V(\hat{\theta}Z)} = \frac{C(\hat{S},Y)}{V(\hat{S})}
+\end{align}$$
+
+
+---
+
+## In regression terms
+
+But in practice, *DON'T* do this in two steps. Why?
+
+::: {.fragment}
+Because standard errors are wrong...not accounting for noise in prediction, $\hat{D}_{i}$. The appropriate fix is built into most modern stats programs.
+:::
+
+
+---
+
+## How to do IV in practice
+
+We'll talk about this next class!

@@ -1,0 +1,303 @@
+---
+title: "Basics of Panel Data"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+from: markdown+emoji
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmultiplegt,
+               hrbrthemes, gganimate, OECD, causaldata, fixest, modelsummary, plm)
+```
+
+
+# Panel Data and Fixed Effects
+
+
+---
+
+## Basics of panel data
+
+- Repeated observations of the same units over time (balanced vs unbalanced)
+- Identification due to variation **within unit**
+
+::: {.fragment}
+**Notation**
+
+- Unit $i=1,...,N$ over several periods $t=1,...,T$, which we denote $y_{it}$
+- Treatment status $D_{it}$
+- Regression model, <br>
+$y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,T$ and $i=1,...,N$
+:::
+
+---
+
+## Benefits of Panel Data
+
+- *May* overcome certain forms of omitted variable bias
+- Allows for unobserved but time-invariant factor, $\gamma_{i}$, that affects both treatment and outcomes
+
+::: {.fragment}
+**Still assumes**
+
+- No time-varying confounders 
+- Past outcomes do not directly affect current outcomes
+- Past outcomes do not affect treatment (reverse causality)
+:::
+
+---
+
+## Some textbook settings
+
+- Unobserved "ability" when studying schooling and wages
+- Unobserved "quality" when studying physicians or hospitals
+
+---
+
+## Fixed effects and regression
+
+$y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,T$ and $i=1,...,N$
+
+::: {.fragment}
+
+- Allows correlation between $\gamma_{i}$ and $D_{it}$
+- Physically estimate $\gamma_{i}$ in some cases via set of dummy variables
+- More generally, "remove" $\gamma_{i}$ via:
+  - "within" estimator
+  - first-difference estimator
+:::
+
+---
+
+## Within Estimator
+
+$y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,T$ and $i=1,...,N$
+
+::: {.fragment}
+
+- Most common approach (default in most statistical software)
+- Equivalent to demeaned model:
+$$y_{it} - \bar{y}_{i} = \delta (D_{it} - \bar{D}_{i}) + (\gamma_{i} - \bar{\gamma}_{i}) + (\gamma_{t} - \bar{\gamma}_{t}) + (\epsilon_{it} - \bar{\epsilon}_{i})$$
+
+- $\gamma_{i} - \bar{\gamma}_{i} = 0$ since $\gamma_{i}$ is time-invariant
+- Requires *strict exogeneity* assumption (error is uncorrelated with $D_{it}$ for all time periods)
+:::
+
+---
+
+## First-difference
+
+$y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,T$ and $i=1,...,N$
+
+::: {.fragment}
+
+- Instead of subtracting the mean, subtract the prior period values
+$$y_{it} - y_{i,t-1} = \delta(D_{it} - D_{i,t-1}) + (\gamma_{i} - \gamma_{i}) + (\gamma_{t} - \gamma_{t-1}) + (\epsilon_{it} - \epsilon_{i,t-1})$$
+
+- Requires exogeneity of $\epsilon_{it}$ and $D_{it}$ only for time $t$ and $t-1$ (weaker assumption than within estimator)
+- Sometimes useful to estimate both FE and FD just as a check
+:::
+
+---
+
+## Keep in mind...
+
+- Discussion only applies to linear case or very specific nonlinear models
+- Fixed effects at lower "levels" accommodate fixed effects at higher levels (e.g., FEs for hospital combine to form FEs for zip code, etc.)
+- Fixed effects can't solve reverse causality
+- Fixed effects don't address unobserved, time-varying confounders
+- Can't estimate effects on time-invariant variables
+- May "absorb" a lot of the variation for variables that don't change much over time
+
+
+---
+
+## Within Estimator (Default) in practice
+
+```{r}
+#| eval=FALSE
+
+library(fixest)
+library(causaldata)
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap))
+feols(lifeExp~lgdp_pc | country, data=reg.dat)
+```
+
+
+---
+
+## Within Estimator (Default) in practice
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+library(fixest)
+library(modelsummary)
+library(causaldata)
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap))
+m1 <- feols(lifeExp ~ lgdp_pc | country, data=reg.dat)
+modelsummary(list("Default FE"=m1), 
+             shape=term + statistic ~ model, 
+             gof_map=NA, 
+             coef_rename=c("lgdp_pc"="Log GDP per Capita"))
+```
+
+
+---
+
+## Within Estimator (Manually Demean) in practice
+
+```{r}
+#| eval=FALSE
+
+library(causaldata)
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap)) %>%
+  group_by(country) %>%
+  mutate(demean_lifeexp=lifeExp - mean(lifeExp, na.rm=TRUE),
+         demean_gdp=lgdp_pc - mean(lgdp_pc, na.rm=TRUE))
+lm(demean_lifeexp~ 0 + demean_gdp, data=reg.dat)
+```
+
+---
+
+## Within Estimator (Manually Demean) in practice
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+library(lmtest)
+reg.dat <- causaldata::gapminder %>%
+  group_by(country) %>%
+  mutate(lgdp_pc=log(gdpPercap),
+         lgdp_pc=lgdp_pc - mean(lgdp_pc, na.rm=TRUE),
+         lifeExp=lifeExp - mean(lifeExp, na.rm=TRUE))
+
+m2 <- lm(lifeExp~ 0 + lgdp_pc , data=reg.dat)
+modelsummary(list("Default FE"=m1, "Manual FE"=m2), 
+             shape=term + statistic ~ model, 
+             gof_map=NA, 
+             coef_rename=c("lgdp_pc"="Log GDP per Capita"),
+             vcov = ~country)
+```
+
+**Note:** `feols` defaults to clustering at level of FE, `lm` requires our input
+
+---
+
+## First differencing (default) in practice
+
+```{r}
+#| eval=FALSE
+
+library(plm)
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap))
+
+plm(lifeExp ~ 0 + lgdp_pc, model="fd", individual="country", index=c("country","year"), data=reg.dat)
+```
+
+---
+
+## First differencing (manual) in practice
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+library(plm)
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap))
+
+m3 <- plm(lifeExp ~ 0 + lgdp_pc, model="fd", index=c("country","year"), data=reg.dat)
+
+modelsummary(list("Default FE"=m1, "Manual FE"=m2, "Default FD"=m3), 
+             shape=term + statistic ~ model, 
+             gof_map=NA, 
+             coef_rename=c("lgdp_pc"="Log GDP per Capita"))
+```
+
+
+
+---
+
+## First differencing (manual) in practice
+
+```{r}
+#| eval=FALSE
+
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap)) %>%  
+  group_by(country) %>%
+  arrange(country, year) %>%
+  mutate(fd_lifeexp=lifeExp - lag(lifeExp),
+         lgdp_pc=lgdp_pc - lag(lgdp_pc)) %>%
+  na.omit()
+
+lm(fd_lifeexp~ 0 + lgdp_pc , data=reg.dat)
+```
+
+---
+
+## First differencing (manual) in practice
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+reg.dat <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap)) %>%  
+  group_by(country) %>%
+  arrange(country, year) %>%  
+  mutate(fd_lifeexp=lifeExp - dplyr::lag(lifeExp),
+         lgdp_pc=lgdp_pc - dplyr::lag(lgdp_pc)) %>%
+  na.omit()
+
+m4 <- lm(fd_lifeexp~ 0 + lgdp_pc , data=reg.dat)
+modelsummary(list("Default FE"=m1, "Manual FE"=m2, "Default FD"=m3, "Manual FD"=m4), 
+             shape=term + statistic ~ model, 
+             gof_map=NA, 
+             coef_rename=c("lgdp_pc"="Log GDP per Capita"))
+```
+
+
+---
+
+## FE and FD with same time period
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+reg.dat2 <- causaldata::gapminder %>%
+  mutate(lgdp_pc=log(gdpPercap)) %>%
+  inner_join(reg.dat %>% select(country, year), by=c("country","year"))
+m5 <- feols(lifeExp ~ lgdp_pc | country, data=reg.dat2)
+modelsummary(list("Default FE"=m5, "Default FD"=m3, "Manual FD"=m4), 
+             shape=term + statistic ~ model, 
+             gof_map=NA, 
+             coef_rename=c("lgdp_pc"="Log GDP per Capita"))
+```
+
+Don't want to read too much into this, but...
+
+- Likely strong serial correlation in this case (almost certainly)
+- Mispecified model
+
+

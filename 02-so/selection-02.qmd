@@ -1,0 +1,34 @@
+---
+title: "Medicare Advantage Data"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+from: markdown+emoji
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+               hrbrthemes, gganimate, OECD, here, modelsummary)
+```
+
+
+## Outline for Today
+
+Recall the Medicare Advantage repository, [Medicare Advantage GitHub repository](https://github.com/imccart/Medicare-Advantage)
+
+1. Understand code structure
+2. Import files using purrr (in R), or just pandas in python
+
+

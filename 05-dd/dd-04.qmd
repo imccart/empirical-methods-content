@@ -1,0 +1,374 @@
+---
+title: "Difference-in-differences Part II"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+from: markdown+emoji
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+               hrbrthemes, gganimate, OECD, here, modelsummary, plotly)
+```
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmultiplegt,
+               hrbrthemes, gganimate, OECD, causaldata, fixest, modelsummary, plm)
+```
+
+
+# DD IRL
+
+- Try out some real data on Medicaid expansion following the ACA
+- Data is small part of DD empirical assignment
+- **Question:** Did Medicaid expansion reduce uninsurance?
+
+---
+
+## Step 1: Look at the data
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+library(tidyverse)  
+mcaid.data <- read_tsv("../data/acs_medicaid.txt")
+ins.plot.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
+  mutate(perc_unins=uninsured/adult_pop) %>%
+  group_by(expand_ever, year) %>% summarize(mean=mean(perc_unins))
+
+ins.plot <- ggplot(data=ins.plot.dat, aes(x=year,y=mean,group=expand_ever,linetype=expand_ever)) + 
+  geom_line() + geom_point() + theme_bw() +
+  geom_vline(xintercept=2013.5, color="red") +
+  geom_text(data = ins.plot.dat %>% filter(year == 2016), 
+            aes(label = c("Non-expansion","Expansion"),
+                x = year + 1,
+                y = mean)) +
+  guides(linetype="none") +
+  labs(
+    x="Year",
+    y="Fraction Uninsured",
+    title="Share of Uninsured over Time"
+  )
+```
+
+---
+
+## Step 1: Look at the data
+
+```{r}
+#| echo=FALSE
+
+ins.plot
+```
+
+---
+
+## Step 2: Estimate effects
+
+Interested in $\delta$ from:
+
+$$y_{it} = \alpha + \beta \times Post_{t} + \lambda \times Expand_{i} + \delta \times Post_{t} \times Expand_{i} + \varepsilon_{it}$$
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+library(tidyverse)
+library(modelsummary)
+mcaid.data <- read_tsv("../data/acs_medicaid.txt")
+reg.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
+  mutate(perc_unins=uninsured/adult_pop,
+         post = (year>=2014), 
+         treat=post*expand_ever)
+
+dd.ins.reg <- lm(perc_unins ~ post + expand_ever + post*expand_ever, data=reg.dat)
+```
+
+---
+
+## Step 2: Estimate effects
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+modelsummary(list("DD (2014)"=dd.ins.reg),
+             shape=term + statistic ~ model, 
+             gof_map=NA,
+             coef_omit='Intercept',
+             vcov=~State
+         )
+```
+
+---
+
+## Final DD thoughts
+
+- Key identification assumption is **parallel trends**
+- Inference: Typically want to cluster at unit-level to allow for correlation over time within units, but problems with small numbers of treated or control groups:
+    - Conley-Taber CIs
+    - Wild cluster bootstrap
+    - Randomization inference
+- "Extra" things like propensity score weighting and doubly robust estimation
+
+
+---
+
+## DD and TWFE?
+
+- Just a shorthand for a common regression specification
+- Fixed effects for each unit and each time period, $\gamma_{i}$ and $\gamma_{t}$
+- More general than 2x2 DD but same result
+
+---
+
+## What is TWFE?
+
+Want to estimate $\delta$:
+
+$$y_{it} = \alpha + \delta D_{it} + \gamma_{i} + \gamma_{t} + \varepsilon_{it},$$
+
+where $\gamma_{i}$ and $\gamma_{t}$ denote a set of unit $i$ and time period $t$ dummy variables (or fixed effects).
+
+---
+
+## TWFE in Practice
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**2x2 DD**
+```{r}
+#| results: hide
+#| echo: TRUE
+
+library(tidyverse)
+library(modelsummary)
+mcaid.data <- read_tsv("../data/acs_medicaid.txt")
+reg.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
+  mutate(perc_unins=uninsured/adult_pop,
+         post = (year>=2014), 
+         treat=post*expand_ever)
+m.dd <- lm(perc_unins ~ post + expand_ever + treat, data=reg.dat)
+```
+:::
+
+::: {.column width="50%"}
+**TWFE**
+```{r}
+#| results: hide
+#| echo: TRUE
+
+library(fixest)
+m.twfe <- feols(perc_unins ~ treat | State + year, data=reg.dat)
+```
+:::
+
+::::
+
+---
+
+## TWFE in Practice
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+msummary(list("DD"=m.dd, "TWFE"=m.twfe),
+         shape=term + statistic ~ model, 
+         gof_map=NA,
+         coef_omit='Intercept',
+         vcov=~State
+         )
+```
+
+---
+
+## Event study
+
+Event study is poorly named:
+
+- In finance, even study is just an *interrupted time series*
+- In econ and other areas, we usually have a treatment/control group *and* a break in time
+
+---
+
+## Why show an event study?
+
+- Allows for heterogeneous effects over time (maybe effects phase in over time or dissipate)
+- Visually very appealing
+- Offers easy evidence against or consistent with parallel trends assumption
+
+
+---
+
+## How to do an event study?
+
+Estimate something akin to...
+$$y_{it} = \gamma_{i} + \gamma_{t} + \sum_{\tau = -q}^{-2}\delta_{\tau} D_{i \tau} + \sum_{\tau=0}^{m} \delta_{\tau}D_{i \tau} + \beta x_{it} + \epsilon_{it},$$
+
+where $q$ captures the number of periods before the treatment occurs and $m$ captures periods after treatment occurs.
+
+---
+
+## How to do an event study?
+
+1. Create all treatment/year interactions
+2. Regressions with full set of interactions and group/year FEs
+3. Plot coefficients and standard errors
+
+
+---
+
+## Things to address
+
+1. "Event time" vs calendar time
+2. Define baseline period
+3. Choose number of pre-treatment and post-treatment coefficients
+
+
+---
+
+## Event time vs calendar time
+
+Essentially two "flavors" of event studies
+
+1. Common treatment timing
+2. Differential treatment timing
+
+---
+
+## Define baseline period
+
+- Must choose an "excluded" time period (as in all cases of group dummy variables)
+- Common choice is $t=-1$ (period just before treatment)
+- Easy to understand with calendar time
+- For event time...manually set time to $t=-1$ for all untreated units
+
+---
+
+## Number of pre-treatment and post-treatment periods
+
+- On event time, sometimes very few observations for large lead or lag values
+- Medicaid expansion example: Late adopting states have fewer post-treatment periods
+- Norm is to group final lead/lag periods together
+
+
+---
+
+## Common treatment timing
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+library(tidyverse)
+library(modelsummary)
+library(fixest)
+mcaid.data <- read_tsv("../data/acs_medicaid.txt")
+reg.dat <- mcaid.data %>% 
+  filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
+  mutate(perc_unins=uninsured/adult_pop,
+         post = (year>=2014), 
+         treat=post*expand_ever)
+
+mod.twfe <- feols(perc_unins~i(year, expand_ever, ref=2013) | State + year,
+                  cluster=~State,
+                  data=reg.dat)
+
+iplot(mod.twfe, 
+      xlab = 'Time to treatment',
+      main = 'Event study')
+```
+
+
+
+---
+
+## Differential treatment timing
+
+- Now let's work with the full Medicaid expansion data
+- Includes late adopters
+- Requires putting observations on "event time"
+
+---
+
+## Differential treatment timing
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+library(tidyverse)
+library(modelsummary)
+library(fixest)
+mcaid.data <- read_tsv("../data/acs_medicaid.txt")
+reg.dat <- mcaid.data %>% 
+  filter(!is.na(expand_ever)) %>%
+  mutate(perc_unins=uninsured/adult_pop,
+         post = (year>=2014), 
+         treat=post*expand_ever,
+         time_to_treat = ifelse(expand_ever==FALSE, 0, year-expand_year),
+         time_to_treat = ifelse(time_to_treat < -3, -3, time_to_treat))
+
+mod.twfe <- feols(perc_unins~i(time_to_treat, expand_ever, ref=-1) | State + year,
+                  cluster=~State,
+                  data=reg.dat)
+
+iplot(mod.twfe, 
+      xlab = 'Time to treatment',
+      main = 'Event study')
+```
+
+
+---
+
+## Problems with TWFE
+
+- Recall goal of estimating ATE or ATT
+- TWFE and 2x2 DD identical with homogeneous effects and common treatment timing
+- Otherwise...TWFE is biased and inconsistent for ATT
+
+Consider standard TWFE specification with a single treatment coefficient, $$y_{it} = \alpha + \delta D_{it} + \gamma_{i} + \gamma_{t} + \varepsilon_{it}.$$ We can decompose $\hat{\delta}$ into three things:
+
+$$\hat{\delta}_{twfe} = \text{VW} ATT + \text{VW} PT - \Delta ATT$$
+
+1. A variance-weighted ATT
+2. Violation of parallel trends
+3. Heterogeneous effects over time
+
+---
+
+## Intuition
+
+**Problems come from heterogeneous effects and staggered treatment timing**
+
+- OLS is a weighted average of all 2x2 DD groups
+- Weights are function of size of subsamples, size of treatment/control units, and timing of treatment
+- Units treated in middle of sample receive larger weights
+- **Best case:** Variance-weighted ATT
+- Prior-treated units act as controls for late-treated units, so differential timing **alone** can introduce bias 
+- Heterogeneity and differential timing introduces "contamination" via negative weights assigned to some underlying 2x2 DDs
+
+
+---
+
+## Does it really matter?
+
+- Definitely! But how much?
+- Large treatment effects for early treated units could reverse the sign of final estimate
+- Let's explore this nice Shiny app from Kyle Butts: [Bacon-Decomposition Shiny App](https://hhsievertsen.shinyapps.io/kylebutts_did_eventstudy/).

@@ -1,0 +1,153 @@
+---
+title: "More Medicare Advantage Data"
+author: "Ian McCarthy | Emory University"
+format: 
+  revealjs:
+    theme: [moon]
+    preview-links: auto
+    chalkboard:
+      boardmarker-width: 5
+    slide-number: true
+    width: 1600
+    height: 900    
+#    embed-resources: true
+from: markdown+emoji
+execute: 
+  echo: true
+---
+
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+               hrbrthemes, gganimate, OECD, here, modelsummary)
+```
+
+
+## Medicare Advantage Data
+
+- Recall the Medicare Advantage repository, [Medicare Advantage GitHub repository](https://github.com/imccart/ma-class)
+
+::: {.fragment}
+- Now we need to work with the **final** dataset, 'final_ma_data'
+:::
+
+---
+
+## Summary stats
+
+Focus on enrollments and star ratings:
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+ma.data <- read_rds(here("data/ma/final_ma_data.rds"))
+sum.vars <- ma.data %>% select("MA Enrollment" = avg_enrollment, "MA Eligibles" = avg_eligibles, "Star Rating" = Star_Rating)
+datasummary(All(sum.vars) ~ Mean + SD + Histogram, data=sum.vars, fmt=2)
+```
+
+
+---
+
+## Clean the data
+
+Limit to plans with:
+
+- Observed enrollments, $>$ 10
+- First year of star rating (2009)
+- Observed star rating
+
+::: {.fragment}
+```{r}
+ma.data.clean <- ma.data %>%
+  filter(!is.na(avg_enrollment) & year==2009 & !is.na(partc_score)) #<<
+```
+:::
+
+---
+
+## Calculate raw average rating
+
+```{r}
+ma.data.clean <- ma.data.clean %>%
+  mutate(raw_rating=rowMeans(
+    cbind(breastcancer_screen,rectalcancer_screen,cv_cholscreen,diabetes_cholscreen,
+          glaucoma_test,monitoring,flu_vaccine,pn_vaccine,physical_health,
+          mental_health,osteo_test,physical_monitor,primaryaccess,
+          hospital_followup,depression_followup,nodelays,carequickly,
+          overallrating_care,overallrating_plan,calltime,
+          doctor_communicate,customer_service,osteo_manage,
+          diabetes_eye,diabetes_kidney,diabetes_bloodsugar,
+          diabetes_chol,antidepressant,bloodpressure,ra_manage,
+          copd_test,betablocker,bladder,falling,appeals_timely,
+          appeals_review),
+    na.rm=T)) %>%
+  select(contractid, planid, fips, avg_enrollment, state, county, raw_rating, partc_score,
+         avg_eligibles, avg_enrolled, premium_partc, risk_ab, Star_Rating,
+         bid, avg_ffscost, ma_rate)
+```
+
+
+# Distribution of star ratings
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+ma.data.clean %>% 
+  ggplot(aes(x=as.factor(Star_Rating))) + 
+  geom_bar() +
+  labs(
+    x="Star Rating",
+    y="Count of Plans",
+    title="Frequency Distribution of Star Ratings"
+  ) + theme_bw()
+```
+
+---
+
+## Enrollments and star ratings
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+summary(lm(avg_enrollment~factor(Star_Rating), data=ma.data.clean))
+```
+
+---
+
+## Potential endogeneity
+
+- The star rating is a measure of quality
+- Quality may be endogenous to enrollment (how?)
+
+---
+
+## Premiums and quality
+
+```{r} 
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+ma.data.clean %>% 
+  ggplot(aes(x=partc_score, y=premium_partc)) + 
+  geom_point() +
+  labs(
+    x="Part C Score",
+    y="Premium",
+    title="Premiums and Quality"
+  ) + theme_bw()
+```
+
+---
+
+## Premiums and quality
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+summary(lm(premium_partc~factor(Star_Rating), data=ma.data.clean))
+```
