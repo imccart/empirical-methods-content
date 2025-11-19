@@ -219,10 +219,12 @@ for (yr in years) {
 }
 
 
-# Plan characteristics data for 2021 --------------------------------------------
+# Plan characteristics data for 2022 --------------------------------------------
+
 source("analysis/fn_plan_characteristics.R")
-y <- 2021
-ma.path.a <- paste0("data/input/raw/ma/landscape/Extracted Data/2021LandscapeSource file MA_AtoM 10152020.csv")
+y <- 2022
+
+ma.path.a <- paste0("data/input/raw/ma/landscape/Extracted Data/2022LandscapeSource file MA_AtoM 10262021.csv")
 ma.data.a <- read_csv(ma.path.a,
                       skip=6,
                       col_names=c("state","county","org_name","plan_name","plan_type","premium","partd_deductible",
@@ -250,7 +252,7 @@ ma.data.a <- read_csv(ma.path.a,
   
 
 
-ma.path.b <- paste0("data/input/raw/ma/landscape/Extracted Data/2021LandscapeSource file MA_NtoW 10152020.csv")
+ma.path.b <- paste0("data/input/raw/ma/landscape/Extracted Data/2022LandscapeSource file MA_NtoW 10262021.csv")
 ma.data.b <- read_csv(ma.path.b,
                       skip=6,
                       col_names=c("state","county","org_name","plan_name","plan_type","premium","partd_deductible",
@@ -280,9 +282,9 @@ ma.data.b <- read_csv(ma.path.b,
 ma.data <- rbind(ma.data.a,ma.data.b)
 
 
-mapd.path.a <- paste0("data/input/raw/ma/landscape/Extracted Data/PartCD/2021/Medicare Part D 2021 Plan Report 09082020.xls")
+mapd.path.a <- paste0("data/input/raw/ma/landscape/Extracted Data/PartCD/2022/Medicare Part D 2022 Plan Report 10262021.xls")
 mapd.data.a <- read_xls(mapd.path.a,
-                        range="A5:Z33219",
+                        range="A5:Z41314",
                         sheet="Alabama to Montana",
                         col_names=c("state","county","org_name","plan_name","contractid","planid","segmentid",
                                     "org_type","plan_type","snp","snp_type","benefit_type","below_benchmark",
@@ -294,9 +296,9 @@ mapd.data.a <- read_xls(mapd.path.a,
 
 
 
-mapd.path.b <- paste0("data/input/raw/ma/landscape/Extracted Data/PartCD/2021/Medicare Part D 2021 Plan Report 09082020.xls")
+mapd.path.b <- paste0("data/input/raw/ma/landscape/Extracted Data/PartCD/2022/Medicare Part D 2022 Plan Report 10262021.xls")
 mapd.data.b <- read_xls(mapd.path.b,
-                        range="A5:Z37201",
+                        range="A5:Z43732",
                         sheet="Nebraska to Wyoming",
                         col_names=c("state","county","org_name","plan_name","contractid","planid","segmentid",
                                     "org_type","plan_type","snp","snp_type","benefit_type","below_benchmark",
@@ -312,11 +314,11 @@ final.landscape <- mapd.clean.merge(ma.data=ma.data, mapd.data=mapd.data, y) %>%
   ungroup() %>%
   select(contractid, planid, premium, premium_partc, premium_partd=premium_partd_total, year)
 
-write_csv(final.landscape, "data/output/ma-snippets/ga-landscape-2021.csv")
+write_csv(final.landscape, "data/output/ma-snippets/ga-landscape-2022.csv")
 
-# MA Penetration data for 2021 --------------------------------------------
+# MA Penetration data for 2022 --------------------------------------------
 
-  y <- 2021
+  y <- 2022
   # Month list --------------------------------------------------------------
   monthlist <- if (y == 2008) sprintf("%02d", 6:12) else sprintf("%02d", 1:12)
 
@@ -398,9 +400,9 @@ write_csv(final.landscape, "data/output/ma-snippets/ga-landscape-2021.csv")
       .groups = "drop"
     )
 
-  ga.penetration.2021 <- final.penetration %>% 
+  ga.penetration.2022 <- final.penetration %>% 
     filter(state == "Georgia") %>%
     ungroup() %>%
     select(fips, county, year, avg_eligibles, avg_enrolled, ssa)
 
-write_csv(ga.penetration.2021, "data/output/ma-snippets/ga-penetration-2021.csv")
+write_csv(ga.penetration.2022, "data/output/ma-snippets/ga-penetration-2022.csv")
