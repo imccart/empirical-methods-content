@@ -190,6 +190,7 @@ Definition of "product" in MA is a little complicated...
 - Approved counties and contracts: service area files
 - Denominator for market share: penetration files
 - Premium data: landscape files (i.e., plan characteristics)
+- CMS FFS costs: used for additional covariates
 
 ## Data NOT (yet) Needed
 
