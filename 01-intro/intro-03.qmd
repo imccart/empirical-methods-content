@@ -19,7 +19,7 @@ execute:
 #| include: false
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, readxl)
+               hrbrthemes, gganimate, OECD, here, readxl, readr)
 ```
 
 ## Outline for Today
@@ -48,18 +48,17 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 ### R
 
 ```{r}
-#| eval: false
-library(readr)
-library(dplyr)
+#| eval: true
+#| results: "hide"
 
 # Medicare Advantage enrollment (Georgia)
-ga_enrollment <- read_csv("data/output/ma-snippets/ga-enrollment.csv")
+ga_enrollment <- read_csv("../data/output/ma-snippets/ga-enrollment.csv")
 
 # Medicare Advantage contracts (Georgia)
-ga_contract   <- read_csv("data/output/ma-snippets/ga-contract.csv")
+ga_contract   <- read_csv("../data/output/ma-snippets/ga-contract.csv")
 
 # Medicare Advantage service areas (Georgia)
-ga_service    <- read_csv("data/output/ma-snippets/ga-service-area.csv")
+ga_service    <- read_csv("../data/output/ma-snippets/ga-service-area.csv")
 ```
 
 ### Python
@@ -77,12 +76,25 @@ ga_contract   = pd.read_csv("data/output/ma-snippets/ga-contract.csv")
 # Medicare Advantage service areas (Georgia)
 ga_service    = pd.read_csv("data/output/ma-snippets/ga-service-area.csv")
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+glimpse(ga_enrollment)
+
+```
+
+
 :::
 
 - Each call to `read_csv()` / `pd.read_csv()`:
   - Reads a CSV file from `data/output/ma-snippets/`
   - Returns a tibble / DataFrame you can work with
   - Stores it in an object (`ga_enrollment`, `ga_contract`, `ga_service`)
+
 
 
 ## Example: loading Excel files (for comparison)
@@ -150,6 +162,24 @@ ga_enrollment.shape[1]   # columns
 # Peek at the data
 ga_enrollment.head()
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+# Basic info about ga_enrollment
+class(ga_enrollment)
+dim(ga_enrollment)
+nrow(ga_enrollment)
+ncol(ga_enrollment)
+
+# Peek at the data
+head(ga_enrollment)
+```
+
+
 :::
 
 
@@ -182,6 +212,21 @@ ga_enrollment.info()
 # Basic numeric summaries
 ga_enrollment.describe()
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+# Structure
+glimpse(ga_enrollment)
+
+# Basic numeric summaries
+summary(ga_enrollment)
+```
+
+
 :::
 
 
@@ -204,7 +249,6 @@ ga_enrollment.describe()
 
 ```{r}
 #| eval: false
-library(dplyr)
 
 # How many plans per year?
 ga_enrollment %>%
@@ -232,6 +276,27 @@ ga_enrollment.groupby("year").agg(
     n_plans=("enrollment", "size")
 )
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+# How many plans per year?
+ga_enrollment %>%
+  count(year)
+
+# Average enrollment by year
+ga_enrollment %>%
+  group_by(year) %>%
+  summarise(
+    avg_enrollment = mean(enrollment, na.rm = TRUE),
+    n_plans        = n()
+  )
+```
+
+
 :::
 
 - These quick summaries help you understand what’s in the data **before** you start estimating models

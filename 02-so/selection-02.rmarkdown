@@ -17,6 +17,8 @@ execute:
 ---
 
 
+
+
 ## Outline for Today
 
 Recall the Medicare Advantage repository, [Medicare Advantage GitHub repository](https://github.com/imccart/Medicare-Advantage)
@@ -57,6 +59,8 @@ Now let's turn to the code structure:
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -143,7 +147,11 @@ ga_plan_year <- map_dfr(
 )
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -193,7 +201,11 @@ ga_plan_year = pd.concat(
 )
 ```
 
+
+
 ### Output
+
+
 
 ```{r}
 #| eval: true
@@ -201,6 +213,8 @@ ga_plan_year = pd.concat(
 
 glimpse(ga_plan_year)
 ```
+
+
 
 :::
 
@@ -214,6 +228,8 @@ glimpse(ga_plan_year)
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -260,7 +276,11 @@ ga_plans_year <- ga_plan_year_tidy %>%
   )
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -341,7 +361,11 @@ ga_plans_year = (
 )
 ```
 
+
+
 ### Output
+
+
 
 ```{r}
 #| eval: true
@@ -349,6 +373,8 @@ ga_plans_year = (
 
 glimpse(ga_plans_year)
 ```
+
+
 :::
 
 ## Import and collapse service area data
@@ -363,6 +389,8 @@ glimpse(ga_plans_year)
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -422,7 +450,11 @@ service_year_ga <- map_dfr(
 
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -504,7 +536,11 @@ ga_service_year = (
 )
 ```
 
+
+
 ### Output (full)
+
+
 
 ```{r}
 #| eval: true
@@ -514,7 +550,11 @@ glimpse(service_year_ga)
 
 ```
 
+
+
 ### Output (collapsed)
+
+
 
 ```{r}
 #| eval: true
@@ -523,6 +563,8 @@ glimpse(service_year_ga)
 glimpse(ga_service_year)
 
 ```
+
+
 
 
 :::
@@ -537,6 +579,8 @@ glimpse(ga_service_year)
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -563,7 +607,11 @@ ga_penetration <- read_csv(
 # in the full Medicare-Advantage repo.
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -589,7 +637,11 @@ ga_penetration = pd.read_csv(
 # final.landscape and final.penetration in the full repo.
 ```
 
+
+
 ### Output (characteristics)
+
+
 
 ```{r}
 #| eval: true
@@ -599,7 +651,11 @@ glimpse(ga_landscape)
 
 ```
 
+
+
 ### Output (MA penetration)
+
+
 
 ```{r}
 #| eval: true
@@ -608,6 +664,8 @@ glimpse(ga_landscape)
 glimpse(ga_penetration)
 
 ```
+
+
 
 :::
 
@@ -627,6 +685,8 @@ glimpse(ga_penetration)
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -668,7 +728,11 @@ ga_ma_2022 <- ga_ma_2022 %>%
 # service area, penetration, and premium_partc information for 2022.
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -713,7 +777,11 @@ ga_ma_2022 = ga_ma_2022.merge(
 # service area, penetration, and premium_partc information for 2022.
 ```
 
+
+
 ### Output
+
+
 
 ```{r}
 #| eval: true
@@ -722,6 +790,8 @@ ga_ma_2022 = ga_ma_2022.merge(
 glimpse(ga_ma_2022)
 
 ```
+
+
 
 :::
 
@@ -736,6 +806,8 @@ glimpse(ga_ma_2022)
 ::: {.panel-tabset}
 
 ### R
+
+
 
 ```{r}
 #| eval: true
@@ -789,7 +861,11 @@ ga_county_2022 <- ga_ma_2022_shares %>%
   )
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -845,7 +921,11 @@ ga_county_2022 = (
 )
 ```
 
+
+
 ### Output
+
+
 
 ```{r}
 #| eval: true
@@ -854,6 +934,8 @@ ga_county_2022 = (
 glimpse(ga_county_2022)
 
 ```
+
+
 
 :::
 
@@ -878,6 +960,8 @@ glimpse(ga_county_2022)
 
 ### R
 
+
+
 ```{r}
 #| eval: true
 #| results: "hide"
@@ -892,7 +976,11 @@ ggplot(ga_county_2022, aes(x = hhi_ma, y = avg_premium_partc)) +
   )
 ```
 
+
+
 ### Python
+
+
 
 ```{python}
 #| eval: false
@@ -905,7 +993,11 @@ plt.title("County-level MA premiums and competition in Georgia, 2022")
 plt.show()
 ```
 
+
+
 ### Output
+
+
 
 ```{r}
 #| eval: true
@@ -920,4 +1012,7 @@ ggplot(ga_county_2022, aes(x = hhi_ma, y = avg_premium_partc)) +
   )
 ```
 
+
+
 :::
+

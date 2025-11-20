@@ -78,7 +78,7 @@ sa2022 <- read_csv("data/input/raw/ma/service-area/Extracted Data/MA_Cnty_SA_202
 ga.enroll <- enroll202201 %>%
     filter(state == "GA", planid<800 | planid>899, !is.na(enrollment))
 
-ga.sa <- sa2022 %>%
+ga.sa <- sa2022 %>% select(-notes) %>%
     filter(state == "GA") %>%
     inner_join(ga.enroll %>% select(contractid) %>% distinct(), 
                by = "contractid")
