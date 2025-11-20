@@ -443,14 +443,14 @@ ga_enrollment_checked = ga_enrollment_checked.dropna(
 library(dplyr)
 
 # Merge enrollment with contract-level info
-ga_enroll_contract <- ga_enrollment |>
+ga_enroll_contract <- ga_enrollment %>%
   left_join(
     ga_contract,
     by = c("contract_id", "year")
   )
 
 # Add service area info
-ga_enroll_full <- ga_enroll_contract |>
+ga_enroll_full <- ga_enroll_contract %>%
   left_join(
     ga_service,
     by = c("contract_id", "plan_id", "county", "year")
@@ -503,7 +503,7 @@ years <- 2015:2018
 
 ga_enrollment_multi <- map_dfr(
   years,
-  ~ read_csv(paste0("data/output/ma-snippets/ga-enrollment-", .x, ".csv")) |>
+  ~ read_csv(paste0("data/output/ma-snippets/ga-enrollment-", .x, ".csv")) %>%
       mutate(year = .x)
 )
 ```
@@ -545,15 +545,15 @@ library(dplyr)
 library(tidyr)
 
 # Aggregate enrollment by contract and year
-ga_contract_year <- ga_enrollment |>
-  group_by(contract_id, year) |>
+ga_contract_year <- ga_enrollment %>%
+  group_by(contract_id, year) %>%
   summarise(
     total_enrollment = sum(enrollment, na.rm = TRUE),
     .groups = "drop"
   )
 
 # Long → wide: years as columns
-ga_contract_wide <- ga_contract_year |>
+ga_contract_wide <- ga_contract_year %>%
   pivot_wider(
     names_from = year,
     values_from = total_enrollment,
@@ -561,13 +561,13 @@ ga_contract_wide <- ga_contract_year |>
   )
 
 # Wide → long: back to year/enrollment columns
-ga_contract_long <- ga_contract_wide |>
+ga_contract_long <- ga_contract_wide %>%
   pivot_longer(
     cols = starts_with("enroll_"),
     names_to = "year",
     names_prefix = "enroll_",
     values_to = "total_enrollment"
-  ) |>
+  ) %>%
   mutate(year = as.integer(year))
 ```
 
@@ -720,8 +720,8 @@ library(dplyr)
 library(readr)
 
 # Example: summary table by year and rural status
-enroll_summary <- ga_enrollment_checked |>
-  group_by(year, rural) |>
+enroll_summary <- ga_enrollment_checked %>%
+  group_by(year, rural) %>%
   summarise(
     avg_enrollment = mean(enrollment, na.rm = TRUE),
     n_plans        = n(),
