@@ -312,7 +312,7 @@ mapd.data <- rbind(mapd.data.a,mapd.data.b)
 final.landscape <- mapd.clean.merge(ma.data=ma.data, mapd.data=mapd.data, y) %>%
   filter(state == "Georgia", planid < 800 | planid > 899) %>%
   ungroup() %>%
-  select(contractid, planid, premium, premium_partc, premium_partd=premium_partd_total, year)
+  select(contractid, planid, premium, premium_partc, premium_partd=premium_partd_total, year, county)
 
 write_csv(final.landscape, "data/output/ma-snippets/ga-landscape-2022.csv")
 
