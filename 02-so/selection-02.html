@@ -434,7 +434,8 @@ Ian McCarthy | Emory University
 <p>Now let‚Äôs turn to the code structure:</p>
 <ul>
 <li>Everything called from main code file. Easy to follow and replicate</li>
-<li></li>
+<li>Code separated into key datasets (enrollment (plan) data, service area, landscape, penetration, etc.)</li>
+<li>Some code files are very repetitive because of small changes in naming conventions or how data are arranged over time</li>
 </ul>
 </section></section>
 <section>
@@ -456,91 +457,91 @@ Ian McCarthy | Emory University
 <li>Use <code>map_dfr()</code> to stack months into a monthly panel.</li>
 </ol></li>
 </ul>
+</section>
+<section class="slide level2">
+
 <div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">R</a></li><li><a href="#tabset-1-2">Python</a></li></ul>
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">R</a></li><li><a href="#tabset-1-2">Python</a></li><li><a href="#tabset-1-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href=""></a><span class="fu">library</span>(purrr)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># GA snippets for January‚ÄìMarch</span></span>
+<span id="cb1-2"><a href=""></a>monthlist <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"01"</span>,<span class="st">"02"</span>,<span class="st">"03"</span>)</span>
 <span id="cb1-3"><a href=""></a></span>
-<span id="cb1-4"><a href=""></a><span class="co"># GA snippets for January‚ÄìMarch</span></span>
-<span id="cb1-5"><a href=""></a>monthlist <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb1-4"><a href=""></a><span class="co"># Base directory for GA snippet files</span></span>
+<span id="cb1-5"><a href=""></a>base_dir <span class="ot">&lt;-</span> <span class="st">"../data/output/ma-snippets"</span></span>
 <span id="cb1-6"><a href=""></a></span>
-<span id="cb1-7"><a href=""></a><span class="co"># Base directory for GA snippet files</span></span>
-<span id="cb1-8"><a href=""></a>base_dir <span class="ot">&lt;-</span> <span class="st">"data/output/ma-snippets"</span></span>
-<span id="cb1-9"><a href=""></a></span>
-<span id="cb1-10"><a href=""></a><span class="co"># Readers (quiet &amp; typed) -----------------------------------------------</span></span>
-<span id="cb1-11"><a href=""></a></span>
-<span id="cb1-12"><a href=""></a>read_contract <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
-<span id="cb1-13"><a href=""></a>  <span class="fu">read_csv</span>(</span>
-<span id="cb1-14"><a href=""></a>    path,</span>
-<span id="cb1-15"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,   <span class="co"># snippets no longer have the original header row</span></span>
-<span id="cb1-16"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
-<span id="cb1-17"><a href=""></a>      <span class="at">contractid         =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-18"><a href=""></a>      <span class="at">planid             =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-19"><a href=""></a>      <span class="at">org_type           =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-20"><a href=""></a>      <span class="at">plan_type          =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-21"><a href=""></a>      <span class="at">partd              =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-22"><a href=""></a>      <span class="at">snp                =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-23"><a href=""></a>      <span class="at">eghp               =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-24"><a href=""></a>      <span class="at">org_name           =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-25"><a href=""></a>      <span class="at">org_marketing_name =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-26"><a href=""></a>      <span class="at">plan_name          =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-27"><a href=""></a>      <span class="at">parent_org         =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-28"><a href=""></a>      <span class="at">contract_date      =</span> <span class="fu">col_character</span>()</span>
-<span id="cb1-29"><a href=""></a>    ),</span>
-<span id="cb1-30"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb1-31"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-32"><a href=""></a>  )</span>
-<span id="cb1-33"><a href=""></a>}</span>
-<span id="cb1-34"><a href=""></a></span>
-<span id="cb1-35"><a href=""></a>read_enroll <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
-<span id="cb1-36"><a href=""></a>  <span class="fu">read_csv</span>(</span>
-<span id="cb1-37"><a href=""></a>    path,</span>
-<span id="cb1-38"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,</span>
-<span id="cb1-39"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
-<span id="cb1-40"><a href=""></a>      <span class="at">contractid =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-41"><a href=""></a>      <span class="at">planid     =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-42"><a href=""></a>      <span class="at">ssa        =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-43"><a href=""></a>      <span class="at">fips       =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-44"><a href=""></a>      <span class="at">state      =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-45"><a href=""></a>      <span class="at">county     =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-46"><a href=""></a>      <span class="at">enrollment =</span> <span class="fu">col_double</span>()</span>
-<span id="cb1-47"><a href=""></a>    ),</span>
-<span id="cb1-48"><a href=""></a>    <span class="at">na =</span> <span class="st">"*"</span>,</span>
-<span id="cb1-49"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb1-50"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-51"><a href=""></a>  )</span>
-<span id="cb1-52"><a href=""></a>}</span>
-<span id="cb1-53"><a href=""></a></span>
-<span id="cb1-54"><a href=""></a><span class="co"># One-month loader (GA snippets) ----------------------------------------</span></span>
-<span id="cb1-55"><a href=""></a></span>
-<span id="cb1-56"><a href=""></a>load_month_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(m, y) {</span>
-<span id="cb1-57"><a href=""></a>  c_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-contract-"</span>,   y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
-<span id="cb1-58"><a href=""></a>  e_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-enrollment-"</span>, y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
+<span id="cb1-7"><a href=""></a><span class="co"># Readers (quiet &amp; typed) -----------------------------------------------</span></span>
+<span id="cb1-8"><a href=""></a></span>
+<span id="cb1-9"><a href=""></a>read_contract <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb1-10"><a href=""></a>  <span class="fu">read_csv</span>(</span>
+<span id="cb1-11"><a href=""></a>    path,</span>
+<span id="cb1-12"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,   <span class="co"># snippets no longer have the original header row</span></span>
+<span id="cb1-13"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb1-14"><a href=""></a>      <span class="at">contractid         =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-15"><a href=""></a>      <span class="at">planid             =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb1-16"><a href=""></a>      <span class="at">org_type           =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-17"><a href=""></a>      <span class="at">plan_type          =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-18"><a href=""></a>      <span class="at">partd              =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-19"><a href=""></a>      <span class="at">snp                =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-20"><a href=""></a>      <span class="at">eghp               =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-21"><a href=""></a>      <span class="at">org_name           =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-22"><a href=""></a>      <span class="at">org_marketing_name =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-23"><a href=""></a>      <span class="at">plan_name          =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-24"><a href=""></a>      <span class="at">parent_org         =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-25"><a href=""></a>      <span class="at">contract_date      =</span> <span class="fu">col_character</span>()</span>
+<span id="cb1-26"><a href=""></a>    ),</span>
+<span id="cb1-27"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-28"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-29"><a href=""></a>  )</span>
+<span id="cb1-30"><a href=""></a>}</span>
+<span id="cb1-31"><a href=""></a></span>
+<span id="cb1-32"><a href=""></a>read_enroll <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb1-33"><a href=""></a>  <span class="fu">read_csv</span>(</span>
+<span id="cb1-34"><a href=""></a>    path,</span>
+<span id="cb1-35"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,</span>
+<span id="cb1-36"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb1-37"><a href=""></a>      <span class="at">contractid =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-38"><a href=""></a>      <span class="at">planid     =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb1-39"><a href=""></a>      <span class="at">ssa        =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb1-40"><a href=""></a>      <span class="at">fips       =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb1-41"><a href=""></a>      <span class="at">state      =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-42"><a href=""></a>      <span class="at">county     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb1-43"><a href=""></a>      <span class="at">enrollment =</span> <span class="fu">col_double</span>()</span>
+<span id="cb1-44"><a href=""></a>    ),</span>
+<span id="cb1-45"><a href=""></a>    <span class="at">na =</span> <span class="st">"*"</span>,</span>
+<span id="cb1-46"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-47"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-48"><a href=""></a>  )</span>
+<span id="cb1-49"><a href=""></a>}</span>
+<span id="cb1-50"><a href=""></a></span>
+<span id="cb1-51"><a href=""></a><span class="co"># One-month loader (GA snippets) ----------------------------------------</span></span>
+<span id="cb1-52"><a href=""></a></span>
+<span id="cb1-53"><a href=""></a>load_month_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(m, y) {</span>
+<span id="cb1-54"><a href=""></a>  c_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-contract-"</span>, y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
+<span id="cb1-55"><a href=""></a>  e_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-enrollment-"</span>, y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
+<span id="cb1-56"><a href=""></a></span>
+<span id="cb1-57"><a href=""></a>  contract.info <span class="ot">&lt;-</span> <span class="fu">read_contract</span>(c_path) <span class="sc">%&gt;%</span></span>
+<span id="cb1-58"><a href=""></a>    <span class="fu">distinct</span>(contractid, planid, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb1-59"><a href=""></a></span>
-<span id="cb1-60"><a href=""></a>  contract.info <span class="ot">&lt;-</span> <span class="fu">read_contract</span>(c_path) <span class="sc">%&gt;%</span></span>
-<span id="cb1-61"><a href=""></a>    <span class="fu">distinct</span>(contractid, planid, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-62"><a href=""></a></span>
-<span id="cb1-63"><a href=""></a>  enroll.info <span class="ot">&lt;-</span> <span class="fu">read_enroll</span>(e_path)</span>
-<span id="cb1-64"><a href=""></a></span>
-<span id="cb1-65"><a href=""></a>  contract.info <span class="sc">%&gt;%</span></span>
-<span id="cb1-66"><a href=""></a>    <span class="fu">left_join</span>(enroll.info, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"planid"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-67"><a href=""></a>    <span class="fu">mutate</span>(</span>
-<span id="cb1-68"><a href=""></a>      <span class="at">month =</span> <span class="fu">as.integer</span>(m),</span>
-<span id="cb1-69"><a href=""></a>      <span class="at">year  =</span> y</span>
-<span id="cb1-70"><a href=""></a>    )</span>
-<span id="cb1-71"><a href=""></a>}</span>
-<span id="cb1-72"><a href=""></a></span>
-<span id="cb1-73"><a href=""></a><span class="co"># Read all months for a given year, then tidy once ----------------------</span></span>
-<span id="cb1-74"><a href=""></a></span>
-<span id="cb1-75"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span>   <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
-<span id="cb1-76"><a href=""></a></span>
-<span id="cb1-77"><a href=""></a>ga_plan_year <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
-<span id="cb1-78"><a href=""></a>  monthlist,</span>
-<span id="cb1-79"><a href=""></a>  <span class="sc">~</span> <span class="fu">load_month_ga</span>(.x, y)</span>
-<span id="cb1-80"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-60"><a href=""></a>  enroll.info <span class="ot">&lt;-</span> <span class="fu">read_enroll</span>(e_path)</span>
+<span id="cb1-61"><a href=""></a></span>
+<span id="cb1-62"><a href=""></a>  contract.info <span class="sc">%&gt;%</span></span>
+<span id="cb1-63"><a href=""></a>    <span class="fu">left_join</span>(enroll.info, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"planid"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-64"><a href=""></a>    <span class="fu">mutate</span>(</span>
+<span id="cb1-65"><a href=""></a>      <span class="at">month =</span> <span class="fu">as.integer</span>(m),</span>
+<span id="cb1-66"><a href=""></a>      <span class="at">year  =</span> y</span>
+<span id="cb1-67"><a href=""></a>    )</span>
+<span id="cb1-68"><a href=""></a>}</span>
+<span id="cb1-69"><a href=""></a></span>
+<span id="cb1-70"><a href=""></a><span class="co"># Read all months for a given year, then tidy once ----------------------</span></span>
+<span id="cb1-71"><a href=""></a></span>
+<span id="cb1-72"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span>   <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
+<span id="cb1-73"><a href=""></a></span>
+<span id="cb1-74"><a href=""></a>ga_plan_year <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb1-75"><a href=""></a>  monthlist,</span>
+<span id="cb1-76"><a href=""></a>  <span class="sc">~</span> <span class="fu">load_month_ga</span>(.x, y)</span>
+<span id="cb1-77"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-1-2">
@@ -591,6 +592,33 @@ Ian McCarthy | Emory University
 <span id="cb2-44"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
+<div id="tabset-1-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 22,182
+Columns: 19
+$ contractid         &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H0111", "H0111‚Ä¶
+$ planid             &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ‚Ä¶
+$ org_type           &lt;chr&gt; "Local CCP", "Local CCP", "Local CCP", "Local CCP",‚Ä¶
+$ plan_type          &lt;chr&gt; "Local PPO", "Local PPO", "Local PPO", "Local PPO",‚Ä¶
+$ partd              &lt;chr&gt; "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Y‚Ä¶
+$ snp                &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ eghp               &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ org_name           &lt;chr&gt; "WELLCARE OF GEORGIA, INC.", "WELLCARE OF GEORGIA, ‚Ä¶
+$ org_marketing_name &lt;chr&gt; "Wellcare", "Wellcare", "Wellcare", "Wellcare", "We‚Ä¶
+$ plan_name          &lt;chr&gt; "Wellcare No Premium Open (PPO)", "Wellcare No Prem‚Ä¶
+$ parent_org         &lt;chr&gt; "Centene Corporation", "Centene Corporation", "Cent‚Ä¶
+$ contract_date      &lt;chr&gt; "01/01/2018", "01/01/2018", "01/01/2018", "01/01/20‚Ä¶
+$ ssa                &lt;dbl&gt; 11000, 11030, 11050, 11060, 11070, 11080, 11090, 11‚Ä¶
+$ fips               &lt;dbl&gt; 13001, 13009, 13013, 13015, 13017, 13019, 13021, 13‚Ä¶
+$ state              &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA‚Ä¶
+$ county             &lt;chr&gt; "Appling", "Baldwin", "Barrow", "Bartow", "Ben Hill‚Ä¶
+$ enrollment         &lt;dbl&gt; 11, 27, 47, 43, 14, 13, 116, 21, 40, 73, 44, 42, 11‚Ä¶
+$ month              &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ‚Ä¶
+$ year               &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 202‚Ä¶</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </section>
@@ -605,129 +633,160 @@ Ian McCarthy | Emory University
 </ul></li>
 </ul>
 <div class="panel-tabset">
-<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">R</a></li><li><a href="#tabset-2-2">Python</a></li></ul>
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">R</a></li><li><a href="#tabset-2-2">Python</a></li><li><a href="#tabset-2-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># Starting point: ga_plan_year (monthly GA plan data for a single year)</span></span>
-<span id="cb3-2"><a href=""></a></span>
-<span id="cb3-3"><a href=""></a>ga_plan_year_tidy <span class="ot">&lt;-</span> ga_plan_year <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href=""></a>  <span class="fu">arrange</span>(contractid, planid, state, county, month) <span class="sc">%&gt;%</span></span>
-<span id="cb3-5"><a href=""></a>  <span class="fu">group_by</span>(state, county) <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href=""></a>  <span class="fu">fill</span>(fips, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-7"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-8"><a href=""></a>  <span class="fu">group_by</span>(contractid, planid) <span class="sc">%&gt;%</span></span>
-<span id="cb3-9"><a href=""></a>  <span class="fu">fill</span>(plan_type, partd, snp, eghp, plan_name, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-10"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href=""></a>  <span class="fu">group_by</span>(contractid) <span class="sc">%&gt;%</span></span>
-<span id="cb3-12"><a href=""></a>  <span class="fu">fill</span>(org_type, org_name, org_marketing_name, parent_org, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-13"><a href=""></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb3-14"><a href=""></a></span>
-<span id="cb3-15"><a href=""></a>ga_plans_year <span class="ot">&lt;-</span> ga_plan_year_tidy <span class="sc">%&gt;%</span></span>
-<span id="cb3-16"><a href=""></a>  <span class="fu">group_by</span>(contractid, planid, fips, year) <span class="sc">%&gt;%</span></span>
-<span id="cb3-17"><a href=""></a>  <span class="fu">arrange</span>(month, <span class="at">.by_group =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-18"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb3-19"><a href=""></a>    <span class="at">n_nonmiss        =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(enrollment)),</span>
-<span id="cb3-20"><a href=""></a>    <span class="at">avg_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">mean</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
-<span id="cb3-21"><a href=""></a>    <span class="at">sd_enrollment    =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="fu">sd</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
-<span id="cb3-22"><a href=""></a>    <span class="at">min_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">min</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
-<span id="cb3-23"><a href=""></a>    <span class="at">max_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">max</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
-<span id="cb3-24"><a href=""></a>    <span class="at">first_enrollment =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">first</span>(<span class="fu">na.omit</span>(enrollment)), <span class="cn">NA_real_</span>),</span>
-<span id="cb3-25"><a href=""></a>    <span class="at">last_enrollment  =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>,  <span class="fu">last</span>(<span class="fu">na.omit</span>(enrollment)),  <span class="cn">NA_real_</span>),</span>
-<span id="cb3-26"><a href=""></a>    <span class="at">state            =</span> <span class="fu">last</span>(state),</span>
-<span id="cb3-27"><a href=""></a>    <span class="at">county           =</span> <span class="fu">last</span>(county),</span>
-<span id="cb3-28"><a href=""></a>    <span class="at">org_type         =</span> <span class="fu">last</span>(org_type),</span>
-<span id="cb3-29"><a href=""></a>    <span class="at">plan_type        =</span> <span class="fu">last</span>(plan_type),</span>
-<span id="cb3-30"><a href=""></a>    <span class="at">partd            =</span> <span class="fu">last</span>(partd),</span>
-<span id="cb3-31"><a href=""></a>    <span class="at">snp              =</span> <span class="fu">last</span>(snp),</span>
-<span id="cb3-32"><a href=""></a>    <span class="at">eghp             =</span> <span class="fu">last</span>(eghp),</span>
-<span id="cb3-33"><a href=""></a>    <span class="at">org_name         =</span> <span class="fu">last</span>(org_name),</span>
-<span id="cb3-34"><a href=""></a>    <span class="at">org_marketing_name =</span> <span class="fu">last</span>(org_marketing_name),</span>
-<span id="cb3-35"><a href=""></a>    <span class="at">plan_name        =</span> <span class="fu">last</span>(plan_name),</span>
-<span id="cb3-36"><a href=""></a>    <span class="at">parent_org       =</span> <span class="fu">last</span>(parent_org),</span>
-<span id="cb3-37"><a href=""></a>    <span class="at">contract_date    =</span> <span class="fu">last</span>(contract_date),</span>
-<span id="cb3-38"><a href=""></a>    <span class="at">year             =</span> <span class="fu">last</span>(year),</span>
-<span id="cb3-39"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb3-40"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="co"># Starting point: ga_plan_year (monthly GA plan data for a single year)</span></span>
+<span id="cb4-2"><a href=""></a></span>
+<span id="cb4-3"><a href=""></a>ga_plan_year_tidy <span class="ot">&lt;-</span> ga_plan_year <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href=""></a>  <span class="fu">arrange</span>(contractid, planid, state, county, month) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href=""></a>  <span class="fu">group_by</span>(state, county) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href=""></a>  <span class="fu">fill</span>(fips, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-7"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href=""></a>  <span class="fu">group_by</span>(contractid, planid) <span class="sc">%&gt;%</span></span>
+<span id="cb4-9"><a href=""></a>  <span class="fu">fill</span>(plan_type, partd, snp, eghp, plan_name, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href=""></a>  <span class="fu">group_by</span>(contractid) <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href=""></a>  <span class="fu">fill</span>(org_type, org_name, org_marketing_name, parent_org, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-13"><a href=""></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb4-14"><a href=""></a></span>
+<span id="cb4-15"><a href=""></a>ga_plans_year <span class="ot">&lt;-</span> ga_plan_year_tidy <span class="sc">%&gt;%</span></span>
+<span id="cb4-16"><a href=""></a>  <span class="fu">group_by</span>(contractid, planid, fips, year) <span class="sc">%&gt;%</span></span>
+<span id="cb4-17"><a href=""></a>  <span class="fu">arrange</span>(month, <span class="at">.by_group =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-18"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb4-19"><a href=""></a>    <span class="at">n_nonmiss        =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(enrollment)),</span>
+<span id="cb4-20"><a href=""></a>    <span class="at">avg_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">mean</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
+<span id="cb4-21"><a href=""></a>    <span class="at">sd_enrollment    =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="fu">sd</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
+<span id="cb4-22"><a href=""></a>    <span class="at">min_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">min</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
+<span id="cb4-23"><a href=""></a>    <span class="at">max_enrollment   =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">max</span>(enrollment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="cn">NA_real_</span>),</span>
+<span id="cb4-24"><a href=""></a>    <span class="at">first_enrollment =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">first</span>(<span class="fu">na.omit</span>(enrollment)), <span class="cn">NA_real_</span>),</span>
+<span id="cb4-25"><a href=""></a>    <span class="at">last_enrollment  =</span> <span class="fu">ifelse</span>(n_nonmiss <span class="sc">&gt;</span> <span class="dv">0</span>,  <span class="fu">last</span>(<span class="fu">na.omit</span>(enrollment)),  <span class="cn">NA_real_</span>),</span>
+<span id="cb4-26"><a href=""></a>    <span class="at">state            =</span> <span class="fu">last</span>(state),</span>
+<span id="cb4-27"><a href=""></a>    <span class="at">county           =</span> <span class="fu">last</span>(county),</span>
+<span id="cb4-28"><a href=""></a>    <span class="at">org_type         =</span> <span class="fu">last</span>(org_type),</span>
+<span id="cb4-29"><a href=""></a>    <span class="at">plan_type        =</span> <span class="fu">last</span>(plan_type),</span>
+<span id="cb4-30"><a href=""></a>    <span class="at">partd            =</span> <span class="fu">last</span>(partd),</span>
+<span id="cb4-31"><a href=""></a>    <span class="at">snp              =</span> <span class="fu">last</span>(snp),</span>
+<span id="cb4-32"><a href=""></a>    <span class="at">eghp             =</span> <span class="fu">last</span>(eghp),</span>
+<span id="cb4-33"><a href=""></a>    <span class="at">org_name         =</span> <span class="fu">last</span>(org_name),</span>
+<span id="cb4-34"><a href=""></a>    <span class="at">org_marketing_name =</span> <span class="fu">last</span>(org_marketing_name),</span>
+<span id="cb4-35"><a href=""></a>    <span class="at">plan_name        =</span> <span class="fu">last</span>(plan_name),</span>
+<span id="cb4-36"><a href=""></a>    <span class="at">parent_org       =</span> <span class="fu">last</span>(parent_org),</span>
+<span id="cb4-37"><a href=""></a>    <span class="at">contract_date    =</span> <span class="fu">last</span>(contract_date),</span>
+<span id="cb4-38"><a href=""></a>    <span class="at">year             =</span> <span class="fu">last</span>(year),</span>
+<span id="cb4-39"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb4-40"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-2-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="co"># Starting point: ga_plan_year (monthly GA plan data for a single year)</span></span>
-<span id="cb4-2"><a href=""></a></span>
-<span id="cb4-3"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb4-4"><a href=""></a></span>
-<span id="cb4-5"><a href=""></a><span class="co"># Sort and forward-fill IDs and characteristics ------------------------</span></span>
-<span id="cb4-6"><a href=""></a>ga_plan_year_sorted <span class="op">=</span> (</span>
-<span id="cb4-7"><a href=""></a>    ga_plan_year</span>
-<span id="cb4-8"><a href=""></a>    .sort_values([<span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"month"</span>])</span>
-<span id="cb4-9"><a href=""></a>    .copy()</span>
-<span id="cb4-10"><a href=""></a>)</span>
-<span id="cb4-11"><a href=""></a></span>
-<span id="cb4-12"><a href=""></a><span class="co"># Fill fips within county</span></span>
-<span id="cb4-13"><a href=""></a>ga_plan_year_sorted[<span class="st">"fips"</span>] <span class="op">=</span> (</span>
-<span id="cb4-14"><a href=""></a>    ga_plan_year_sorted</span>
-<span id="cb4-15"><a href=""></a>    .groupby([<span class="st">"state"</span>, <span class="st">"county"</span>])[<span class="st">"fips"</span>]</span>
-<span id="cb4-16"><a href=""></a>    .ffill()</span>
-<span id="cb4-17"><a href=""></a>    .bfill()</span>
-<span id="cb4-18"><a href=""></a>)</span>
-<span id="cb4-19"><a href=""></a></span>
-<span id="cb4-20"><a href=""></a><span class="co"># Fill plan-level variables within contract‚Äìplan</span></span>
-<span id="cb4-21"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"plan_type"</span>, <span class="st">"partd"</span>, <span class="st">"snp"</span>, <span class="st">"eghp"</span>, <span class="st">"plan_name"</span>]:</span>
-<span id="cb4-22"><a href=""></a>    ga_plan_year_sorted[col] <span class="op">=</span> (</span>
-<span id="cb4-23"><a href=""></a>        ga_plan_year_sorted</span>
-<span id="cb4-24"><a href=""></a>        .groupby([<span class="st">"contractid"</span>, <span class="st">"planid"</span>])[col]</span>
-<span id="cb4-25"><a href=""></a>        .ffill()</span>
-<span id="cb4-26"><a href=""></a>        .bfill()</span>
-<span id="cb4-27"><a href=""></a>    )</span>
-<span id="cb4-28"><a href=""></a></span>
-<span id="cb4-29"><a href=""></a><span class="co"># Fill org-level variables within contract</span></span>
-<span id="cb4-30"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"org_type"</span>, <span class="st">"org_name"</span>, <span class="st">"org_marketing_name"</span>, <span class="st">"parent_org"</span>]:</span>
-<span id="cb4-31"><a href=""></a>    ga_plan_year_sorted[col] <span class="op">=</span> (</span>
-<span id="cb4-32"><a href=""></a>        ga_plan_year_sorted</span>
-<span id="cb4-33"><a href=""></a>        .groupby(<span class="st">"contractid"</span>)[col]</span>
-<span id="cb4-34"><a href=""></a>        .ffill()</span>
-<span id="cb4-35"><a href=""></a>        .bfill()</span>
-<span id="cb4-36"><a href=""></a>    )</span>
-<span id="cb4-37"><a href=""></a></span>
-<span id="cb4-38"><a href=""></a><span class="co"># Helpers to get first/last non-missing enrollment ---------------------</span></span>
-<span id="cb4-39"><a href=""></a><span class="kw">def</span> first_nonmissing(x):</span>
-<span id="cb4-40"><a href=""></a>    x <span class="op">=</span> x.dropna()</span>
-<span id="cb4-41"><a href=""></a>    <span class="cf">return</span> x.iloc[<span class="dv">0</span>] <span class="cf">if</span> <span class="kw">not</span> x.empty <span class="cf">else</span> np.nan</span>
-<span id="cb4-42"><a href=""></a></span>
-<span id="cb4-43"><a href=""></a><span class="kw">def</span> last_nonmissing(x):</span>
-<span id="cb4-44"><a href=""></a>    x <span class="op">=</span> x.dropna()</span>
-<span id="cb4-45"><a href=""></a>    <span class="cf">return</span> x.iloc[<span class="op">-</span><span class="dv">1</span>] <span class="cf">if</span> <span class="kw">not</span> x.empty <span class="cf">else</span> np.nan</span>
-<span id="cb4-46"><a href=""></a></span>
-<span id="cb4-47"><a href=""></a><span class="co"># Collapse to yearly panel ---------------------------------------------</span></span>
-<span id="cb4-48"><a href=""></a>ga_plans_year <span class="op">=</span> (</span>
-<span id="cb4-49"><a href=""></a>    ga_plan_year_sorted</span>
-<span id="cb4-50"><a href=""></a>    .sort_values([<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>])</span>
-<span id="cb4-51"><a href=""></a>    .groupby([<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb4-52"><a href=""></a>    .agg(</span>
-<span id="cb4-53"><a href=""></a>        n_nonmiss        <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="kw">lambda</span> x: x.notna().<span class="bu">sum</span>()),</span>
-<span id="cb4-54"><a href=""></a>        avg_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"mean"</span>),</span>
-<span id="cb4-55"><a href=""></a>        sd_enrollment    <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"std"</span>),</span>
-<span id="cb4-56"><a href=""></a>        min_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"min"</span>),</span>
-<span id="cb4-57"><a href=""></a>        max_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"max"</span>),</span>
-<span id="cb4-58"><a href=""></a>        first_enrollment <span class="op">=</span> (<span class="st">"enrollment"</span>, first_nonmissing),</span>
-<span id="cb4-59"><a href=""></a>        last_enrollment  <span class="op">=</span> (<span class="st">"enrollment"</span>, last_nonmissing),</span>
-<span id="cb4-60"><a href=""></a>        state            <span class="op">=</span> (<span class="st">"state"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-61"><a href=""></a>        county           <span class="op">=</span> (<span class="st">"county"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-62"><a href=""></a>        org_type         <span class="op">=</span> (<span class="st">"org_type"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-63"><a href=""></a>        plan_type        <span class="op">=</span> (<span class="st">"plan_type"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-64"><a href=""></a>        partd            <span class="op">=</span> (<span class="st">"partd"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-65"><a href=""></a>        snp              <span class="op">=</span> (<span class="st">"snp"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-66"><a href=""></a>        eghp             <span class="op">=</span> (<span class="st">"eghp"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-67"><a href=""></a>        org_name         <span class="op">=</span> (<span class="st">"org_name"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-68"><a href=""></a>        org_marketing_name <span class="op">=</span> (<span class="st">"org_marketing_name"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-69"><a href=""></a>        plan_name        <span class="op">=</span> (<span class="st">"plan_name"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-70"><a href=""></a>        parent_org       <span class="op">=</span> (<span class="st">"parent_org"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-71"><a href=""></a>        contract_date    <span class="op">=</span> (<span class="st">"contract_date"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-72"><a href=""></a>        year_out         <span class="op">=</span> (<span class="st">"year"</span>, <span class="st">"last"</span>),</span>
-<span id="cb4-73"><a href=""></a>    )</span>
-<span id="cb4-74"><a href=""></a>    .rename(columns<span class="op">=</span>{<span class="st">"year_out"</span>: <span class="st">"year"</span>})</span>
-<span id="cb4-75"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href=""></a><span class="co"># Starting point: ga_plan_year (monthly GA plan data for a single year)</span></span>
+<span id="cb5-2"><a href=""></a></span>
+<span id="cb5-3"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-4"><a href=""></a></span>
+<span id="cb5-5"><a href=""></a><span class="co"># Sort and forward-fill IDs and characteristics ------------------------</span></span>
+<span id="cb5-6"><a href=""></a>ga_plan_year_sorted <span class="op">=</span> (</span>
+<span id="cb5-7"><a href=""></a>    ga_plan_year</span>
+<span id="cb5-8"><a href=""></a>    .sort_values([<span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"month"</span>])</span>
+<span id="cb5-9"><a href=""></a>    .copy()</span>
+<span id="cb5-10"><a href=""></a>)</span>
+<span id="cb5-11"><a href=""></a></span>
+<span id="cb5-12"><a href=""></a><span class="co"># Fill fips within county</span></span>
+<span id="cb5-13"><a href=""></a>ga_plan_year_sorted[<span class="st">"fips"</span>] <span class="op">=</span> (</span>
+<span id="cb5-14"><a href=""></a>    ga_plan_year_sorted</span>
+<span id="cb5-15"><a href=""></a>    .groupby([<span class="st">"state"</span>, <span class="st">"county"</span>])[<span class="st">"fips"</span>]</span>
+<span id="cb5-16"><a href=""></a>    .ffill()</span>
+<span id="cb5-17"><a href=""></a>    .bfill()</span>
+<span id="cb5-18"><a href=""></a>)</span>
+<span id="cb5-19"><a href=""></a></span>
+<span id="cb5-20"><a href=""></a><span class="co"># Fill plan-level variables within contract‚Äìplan</span></span>
+<span id="cb5-21"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"plan_type"</span>, <span class="st">"partd"</span>, <span class="st">"snp"</span>, <span class="st">"eghp"</span>, <span class="st">"plan_name"</span>]:</span>
+<span id="cb5-22"><a href=""></a>    ga_plan_year_sorted[col] <span class="op">=</span> (</span>
+<span id="cb5-23"><a href=""></a>        ga_plan_year_sorted</span>
+<span id="cb5-24"><a href=""></a>        .groupby([<span class="st">"contractid"</span>, <span class="st">"planid"</span>])[col]</span>
+<span id="cb5-25"><a href=""></a>        .ffill()</span>
+<span id="cb5-26"><a href=""></a>        .bfill()</span>
+<span id="cb5-27"><a href=""></a>    )</span>
+<span id="cb5-28"><a href=""></a></span>
+<span id="cb5-29"><a href=""></a><span class="co"># Fill org-level variables within contract</span></span>
+<span id="cb5-30"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"org_type"</span>, <span class="st">"org_name"</span>, <span class="st">"org_marketing_name"</span>, <span class="st">"parent_org"</span>]:</span>
+<span id="cb5-31"><a href=""></a>    ga_plan_year_sorted[col] <span class="op">=</span> (</span>
+<span id="cb5-32"><a href=""></a>        ga_plan_year_sorted</span>
+<span id="cb5-33"><a href=""></a>        .groupby(<span class="st">"contractid"</span>)[col]</span>
+<span id="cb5-34"><a href=""></a>        .ffill()</span>
+<span id="cb5-35"><a href=""></a>        .bfill()</span>
+<span id="cb5-36"><a href=""></a>    )</span>
+<span id="cb5-37"><a href=""></a></span>
+<span id="cb5-38"><a href=""></a><span class="co"># Helpers to get first/last non-missing enrollment ---------------------</span></span>
+<span id="cb5-39"><a href=""></a><span class="kw">def</span> first_nonmissing(x):</span>
+<span id="cb5-40"><a href=""></a>    x <span class="op">=</span> x.dropna()</span>
+<span id="cb5-41"><a href=""></a>    <span class="cf">return</span> x.iloc[<span class="dv">0</span>] <span class="cf">if</span> <span class="kw">not</span> x.empty <span class="cf">else</span> np.nan</span>
+<span id="cb5-42"><a href=""></a></span>
+<span id="cb5-43"><a href=""></a><span class="kw">def</span> last_nonmissing(x):</span>
+<span id="cb5-44"><a href=""></a>    x <span class="op">=</span> x.dropna()</span>
+<span id="cb5-45"><a href=""></a>    <span class="cf">return</span> x.iloc[<span class="op">-</span><span class="dv">1</span>] <span class="cf">if</span> <span class="kw">not</span> x.empty <span class="cf">else</span> np.nan</span>
+<span id="cb5-46"><a href=""></a></span>
+<span id="cb5-47"><a href=""></a><span class="co"># Collapse to yearly panel ---------------------------------------------</span></span>
+<span id="cb5-48"><a href=""></a>ga_plans_year <span class="op">=</span> (</span>
+<span id="cb5-49"><a href=""></a>    ga_plan_year_sorted</span>
+<span id="cb5-50"><a href=""></a>    .sort_values([<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>])</span>
+<span id="cb5-51"><a href=""></a>    .groupby([<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-52"><a href=""></a>    .agg(</span>
+<span id="cb5-53"><a href=""></a>        n_nonmiss        <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="kw">lambda</span> x: x.notna().<span class="bu">sum</span>()),</span>
+<span id="cb5-54"><a href=""></a>        avg_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb5-55"><a href=""></a>        sd_enrollment    <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"std"</span>),</span>
+<span id="cb5-56"><a href=""></a>        min_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"min"</span>),</span>
+<span id="cb5-57"><a href=""></a>        max_enrollment   <span class="op">=</span> (<span class="st">"enrollment"</span>, <span class="st">"max"</span>),</span>
+<span id="cb5-58"><a href=""></a>        first_enrollment <span class="op">=</span> (<span class="st">"enrollment"</span>, first_nonmissing),</span>
+<span id="cb5-59"><a href=""></a>        last_enrollment  <span class="op">=</span> (<span class="st">"enrollment"</span>, last_nonmissing),</span>
+<span id="cb5-60"><a href=""></a>        state            <span class="op">=</span> (<span class="st">"state"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-61"><a href=""></a>        county           <span class="op">=</span> (<span class="st">"county"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-62"><a href=""></a>        org_type         <span class="op">=</span> (<span class="st">"org_type"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-63"><a href=""></a>        plan_type        <span class="op">=</span> (<span class="st">"plan_type"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-64"><a href=""></a>        partd            <span class="op">=</span> (<span class="st">"partd"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-65"><a href=""></a>        snp              <span class="op">=</span> (<span class="st">"snp"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-66"><a href=""></a>        eghp             <span class="op">=</span> (<span class="st">"eghp"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-67"><a href=""></a>        org_name         <span class="op">=</span> (<span class="st">"org_name"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-68"><a href=""></a>        org_marketing_name <span class="op">=</span> (<span class="st">"org_marketing_name"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-69"><a href=""></a>        plan_name        <span class="op">=</span> (<span class="st">"plan_name"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-70"><a href=""></a>        parent_org       <span class="op">=</span> (<span class="st">"parent_org"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-71"><a href=""></a>        contract_date    <span class="op">=</span> (<span class="st">"contract_date"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-72"><a href=""></a>        year_out         <span class="op">=</span> (<span class="st">"year"</span>, <span class="st">"last"</span>),</span>
+<span id="cb5-73"><a href=""></a>    )</span>
+<span id="cb5-74"><a href=""></a>    .rename(columns<span class="op">=</span>{<span class="st">"year_out"</span>: <span class="st">"year"</span>})</span>
+<span id="cb5-75"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-2-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 7,612
+Columns: 23
+$ contractid         &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H0111", "H0111‚Ä¶
+$ planid             &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ‚Ä¶
+$ fips               &lt;dbl&gt; 13001, 13009, 13013, 13015, 13017, 13019, 13021, 13‚Ä¶
+$ year               &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 202‚Ä¶
+$ n_nonmiss          &lt;int&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, ‚Ä¶
+$ avg_enrollment     &lt;dbl&gt; 11.66667, 27.00000, 46.33333, 47.33333, 14.33333, 1‚Ä¶
+$ sd_enrollment      &lt;dbl&gt; 0.5773503, 1.0000000, 0.5773503, 5.1316014, 0.57735‚Ä¶
+$ min_enrollment     &lt;dbl&gt; 11, 26, 46, 43, 14, 13, 116, 21, 40, 69, 43, 42, 11‚Ä¶
+$ max_enrollment     &lt;dbl&gt; 12, 28, 47, 53, 15, 17, 118, 23, 45, 73, 45, 45, 11‚Ä¶
+$ first_enrollment   &lt;dbl&gt; 11, 27, 47, 43, 14, 13, 116, 21, 40, 73, 44, 42, 11‚Ä¶
+$ last_enrollment    &lt;dbl&gt; 12, 26, 46, 53, 14, 16, 117, 23, 44, 69, 43, 44, 11‚Ä¶
+$ state              &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA‚Ä¶
+$ county             &lt;chr&gt; "Appling", "Baldwin", "Barrow", "Bartow", "Ben Hill‚Ä¶
+$ org_type           &lt;chr&gt; "Local CCP", "Local CCP", "Local CCP", "Local CCP",‚Ä¶
+$ plan_type          &lt;chr&gt; "Local PPO", "Local PPO", "Local PPO", "Local PPO",‚Ä¶
+$ partd              &lt;chr&gt; "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Y‚Ä¶
+$ snp                &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ eghp               &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ org_name           &lt;chr&gt; "WELLCARE OF GEORGIA, INC.", "WELLCARE OF GEORGIA, ‚Ä¶
+$ org_marketing_name &lt;chr&gt; "Wellcare", "Wellcare", "Wellcare", "Wellcare", "We‚Ä¶
+$ plan_name          &lt;chr&gt; "Wellcare No Premium Open (PPO)", "Wellcare No Prem‚Ä¶
+$ parent_org         &lt;chr&gt; "Centene Corporation", "Centene Corporation", "Cent‚Ä¶
+$ contract_date      &lt;chr&gt; "01/01/2018", "01/01/2018", "01/01/2018", "01/01/20‚Ä¶</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -747,177 +806,214 @@ Ian McCarthy | Emory University
 <li>Use <code>map_dfr()</code> to stack months and then collapse to a yearly panel.<br>
 </li>
 </ol></li>
-<li>Here we work directly with the <strong>GA service-area snippets</strong> (<code>ga-service-area-YYYY-MM.csv</code>).</li>
+<li>Work directly with the <strong>GA service-area snippets</strong> (<code>ga-service-area-YYYY-MM.csv</code>).</li>
 </ul>
+</section>
+<section class="slide level2">
+
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">R</a></li><li><a href="#tabset-3-2">Python</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">R</a></li><li><a href="#tabset-3-2">Python</a></li><li><a href="#tabset-3-3">Output (full)</a></li><li><a href="#tabset-3-4">Output (collapsed)</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb5-2"><a href=""></a><span class="fu">library</span>(purrr)</span>
-<span id="cb5-3"><a href=""></a></span>
-<span id="cb5-4"><a href=""></a><span class="co"># GA snippets for January‚ÄìMarch</span></span>
-<span id="cb5-5"><a href=""></a>monthlist <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb5-6"><a href=""></a></span>
-<span id="cb5-7"><a href=""></a>base_dir_sa <span class="ot">&lt;-</span> <span class="st">"data/output/ma-snippets"</span></span>
-<span id="cb5-8"><a href=""></a></span>
-<span id="cb5-9"><a href=""></a><span class="co"># Reader for GA service-area snippets -----------------------------------</span></span>
-<span id="cb5-10"><a href=""></a></span>
-<span id="cb5-11"><a href=""></a>read_service_area_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
-<span id="cb5-12"><a href=""></a>  <span class="fu">read_csv</span>(</span>
-<span id="cb5-13"><a href=""></a>    path,</span>
-<span id="cb5-14"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,   <span class="co"># snippets already have clean headers</span></span>
-<span id="cb5-15"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
-<span id="cb5-16"><a href=""></a>      <span class="at">contractid =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-17"><a href=""></a>      <span class="at">org_name   =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-18"><a href=""></a>      <span class="at">org_type   =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-19"><a href=""></a>      <span class="at">plan_type  =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-20"><a href=""></a>      <span class="at">partial    =</span> <span class="fu">col_logical</span>(),</span>
-<span id="cb5-21"><a href=""></a>      <span class="at">eghp       =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-22"><a href=""></a>      <span class="at">ssa        =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb5-23"><a href=""></a>      <span class="at">fips       =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb5-24"><a href=""></a>      <span class="at">county     =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-25"><a href=""></a>      <span class="at">state      =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb5-26"><a href=""></a>      <span class="at">notes      =</span> <span class="fu">col_character</span>()</span>
-<span id="cb5-27"><a href=""></a>    ),</span>
-<span id="cb5-28"><a href=""></a>    <span class="at">na =</span> <span class="st">"*"</span>,</span>
-<span id="cb5-29"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb5-30"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
-<span id="cb5-31"><a href=""></a>  )</span>
-<span id="cb5-32"><a href=""></a>}</span>
-<span id="cb5-33"><a href=""></a></span>
-<span id="cb5-34"><a href=""></a><span class="co"># One-month loader (GA service area) -----------------------------------</span></span>
-<span id="cb5-35"><a href=""></a></span>
-<span id="cb5-36"><a href=""></a>load_month_sa_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(m, y) {</span>
-<span id="cb5-37"><a href=""></a>  path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir_sa, <span class="fu">paste0</span>(<span class="st">"ga-service-area-"</span>, y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
-<span id="cb5-38"><a href=""></a></span>
-<span id="cb5-39"><a href=""></a>  <span class="fu">read_service_area_ga</span>(path) <span class="sc">%&gt;%</span></span>
-<span id="cb5-40"><a href=""></a>    <span class="fu">mutate</span>(</span>
-<span id="cb5-41"><a href=""></a>      <span class="at">month =</span> <span class="fu">as.integer</span>(m),</span>
-<span id="cb5-42"><a href=""></a>      <span class="at">year  =</span> y</span>
-<span id="cb5-43"><a href=""></a>    )</span>
-<span id="cb5-44"><a href=""></a>}</span>
-<span id="cb5-45"><a href=""></a></span>
-<span id="cb5-46"><a href=""></a><span class="co"># Read all months for a given year, then tidy once ---------------------</span></span>
-<span id="cb5-47"><a href=""></a></span>
-<span id="cb5-48"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span>   <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
-<span id="cb5-49"><a href=""></a></span>
-<span id="cb5-50"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
-<span id="cb5-51"><a href=""></a>  monthlist,</span>
-<span id="cb5-52"><a href=""></a>  <span class="sc">~</span> <span class="fu">load_month_sa_ga</span>(.x, y)</span>
-<span id="cb5-53"><a href=""></a>)</span>
-<span id="cb5-54"><a href=""></a></span>
-<span id="cb5-55"><a href=""></a><span class="co"># Ensure stable order before fills</span></span>
-<span id="cb5-56"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
-<span id="cb5-57"><a href=""></a>  <span class="fu">arrange</span>(contractid, fips, state, county, month)</span>
-<span id="cb5-58"><a href=""></a></span>
-<span id="cb5-59"><a href=""></a><span class="co"># Fill missing identifiers / labels</span></span>
-<span id="cb5-60"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
-<span id="cb5-61"><a href=""></a>  <span class="fu">group_by</span>(state, county) <span class="sc">%&gt;%</span></span>
-<span id="cb5-62"><a href=""></a>  <span class="fu">fill</span>(fips, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-63"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb5-64"><a href=""></a>  <span class="fu">group_by</span>(contractid) <span class="sc">%&gt;%</span></span>
-<span id="cb5-65"><a href=""></a>  <span class="fu">fill</span>(plan_type, partial, eghp, org_type, org_name, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-66"><a href=""></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb5-67"><a href=""></a></span>
-<span id="cb5-68"><a href=""></a><span class="co"># Collapse to yearly: one row per contract √ó county (fips) √ó year ------</span></span>
-<span id="cb5-69"><a href=""></a></span>
-<span id="cb5-70"><a href=""></a>ga_service_year <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
-<span id="cb5-71"><a href=""></a>  <span class="fu">group_by</span>(contractid, fips, year) <span class="sc">%&gt;%</span></span>
-<span id="cb5-72"><a href=""></a>  <span class="fu">arrange</span>(month, <span class="at">.by_group =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-73"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb5-74"><a href=""></a>    <span class="at">state     =</span> <span class="fu">last</span>(state),</span>
-<span id="cb5-75"><a href=""></a>    <span class="at">county    =</span> <span class="fu">last</span>(county),</span>
-<span id="cb5-76"><a href=""></a>    <span class="at">org_name  =</span> <span class="fu">last</span>(org_name),</span>
-<span id="cb5-77"><a href=""></a>    <span class="at">org_type  =</span> <span class="fu">last</span>(org_type),</span>
-<span id="cb5-78"><a href=""></a>    <span class="at">plan_type =</span> <span class="fu">last</span>(plan_type),</span>
-<span id="cb5-79"><a href=""></a>    <span class="at">partial   =</span> <span class="fu">last</span>(partial),</span>
-<span id="cb5-80"><a href=""></a>    <span class="at">eghp      =</span> <span class="fu">last</span>(eghp),</span>
-<span id="cb5-81"><a href=""></a>    <span class="at">ssa       =</span> <span class="fu">last</span>(ssa),</span>
-<span id="cb5-82"><a href=""></a>    <span class="at">notes     =</span> <span class="fu">last</span>(notes),</span>
-<span id="cb5-83"><a href=""></a>    <span class="at">.groups   =</span> <span class="st">"drop"</span></span>
-<span id="cb5-84"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="co"># GA snippets for January‚ÄìMarch</span></span>
+<span id="cb7-2"><a href=""></a>monthlist <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb7-3"><a href=""></a></span>
+<span id="cb7-4"><a href=""></a>base_dir_sa <span class="ot">&lt;-</span> <span class="st">"../data/output/ma-snippets"</span></span>
+<span id="cb7-5"><a href=""></a></span>
+<span id="cb7-6"><a href=""></a><span class="co"># Reader for GA service-area snippets -----------------------------------</span></span>
+<span id="cb7-7"><a href=""></a></span>
+<span id="cb7-8"><a href=""></a>read_service_area_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb7-9"><a href=""></a>  <span class="fu">read_csv</span>(</span>
+<span id="cb7-10"><a href=""></a>    path,</span>
+<span id="cb7-11"><a href=""></a>    <span class="at">skip =</span> <span class="dv">0</span>,   <span class="co"># snippets already have clean headers</span></span>
+<span id="cb7-12"><a href=""></a>    <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb7-13"><a href=""></a>      <span class="at">contractid =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-14"><a href=""></a>      <span class="at">org_name   =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-15"><a href=""></a>      <span class="at">org_type   =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-16"><a href=""></a>      <span class="at">plan_type  =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-17"><a href=""></a>      <span class="at">partial    =</span> <span class="fu">col_logical</span>(),</span>
+<span id="cb7-18"><a href=""></a>      <span class="at">eghp       =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-19"><a href=""></a>      <span class="at">ssa        =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb7-20"><a href=""></a>      <span class="at">fips       =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb7-21"><a href=""></a>      <span class="at">county     =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-22"><a href=""></a>      <span class="at">state      =</span> <span class="fu">col_character</span>()</span>
+<span id="cb7-23"><a href=""></a>    ),</span>
+<span id="cb7-24"><a href=""></a>    <span class="at">na =</span> <span class="st">"*"</span>,</span>
+<span id="cb7-25"><a href=""></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-26"><a href=""></a>    <span class="at">progress =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-27"><a href=""></a>  )</span>
+<span id="cb7-28"><a href=""></a>}</span>
+<span id="cb7-29"><a href=""></a></span>
+<span id="cb7-30"><a href=""></a><span class="co"># One-month loader (GA service area) -----------------------------------</span></span>
+<span id="cb7-31"><a href=""></a></span>
+<span id="cb7-32"><a href=""></a>load_month_sa_ga <span class="ot">&lt;-</span> <span class="cf">function</span>(m, y) {</span>
+<span id="cb7-33"><a href=""></a>  path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir_sa, <span class="fu">paste0</span>(<span class="st">"ga-service-area-"</span>, y, <span class="st">"-"</span>, m, <span class="st">".csv"</span>))</span>
+<span id="cb7-34"><a href=""></a></span>
+<span id="cb7-35"><a href=""></a>  <span class="fu">read_service_area_ga</span>(path) <span class="sc">%&gt;%</span></span>
+<span id="cb7-36"><a href=""></a>    <span class="fu">mutate</span>(</span>
+<span id="cb7-37"><a href=""></a>      <span class="at">month =</span> <span class="fu">as.integer</span>(m),</span>
+<span id="cb7-38"><a href=""></a>      <span class="at">year  =</span> y</span>
+<span id="cb7-39"><a href=""></a>    )</span>
+<span id="cb7-40"><a href=""></a>}</span>
+<span id="cb7-41"><a href=""></a></span>
+<span id="cb7-42"><a href=""></a><span class="co"># Read all months for a given year, then tidy once ---------------------</span></span>
+<span id="cb7-43"><a href=""></a></span>
+<span id="cb7-44"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span>   <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
+<span id="cb7-45"><a href=""></a></span>
+<span id="cb7-46"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(</span>
+<span id="cb7-47"><a href=""></a>  monthlist,</span>
+<span id="cb7-48"><a href=""></a>  <span class="sc">~</span> <span class="fu">load_month_sa_ga</span>(.x, y)</span>
+<span id="cb7-49"><a href=""></a>)</span>
+<span id="cb7-50"><a href=""></a></span>
+<span id="cb7-51"><a href=""></a><span class="co"># Ensure stable order before fills</span></span>
+<span id="cb7-52"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
+<span id="cb7-53"><a href=""></a>  <span class="fu">arrange</span>(contractid, fips, state, county, month)</span>
+<span id="cb7-54"><a href=""></a></span>
+<span id="cb7-55"><a href=""></a><span class="co"># Fill missing identifiers / labels</span></span>
+<span id="cb7-56"><a href=""></a>service_year_ga <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
+<span id="cb7-57"><a href=""></a>  <span class="fu">group_by</span>(state, county) <span class="sc">%&gt;%</span></span>
+<span id="cb7-58"><a href=""></a>  <span class="fu">fill</span>(fips, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-59"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-60"><a href=""></a>  <span class="fu">group_by</span>(contractid) <span class="sc">%&gt;%</span></span>
+<span id="cb7-61"><a href=""></a>  <span class="fu">fill</span>(plan_type, partial, eghp, org_type, org_name, <span class="at">.direction =</span> <span class="st">"downup"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-62"><a href=""></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb7-63"><a href=""></a></span>
+<span id="cb7-64"><a href=""></a><span class="co"># Collapse to yearly: one row per contract √ó county (fips) √ó year ------</span></span>
+<span id="cb7-65"><a href=""></a></span>
+<span id="cb7-66"><a href=""></a>ga_service_year <span class="ot">&lt;-</span> service_year_ga <span class="sc">%&gt;%</span></span>
+<span id="cb7-67"><a href=""></a>  <span class="fu">group_by</span>(contractid, fips, year) <span class="sc">%&gt;%</span></span>
+<span id="cb7-68"><a href=""></a>  <span class="fu">arrange</span>(month, <span class="at">.by_group =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-69"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb7-70"><a href=""></a>    <span class="at">state     =</span> <span class="fu">last</span>(state),</span>
+<span id="cb7-71"><a href=""></a>    <span class="at">county    =</span> <span class="fu">last</span>(county),</span>
+<span id="cb7-72"><a href=""></a>    <span class="at">org_name  =</span> <span class="fu">last</span>(org_name),</span>
+<span id="cb7-73"><a href=""></a>    <span class="at">org_type  =</span> <span class="fu">last</span>(org_type),</span>
+<span id="cb7-74"><a href=""></a>    <span class="at">plan_type =</span> <span class="fu">last</span>(plan_type),</span>
+<span id="cb7-75"><a href=""></a>    <span class="at">partial   =</span> <span class="fu">last</span>(partial),</span>
+<span id="cb7-76"><a href=""></a>    <span class="at">eghp      =</span> <span class="fu">last</span>(eghp),</span>
+<span id="cb7-77"><a href=""></a>    <span class="at">ssa       =</span> <span class="fu">last</span>(ssa),</span>
+<span id="cb7-78"><a href=""></a>    <span class="at">.groups   =</span> <span class="st">"drop"</span></span>
+<span id="cb7-79"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-3-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb6-2"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb6-3"><a href=""></a><span class="im">import</span> os</span>
-<span id="cb6-4"><a href=""></a></span>
-<span id="cb6-5"><a href=""></a>monthlist <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>m<span class="sc">:02d}</span><span class="ss">"</span> <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4</span>)]</span>
-<span id="cb6-6"><a href=""></a>base_dir_sa <span class="op">=</span> <span class="st">"data/output/ma-snippets"</span></span>
-<span id="cb6-7"><a href=""></a></span>
-<span id="cb6-8"><a href=""></a><span class="co"># Reader for GA service-area snippets ----------------------------------</span></span>
-<span id="cb6-9"><a href=""></a></span>
-<span id="cb6-10"><a href=""></a><span class="kw">def</span> read_service_area_ga(path):</span>
-<span id="cb6-11"><a href=""></a>    df <span class="op">=</span> pd.read_csv(path)</span>
-<span id="cb6-12"><a href=""></a>    <span class="co"># Expected columns:</span></span>
-<span id="cb6-13"><a href=""></a>    <span class="co"># contractid, org_name, org_type, plan_type, partial, eghp,</span></span>
-<span id="cb6-14"><a href=""></a>    <span class="co"># ssa, fips, county, state, notes</span></span>
-<span id="cb6-15"><a href=""></a>    <span class="cf">return</span> df</span>
-<span id="cb6-16"><a href=""></a></span>
-<span id="cb6-17"><a href=""></a><span class="co"># One-month loader (GA service area) -----------------------------------</span></span>
-<span id="cb6-18"><a href=""></a></span>
-<span id="cb6-19"><a href=""></a><span class="kw">def</span> load_month_sa_ga(m, year):</span>
-<span id="cb6-20"><a href=""></a>    path <span class="op">=</span> os.path.join(base_dir_sa, <span class="ss">f"ga-service-area-</span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>m<span class="sc">}</span><span class="ss">.csv"</span>)</span>
-<span id="cb6-21"><a href=""></a>    df <span class="op">=</span> read_service_area_ga(path)</span>
-<span id="cb6-22"><a href=""></a>    df[<span class="st">"month"</span>] <span class="op">=</span> <span class="bu">int</span>(m)</span>
-<span id="cb6-23"><a href=""></a>    df[<span class="st">"year"</span>] <span class="op">=</span> <span class="bu">int</span>(year)</span>
-<span id="cb6-24"><a href=""></a>    <span class="cf">return</span> df</span>
-<span id="cb6-25"><a href=""></a></span>
-<span id="cb6-26"><a href=""></a><span class="co"># Read all months for a given year, then stack -------------------------</span></span>
-<span id="cb6-27"><a href=""></a></span>
-<span id="cb6-28"><a href=""></a>y <span class="op">=</span> <span class="dv">2022</span>  <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
-<span id="cb6-29"><a href=""></a></span>
-<span id="cb6-30"><a href=""></a>service_year_ga <span class="op">=</span> pd.concat(</span>
-<span id="cb6-31"><a href=""></a>    [load_month_sa_ga(m, y) <span class="cf">for</span> m <span class="kw">in</span> monthlist],</span>
-<span id="cb6-32"><a href=""></a>    ignore_index<span class="op">=</span><span class="va">True</span></span>
-<span id="cb6-33"><a href=""></a>)</span>
-<span id="cb6-34"><a href=""></a></span>
-<span id="cb6-35"><a href=""></a><span class="co"># Ensure stable order before fills</span></span>
-<span id="cb6-36"><a href=""></a>service_year_ga <span class="op">=</span> service_year_ga.sort_values(</span>
-<span id="cb6-37"><a href=""></a>    [<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"month"</span>]</span>
-<span id="cb6-38"><a href=""></a>)</span>
-<span id="cb6-39"><a href=""></a></span>
-<span id="cb6-40"><a href=""></a><span class="co"># Fill missing identifiers / labels ------------------------------------</span></span>
-<span id="cb6-41"><a href=""></a></span>
-<span id="cb6-42"><a href=""></a><span class="co"># Fill fips within state‚Äìcounty</span></span>
-<span id="cb6-43"><a href=""></a>service_year_ga[<span class="st">"fips"</span>] <span class="op">=</span> (</span>
-<span id="cb6-44"><a href=""></a>    service_year_ga</span>
-<span id="cb6-45"><a href=""></a>    .groupby([<span class="st">"state"</span>, <span class="st">"county"</span>])[<span class="st">"fips"</span>]</span>
-<span id="cb6-46"><a href=""></a>    .ffill()</span>
-<span id="cb6-47"><a href=""></a>    .bfill()</span>
-<span id="cb6-48"><a href=""></a>)</span>
-<span id="cb6-49"><a href=""></a></span>
-<span id="cb6-50"><a href=""></a><span class="co"># Fill contract-level info within contractid</span></span>
-<span id="cb6-51"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"plan_type"</span>, <span class="st">"partial"</span>, <span class="st">"eghp"</span>, <span class="st">"org_type"</span>, <span class="st">"org_name"</span>]:</span>
-<span id="cb6-52"><a href=""></a>    service_year_ga[col] <span class="op">=</span> (</span>
-<span id="cb6-53"><a href=""></a>        service_year_ga</span>
-<span id="cb6-54"><a href=""></a>        .groupby(<span class="st">"contractid"</span>)[col]</span>
-<span id="cb6-55"><a href=""></a>        .ffill()</span>
-<span id="cb6-56"><a href=""></a>        .bfill()</span>
-<span id="cb6-57"><a href=""></a>    )</span>
-<span id="cb6-58"><a href=""></a></span>
-<span id="cb6-59"><a href=""></a><span class="co"># Collapse to yearly: one row per contract √ó county (fips) √ó year ------</span></span>
-<span id="cb6-60"><a href=""></a></span>
-<span id="cb6-61"><a href=""></a>ga_service_year <span class="op">=</span> (</span>
-<span id="cb6-62"><a href=""></a>    service_year_ga</span>
-<span id="cb6-63"><a href=""></a>    .sort_values([<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>])</span>
-<span id="cb6-64"><a href=""></a>    .groupby([<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb6-65"><a href=""></a>    .agg(</span>
-<span id="cb6-66"><a href=""></a>        state     <span class="op">=</span> (<span class="st">"state"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-67"><a href=""></a>        county    <span class="op">=</span> (<span class="st">"county"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-68"><a href=""></a>        org_name  <span class="op">=</span> (<span class="st">"org_name"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-69"><a href=""></a>        org_type  <span class="op">=</span> (<span class="st">"org_type"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-70"><a href=""></a>        plan_type <span class="op">=</span> (<span class="st">"plan_type"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-71"><a href=""></a>        partial   <span class="op">=</span> (<span class="st">"partial"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-72"><a href=""></a>        eghp      <span class="op">=</span> (<span class="st">"eghp"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-73"><a href=""></a>        ssa       <span class="op">=</span> (<span class="st">"ssa"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-74"><a href=""></a>        notes     <span class="op">=</span> (<span class="st">"notes"</span>, <span class="st">"last"</span>),</span>
-<span id="cb6-75"><a href=""></a>    )</span>
-<span id="cb6-76"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-2"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-3"><a href=""></a><span class="im">import</span> os</span>
+<span id="cb8-4"><a href=""></a></span>
+<span id="cb8-5"><a href=""></a>monthlist <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>m<span class="sc">:02d}</span><span class="ss">"</span> <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4</span>)]</span>
+<span id="cb8-6"><a href=""></a>base_dir_sa <span class="op">=</span> <span class="st">"data/output/ma-snippets"</span></span>
+<span id="cb8-7"><a href=""></a></span>
+<span id="cb8-8"><a href=""></a><span class="co"># Reader for GA service-area snippets ----------------------------------</span></span>
+<span id="cb8-9"><a href=""></a></span>
+<span id="cb8-10"><a href=""></a><span class="kw">def</span> read_service_area_ga(path):</span>
+<span id="cb8-11"><a href=""></a>    df <span class="op">=</span> pd.read_csv(path)</span>
+<span id="cb8-12"><a href=""></a>    <span class="co"># Expected columns:</span></span>
+<span id="cb8-13"><a href=""></a>    <span class="co"># contractid, org_name, org_type, plan_type, partial, eghp,</span></span>
+<span id="cb8-14"><a href=""></a>    <span class="co"># ssa, fips, county, state</span></span>
+<span id="cb8-15"><a href=""></a>    <span class="cf">return</span> df</span>
+<span id="cb8-16"><a href=""></a></span>
+<span id="cb8-17"><a href=""></a><span class="co"># One-month loader (GA service area) -----------------------------------</span></span>
+<span id="cb8-18"><a href=""></a></span>
+<span id="cb8-19"><a href=""></a><span class="kw">def</span> load_month_sa_ga(m, year):</span>
+<span id="cb8-20"><a href=""></a>    path <span class="op">=</span> os.path.join(base_dir_sa, <span class="ss">f"ga-service-area-</span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>m<span class="sc">}</span><span class="ss">.csv"</span>)</span>
+<span id="cb8-21"><a href=""></a>    df <span class="op">=</span> read_service_area_ga(path)</span>
+<span id="cb8-22"><a href=""></a>    df[<span class="st">"month"</span>] <span class="op">=</span> <span class="bu">int</span>(m)</span>
+<span id="cb8-23"><a href=""></a>    df[<span class="st">"year"</span>] <span class="op">=</span> <span class="bu">int</span>(year)</span>
+<span id="cb8-24"><a href=""></a>    <span class="cf">return</span> df</span>
+<span id="cb8-25"><a href=""></a></span>
+<span id="cb8-26"><a href=""></a><span class="co"># Read all months for a given year, then stack -------------------------</span></span>
+<span id="cb8-27"><a href=""></a></span>
+<span id="cb8-28"><a href=""></a>y <span class="op">=</span> <span class="dv">2022</span>  <span class="co"># start with 2022; repeat for 2023 in the notebook</span></span>
+<span id="cb8-29"><a href=""></a></span>
+<span id="cb8-30"><a href=""></a>service_year_ga <span class="op">=</span> pd.concat(</span>
+<span id="cb8-31"><a href=""></a>    [load_month_sa_ga(m, y) <span class="cf">for</span> m <span class="kw">in</span> monthlist],</span>
+<span id="cb8-32"><a href=""></a>    ignore_index<span class="op">=</span><span class="va">True</span></span>
+<span id="cb8-33"><a href=""></a>)</span>
+<span id="cb8-34"><a href=""></a></span>
+<span id="cb8-35"><a href=""></a><span class="co"># Ensure stable order before fills</span></span>
+<span id="cb8-36"><a href=""></a>service_year_ga <span class="op">=</span> service_year_ga.sort_values(</span>
+<span id="cb8-37"><a href=""></a>    [<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"month"</span>]</span>
+<span id="cb8-38"><a href=""></a>)</span>
+<span id="cb8-39"><a href=""></a></span>
+<span id="cb8-40"><a href=""></a><span class="co"># Fill missing identifiers / labels ------------------------------------</span></span>
+<span id="cb8-41"><a href=""></a></span>
+<span id="cb8-42"><a href=""></a><span class="co"># Fill fips within state‚Äìcounty</span></span>
+<span id="cb8-43"><a href=""></a>service_year_ga[<span class="st">"fips"</span>] <span class="op">=</span> (</span>
+<span id="cb8-44"><a href=""></a>    service_year_ga</span>
+<span id="cb8-45"><a href=""></a>    .groupby([<span class="st">"state"</span>, <span class="st">"county"</span>])[<span class="st">"fips"</span>]</span>
+<span id="cb8-46"><a href=""></a>    .ffill()</span>
+<span id="cb8-47"><a href=""></a>    .bfill()</span>
+<span id="cb8-48"><a href=""></a>)</span>
+<span id="cb8-49"><a href=""></a></span>
+<span id="cb8-50"><a href=""></a><span class="co"># Fill contract-level info within contractid</span></span>
+<span id="cb8-51"><a href=""></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">"plan_type"</span>, <span class="st">"partial"</span>, <span class="st">"eghp"</span>, <span class="st">"org_type"</span>, <span class="st">"org_name"</span>]:</span>
+<span id="cb8-52"><a href=""></a>    service_year_ga[col] <span class="op">=</span> (</span>
+<span id="cb8-53"><a href=""></a>        service_year_ga</span>
+<span id="cb8-54"><a href=""></a>        .groupby(<span class="st">"contractid"</span>)[col]</span>
+<span id="cb8-55"><a href=""></a>        .ffill()</span>
+<span id="cb8-56"><a href=""></a>        .bfill()</span>
+<span id="cb8-57"><a href=""></a>    )</span>
+<span id="cb8-58"><a href=""></a></span>
+<span id="cb8-59"><a href=""></a><span class="co"># Collapse to yearly: one row per contract √ó county (fips) √ó year ------</span></span>
+<span id="cb8-60"><a href=""></a></span>
+<span id="cb8-61"><a href=""></a>ga_service_year <span class="op">=</span> (</span>
+<span id="cb8-62"><a href=""></a>    service_year_ga</span>
+<span id="cb8-63"><a href=""></a>    .sort_values([<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>])</span>
+<span id="cb8-64"><a href=""></a>    .groupby([<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-65"><a href=""></a>    .agg(</span>
+<span id="cb8-66"><a href=""></a>        state     <span class="op">=</span> (<span class="st">"state"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-67"><a href=""></a>        county    <span class="op">=</span> (<span class="st">"county"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-68"><a href=""></a>        org_name  <span class="op">=</span> (<span class="st">"org_name"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-69"><a href=""></a>        org_type  <span class="op">=</span> (<span class="st">"org_type"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-70"><a href=""></a>        plan_type <span class="op">=</span> (<span class="st">"plan_type"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-71"><a href=""></a>        partial   <span class="op">=</span> (<span class="st">"partial"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-72"><a href=""></a>        eghp      <span class="op">=</span> (<span class="st">"eghp"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-73"><a href=""></a>        ssa       <span class="op">=</span> (<span class="st">"ssa"</span>, <span class="st">"last"</span>),</span>
+<span id="cb8-74"><a href=""></a>    )</span>
+<span id="cb8-75"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-3-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 12,028
+Columns: 13
+$ contractid &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H0111", "H0111", "H011‚Ä¶
+$ org_name   &lt;chr&gt; "WELLCARE OF GEORGIA, INC.", "WELLCARE OF GEORGIA, INC.", "‚Ä¶
+$ org_type   &lt;chr&gt; "Local CCP", "Local CCP", "Local CCP", "Local CCP", "Local ‚Ä¶
+$ plan_type  &lt;chr&gt; "Local PPO", "Local PPO", "Local PPO", "Local PPO", "Local ‚Ä¶
+$ partial    &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,‚Ä¶
+$ eghp       &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",‚Ä¶
+$ ssa        &lt;dbl&gt; 11000, 11000, 11000, 11010, 11010, 11010, 11011, 11011, 110‚Ä¶
+$ fips       &lt;dbl&gt; 13001, 13001, 13001, 13003, 13003, 13003, 13005, 13005, 130‚Ä¶
+$ county     &lt;chr&gt; "Appling", "Appling", "Appling", "Atkinson", "Atkinson", "A‚Ä¶
+$ state      &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA",‚Ä¶
+$ notes      &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,‚Ä¶
+$ month      &lt;int&gt; 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2,‚Ä¶
+$ year       &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022,‚Ä¶</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-3-4">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,011
+Columns: 11
+$ contractid &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H0111", "H0111", "H011‚Ä¶
+$ fips       &lt;dbl&gt; 13001, 13003, 13005, 13007, 13009, 13011, 13013, 13015, 130‚Ä¶
+$ year       &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022,‚Ä¶
+$ state      &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA",‚Ä¶
+$ county     &lt;chr&gt; "Appling", "Atkinson", "Bacon", "Baker", "Baldwin", "Banks"‚Ä¶
+$ org_name   &lt;chr&gt; "WELLCARE OF GEORGIA, INC.", "WELLCARE OF GEORGIA, INC.", "‚Ä¶
+$ org_type   &lt;chr&gt; "Local CCP", "Local CCP", "Local CCP", "Local CCP", "Local ‚Ä¶
+$ plan_type  &lt;chr&gt; "Local PPO", "Local PPO", "Local PPO", "Local PPO", "Local ‚Ä¶
+$ partial    &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,‚Ä¶
+$ eghp       &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",‚Ä¶
+$ ssa        &lt;dbl&gt; 11000, 11010, 11011, 11020, 11030, 11040, 11050, 11060, 110‚Ä¶</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -933,56 +1029,86 @@ Ian McCarthy | Emory University
 <li><code>ga-penetration-2022.csv</code></li>
 </ul></li>
 </ul>
+</section>
+<section class="slide level2">
+
 <div class="panel-tabset">
-<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">R</a></li><li><a href="#tabset-4-2">Python</a></li></ul>
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">R</a></li><li><a href="#tabset-4-2">Python</a></li><li><a href="#tabset-4-3">Output (characteristics)</a></li><li><a href="#tabset-4-4">Output (MA penetration)</a></li></ul>
 <div class="tab-content">
 <div id="tabset-4-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb7-2"><a href=""></a></span>
-<span id="cb7-3"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
-<span id="cb7-4"><a href=""></a>base_dir <span class="ot">&lt;-</span> <span class="st">"data/output/ma-snippets"</span></span>
-<span id="cb7-5"><a href=""></a></span>
-<span id="cb7-6"><a href=""></a><span class="co"># GA plan characteristics (landscape) -----------------------------------</span></span>
-<span id="cb7-7"><a href=""></a></span>
-<span id="cb7-8"><a href=""></a>ga_landscape <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb7-9"><a href=""></a>  <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-landscape-"</span>, y, <span class="st">".csv"</span>)),</span>
-<span id="cb7-10"><a href=""></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
-<span id="cb7-11"><a href=""></a>)</span>
-<span id="cb7-12"><a href=""></a></span>
-<span id="cb7-13"><a href=""></a><span class="co"># GA penetration data ---------------------------------------------------</span></span>
-<span id="cb7-14"><a href=""></a></span>
-<span id="cb7-15"><a href=""></a>ga_penetration <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb7-16"><a href=""></a>  <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-penetration-"</span>, y, <span class="st">".csv"</span>)),</span>
-<span id="cb7-17"><a href=""></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
-<span id="cb7-18"><a href=""></a>)</span>
-<span id="cb7-19"><a href=""></a></span>
-<span id="cb7-20"><a href=""></a><span class="co"># These are already yearly GA files, analogous to final.landscape and final.penetration</span></span>
-<span id="cb7-21"><a href=""></a><span class="co"># in the full Medicare-Advantage repo.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>y <span class="ot">&lt;-</span> <span class="dv">2022</span></span>
+<span id="cb11-2"><a href=""></a>base_dir <span class="ot">&lt;-</span> <span class="st">"../data/output/ma-snippets"</span></span>
+<span id="cb11-3"><a href=""></a></span>
+<span id="cb11-4"><a href=""></a><span class="co"># GA plan characteristics (landscape) -----------------------------------</span></span>
+<span id="cb11-5"><a href=""></a></span>
+<span id="cb11-6"><a href=""></a>ga_landscape <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb11-7"><a href=""></a>  <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-landscape-"</span>, y, <span class="st">".csv"</span>)),</span>
+<span id="cb11-8"><a href=""></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb11-9"><a href=""></a>)</span>
+<span id="cb11-10"><a href=""></a></span>
+<span id="cb11-11"><a href=""></a><span class="co"># GA penetration data ---------------------------------------------------</span></span>
+<span id="cb11-12"><a href=""></a></span>
+<span id="cb11-13"><a href=""></a>ga_penetration <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb11-14"><a href=""></a>  <span class="fu">file.path</span>(base_dir, <span class="fu">paste0</span>(<span class="st">"ga-penetration-"</span>, y, <span class="st">".csv"</span>)),</span>
+<span id="cb11-15"><a href=""></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb11-16"><a href=""></a>)</span>
+<span id="cb11-17"><a href=""></a></span>
+<span id="cb11-18"><a href=""></a><span class="co"># These are already yearly GA files, analogous to final.landscape and final.penetration</span></span>
+<span id="cb11-19"><a href=""></a><span class="co"># in the full Medicare-Advantage repo.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-4-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb8-2"><a href=""></a><span class="im">import</span> os</span>
-<span id="cb8-3"><a href=""></a></span>
-<span id="cb8-4"><a href=""></a>y <span class="op">=</span> <span class="dv">2022</span></span>
-<span id="cb8-5"><a href=""></a>base_dir <span class="op">=</span> <span class="st">"data/output/ma-snippets"</span></span>
-<span id="cb8-6"><a href=""></a></span>
-<span id="cb8-7"><a href=""></a><span class="co"># GA plan characteristics (landscape) ----------------------------------</span></span>
-<span id="cb8-8"><a href=""></a></span>
-<span id="cb8-9"><a href=""></a>ga_landscape <span class="op">=</span> pd.read_csv(</span>
-<span id="cb8-10"><a href=""></a>    os.path.join(base_dir, <span class="ss">f"ga-landscape-</span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">.csv"</span>)</span>
-<span id="cb8-11"><a href=""></a>)</span>
-<span id="cb8-12"><a href=""></a></span>
-<span id="cb8-13"><a href=""></a><span class="co"># GA penetration data --------------------------------------------------</span></span>
-<span id="cb8-14"><a href=""></a></span>
-<span id="cb8-15"><a href=""></a>ga_penetration <span class="op">=</span> pd.read_csv(</span>
-<span id="cb8-16"><a href=""></a>    os.path.join(base_dir, <span class="ss">f"ga-penetration-</span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">.csv"</span>)</span>
-<span id="cb8-17"><a href=""></a>)</span>
-<span id="cb8-18"><a href=""></a></span>
-<span id="cb8-19"><a href=""></a><span class="co"># These are already yearly GA files, analogous to the R objects</span></span>
-<span id="cb8-20"><a href=""></a><span class="co"># final.landscape and final.penetration in the full repo.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-2"><a href=""></a><span class="im">import</span> os</span>
+<span id="cb12-3"><a href=""></a></span>
+<span id="cb12-4"><a href=""></a>y <span class="op">=</span> <span class="dv">2022</span></span>
+<span id="cb12-5"><a href=""></a>base_dir <span class="op">=</span> <span class="st">"data/output/ma-snippets"</span></span>
+<span id="cb12-6"><a href=""></a></span>
+<span id="cb12-7"><a href=""></a><span class="co"># GA plan characteristics (landscape) ----------------------------------</span></span>
+<span id="cb12-8"><a href=""></a></span>
+<span id="cb12-9"><a href=""></a>ga_landscape <span class="op">=</span> pd.read_csv(</span>
+<span id="cb12-10"><a href=""></a>    os.path.join(base_dir, <span class="ss">f"ga-landscape-</span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">.csv"</span>)</span>
+<span id="cb12-11"><a href=""></a>)</span>
+<span id="cb12-12"><a href=""></a></span>
+<span id="cb12-13"><a href=""></a><span class="co"># GA penetration data --------------------------------------------------</span></span>
+<span id="cb12-14"><a href=""></a></span>
+<span id="cb12-15"><a href=""></a>ga_penetration <span class="op">=</span> pd.read_csv(</span>
+<span id="cb12-16"><a href=""></a>    os.path.join(base_dir, <span class="ss">f"ga-penetration-</span><span class="sc">{</span>y<span class="sc">}</span><span class="ss">.csv"</span>)</span>
+<span id="cb12-17"><a href=""></a>)</span>
+<span id="cb12-18"><a href=""></a></span>
+<span id="cb12-19"><a href=""></a><span class="co"># These are already yearly GA files, analogous to the R objects</span></span>
+<span id="cb12-20"><a href=""></a><span class="co"># final.landscape and final.penetration in the full repo.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-4-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 7,718
+Columns: 7
+$ contractid    &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H1112", "H1112", "H‚Ä¶
+$ planid        &lt;dbl&gt; 1, 2, 3, 5, 34, 39, 42, 43, 1, 4, 25, 34, 38, 46, 47, 15‚Ä¶
+$ premium       &lt;dbl&gt; 0.0, 55.0, 85.0, 0.0, 0.0, 0.0, 0.0, 32.4, NA, NA, 0.0, ‚Ä¶
+$ premium_partc &lt;dbl&gt; 0.0, 31.9, 63.7, 0.0, NA, 0.0, 0.0, 0.0, NA, NA, 0.0, NA‚Ä¶
+$ premium_partd &lt;dbl&gt; 0.0, 23.1, 21.3, 0.0, NA, 0.0, 0.0, 32.4, NA, NA, 0.0, N‚Ä¶
+$ year          &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 20‚Ä¶
+$ county        &lt;chr&gt; "Appling", "Appling", "Appling", "Appling", "Appling", "‚Ä¶</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-4-4">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 159
+Columns: 6
+$ fips          &lt;dbl&gt; 13001, 13003, 13005, 13007, 13009, 13011, 13013, 13015, ‚Ä¶
+$ county        &lt;chr&gt; "Appling", "Atkinson", "Bacon", "Baker", "Baldwin", "Ban‚Ä¶
+$ year          &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 20‚Ä¶
+$ avg_eligibles &lt;dbl&gt; 3963.4167, 1370.3333, 2209.8333, 755.0833, 9245.8333, 39‚Ä¶
+$ avg_enrolled  &lt;dbl&gt; 2190.0000, 798.5833, 1090.7500, 463.8333, 5504.9167, 203‚Ä¶
+$ ssa           &lt;dbl&gt; 11000, 11010, 11011, 11020, 11030, 11040, 11050, 11060, ‚Ä¶</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1012,88 +1138,125 @@ Ian McCarthy | Emory University
 <section class="slide level2">
 
 <div class="panel-tabset">
-<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">R</a></li><li><a href="#tabset-5-2">Python</a></li></ul>
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">R</a></li><li><a href="#tabset-5-2">Python</a></li><li><a href="#tabset-5-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-5-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="co"># 1. Merge plans and service areas (contract √ó fips √ó year) --------------</span></span>
-<span id="cb9-2"><a href=""></a></span>
-<span id="cb9-3"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_plans_year <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href=""></a>  <span class="fu">inner_join</span>(</span>
-<span id="cb9-5"><a href=""></a>    ga_service_year <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href=""></a>      <span class="fu">select</span>(contractid, fips, state, county, year),</span>
-<span id="cb9-7"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>)</span>
-<span id="cb9-8"><a href=""></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb9-9"><a href=""></a>  <span class="co"># 2. Apply basic filters, similar to full repo</span></span>
-<span id="cb9-10"><a href=""></a>  <span class="fu">filter</span>(</span>
-<span id="cb9-11"><a href=""></a>    state <span class="sc">==</span> <span class="st">"GA"</span>,</span>
-<span id="cb9-12"><a href=""></a>    snp <span class="sc">==</span> <span class="st">"No"</span>,</span>
-<span id="cb9-13"><a href=""></a>    (planid <span class="sc">&lt;</span> <span class="dv">800</span> <span class="sc">|</span> planid <span class="sc">&gt;=</span> <span class="dv">900</span>),</span>
-<span id="cb9-14"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(planid),</span>
-<span id="cb9-15"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(fips)</span>
-<span id="cb9-16"><a href=""></a>  )</span>
-<span id="cb9-17"><a href=""></a></span>
-<span id="cb9-18"><a href=""></a><span class="co"># 3. Merge penetration data (by county FIPS and year) -------------------</span></span>
-<span id="cb9-19"><a href=""></a></span>
-<span id="cb9-20"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
-<span id="cb9-21"><a href=""></a>  <span class="fu">left_join</span>(</span>
-<span id="cb9-22"><a href=""></a>    ga_penetration,</span>
-<span id="cb9-23"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"fips"</span>, <span class="st">"year"</span>)</span>
-<span id="cb9-24"><a href=""></a>  )</span>
-<span id="cb9-25"><a href=""></a></span>
-<span id="cb9-26"><a href=""></a><span class="co"># 4. Merge plan characteristics / premiums (landscape) ------------------</span></span>
-<span id="cb9-27"><a href=""></a></span>
-<span id="cb9-28"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
-<span id="cb9-29"><a href=""></a>  <span class="fu">left_join</span>(</span>
-<span id="cb9-30"><a href=""></a>    ga_landscape,</span>
-<span id="cb9-31"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>)</span>
-<span id="cb9-32"><a href=""></a>  )</span>
-<span id="cb9-33"><a href=""></a></span>
-<span id="cb9-34"><a href=""></a><span class="co"># ga_ma_2022 is now a GA plan‚Äìcounty‚Äìyear dataset with enrollment,</span></span>
-<span id="cb9-35"><a href=""></a><span class="co"># service area, penetration, and premium_partc information for 2022.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="co"># 1. Merge plans and service areas (contract √ó fips √ó year) --------------</span></span>
+<span id="cb15-2"><a href=""></a></span>
+<span id="cb15-3"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_plans_year <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href=""></a>  <span class="fu">inner_join</span>(</span>
+<span id="cb15-5"><a href=""></a>    ga_service_year <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href=""></a>      <span class="fu">select</span>(contractid, fips, year),</span>
+<span id="cb15-7"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>)</span>
+<span id="cb15-8"><a href=""></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href=""></a>  <span class="co"># 2. Apply basic filters, similar to full repo</span></span>
+<span id="cb15-10"><a href=""></a>  <span class="fu">filter</span>(</span>
+<span id="cb15-11"><a href=""></a>    state <span class="sc">==</span> <span class="st">"GA"</span>,</span>
+<span id="cb15-12"><a href=""></a>    snp <span class="sc">==</span> <span class="st">"No"</span>,</span>
+<span id="cb15-13"><a href=""></a>    (planid <span class="sc">&lt;</span> <span class="dv">800</span> <span class="sc">|</span> planid <span class="sc">&gt;=</span> <span class="dv">900</span>),</span>
+<span id="cb15-14"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(planid),</span>
+<span id="cb15-15"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(fips)</span>
+<span id="cb15-16"><a href=""></a>  )</span>
+<span id="cb15-17"><a href=""></a></span>
+<span id="cb15-18"><a href=""></a><span class="co"># 3. Merge penetration data (by county FIPS and year) -------------------</span></span>
+<span id="cb15-19"><a href=""></a></span>
+<span id="cb15-20"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb15-21"><a href=""></a>  <span class="fu">left_join</span>(</span>
+<span id="cb15-22"><a href=""></a>    ga_penetration <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>county),</span>
+<span id="cb15-23"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"fips"</span>, <span class="st">"year"</span>)</span>
+<span id="cb15-24"><a href=""></a>  )</span>
+<span id="cb15-25"><a href=""></a></span>
+<span id="cb15-26"><a href=""></a><span class="co"># 4. Merge plan characteristics / premiums (landscape) ------------------</span></span>
+<span id="cb15-27"><a href=""></a></span>
+<span id="cb15-28"><a href=""></a>ga_ma_2022 <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb15-29"><a href=""></a>  <span class="fu">left_join</span>(</span>
+<span id="cb15-30"><a href=""></a>    ga_landscape,</span>
+<span id="cb15-31"><a href=""></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>)</span>
+<span id="cb15-32"><a href=""></a>  )</span>
+<span id="cb15-33"><a href=""></a></span>
+<span id="cb15-34"><a href=""></a><span class="co"># ga_ma_2022 is now a GA plan‚Äìcounty‚Äìyear dataset with enrollment,</span></span>
+<span id="cb15-35"><a href=""></a><span class="co"># service area, penetration, and premium_partc information for 2022.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-5-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href=""></a><span class="co"># 1. Merge plans and service areas (contract √ó fips √ó year) --------------</span></span>
-<span id="cb10-2"><a href=""></a></span>
-<span id="cb10-3"><a href=""></a>ga_ma_2022 <span class="op">=</span> (</span>
-<span id="cb10-4"><a href=""></a>    ga_plans_year</span>
-<span id="cb10-5"><a href=""></a>    .merge(</span>
-<span id="cb10-6"><a href=""></a>        ga_service_year[[<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>]],</span>
-<span id="cb10-7"><a href=""></a>        on<span class="op">=</span>[<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>],</span>
-<span id="cb10-8"><a href=""></a>        how<span class="op">=</span><span class="st">"inner"</span></span>
-<span id="cb10-9"><a href=""></a>    )</span>
-<span id="cb10-10"><a href=""></a>)</span>
-<span id="cb10-11"><a href=""></a></span>
-<span id="cb10-12"><a href=""></a><span class="co"># 2. Apply basic filters, similar to full repo ---------------------------</span></span>
-<span id="cb10-13"><a href=""></a></span>
-<span id="cb10-14"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022[</span>
-<span id="cb10-15"><a href=""></a>    (ga_ma_2022[<span class="st">"state"</span>] <span class="op">==</span> <span class="st">"GA"</span>)</span>
-<span id="cb10-16"><a href=""></a>    <span class="op">&amp;</span> (ga_ma_2022[<span class="st">"snp"</span>] <span class="op">==</span> <span class="st">"No"</span>)</span>
-<span id="cb10-17"><a href=""></a>    <span class="op">&amp;</span> ((ga_ma_2022[<span class="st">"planid"</span>] <span class="op">&lt;</span> <span class="dv">800</span>) <span class="op">|</span> (ga_ma_2022[<span class="st">"planid"</span>] <span class="op">&gt;=</span> <span class="dv">900</span>))</span>
-<span id="cb10-18"><a href=""></a>    <span class="op">&amp;</span> ga_ma_2022[<span class="st">"planid"</span>].notna()</span>
-<span id="cb10-19"><a href=""></a>    <span class="op">&amp;</span> ga_ma_2022[<span class="st">"fips"</span>].notna()</span>
-<span id="cb10-20"><a href=""></a>].copy()</span>
-<span id="cb10-21"><a href=""></a></span>
-<span id="cb10-22"><a href=""></a><span class="co"># 3. Merge penetration data (by county FIPS and year) -------------------</span></span>
-<span id="cb10-23"><a href=""></a></span>
-<span id="cb10-24"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022.merge(</span>
-<span id="cb10-25"><a href=""></a>    ga_penetration,</span>
-<span id="cb10-26"><a href=""></a>    on<span class="op">=</span>[<span class="st">"fips"</span>, <span class="st">"year"</span>],</span>
-<span id="cb10-27"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
-<span id="cb10-28"><a href=""></a>)</span>
-<span id="cb10-29"><a href=""></a></span>
-<span id="cb10-30"><a href=""></a><span class="co"># 4. Merge plan characteristics / premiums (landscape) ------------------</span></span>
-<span id="cb10-31"><a href=""></a></span>
-<span id="cb10-32"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022.merge(</span>
-<span id="cb10-33"><a href=""></a>    ga_landscape,</span>
-<span id="cb10-34"><a href=""></a>    on<span class="op">=</span>[<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>],</span>
-<span id="cb10-35"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
-<span id="cb10-36"><a href=""></a>)</span>
-<span id="cb10-37"><a href=""></a></span>
-<span id="cb10-38"><a href=""></a><span class="co"># ga_ma_2022 is now a GA plan‚Äìcounty‚Äìyear dataset with enrollment,</span></span>
-<span id="cb10-39"><a href=""></a><span class="co"># service area, penetration, and premium_partc information for 2022.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a><span class="co"># 1. Merge plans and service areas (contract √ó fips √ó year) --------------</span></span>
+<span id="cb16-2"><a href=""></a></span>
+<span id="cb16-3"><a href=""></a>ga_ma_2022 <span class="op">=</span> (</span>
+<span id="cb16-4"><a href=""></a>    ga_plans_year</span>
+<span id="cb16-5"><a href=""></a>    .merge(</span>
+<span id="cb16-6"><a href=""></a>        ga_service_year[[<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"state"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>]],</span>
+<span id="cb16-7"><a href=""></a>        on<span class="op">=</span>[<span class="st">"contractid"</span>, <span class="st">"fips"</span>, <span class="st">"year"</span>],</span>
+<span id="cb16-8"><a href=""></a>        how<span class="op">=</span><span class="st">"inner"</span></span>
+<span id="cb16-9"><a href=""></a>    )</span>
+<span id="cb16-10"><a href=""></a>)</span>
+<span id="cb16-11"><a href=""></a></span>
+<span id="cb16-12"><a href=""></a><span class="co"># 2. Apply basic filters, similar to full repo ---------------------------</span></span>
+<span id="cb16-13"><a href=""></a></span>
+<span id="cb16-14"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022[</span>
+<span id="cb16-15"><a href=""></a>    (ga_ma_2022[<span class="st">"state"</span>] <span class="op">==</span> <span class="st">"GA"</span>)</span>
+<span id="cb16-16"><a href=""></a>    <span class="op">&amp;</span> (ga_ma_2022[<span class="st">"snp"</span>] <span class="op">==</span> <span class="st">"No"</span>)</span>
+<span id="cb16-17"><a href=""></a>    <span class="op">&amp;</span> ((ga_ma_2022[<span class="st">"planid"</span>] <span class="op">&lt;</span> <span class="dv">800</span>) <span class="op">|</span> (ga_ma_2022[<span class="st">"planid"</span>] <span class="op">&gt;=</span> <span class="dv">900</span>))</span>
+<span id="cb16-18"><a href=""></a>    <span class="op">&amp;</span> ga_ma_2022[<span class="st">"planid"</span>].notna()</span>
+<span id="cb16-19"><a href=""></a>    <span class="op">&amp;</span> ga_ma_2022[<span class="st">"fips"</span>].notna()</span>
+<span id="cb16-20"><a href=""></a>].copy()</span>
+<span id="cb16-21"><a href=""></a></span>
+<span id="cb16-22"><a href=""></a><span class="co"># 3. Merge penetration data (by county FIPS and year) -------------------</span></span>
+<span id="cb16-23"><a href=""></a></span>
+<span id="cb16-24"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022.merge(</span>
+<span id="cb16-25"><a href=""></a>    ga_penetration,</span>
+<span id="cb16-26"><a href=""></a>    on<span class="op">=</span>[<span class="st">"fips"</span>, <span class="st">"year"</span>],</span>
+<span id="cb16-27"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb16-28"><a href=""></a>)</span>
+<span id="cb16-29"><a href=""></a></span>
+<span id="cb16-30"><a href=""></a><span class="co"># 4. Merge plan characteristics / premiums (landscape) ------------------</span></span>
+<span id="cb16-31"><a href=""></a></span>
+<span id="cb16-32"><a href=""></a>ga_ma_2022 <span class="op">=</span> ga_ma_2022.merge(</span>
+<span id="cb16-33"><a href=""></a>    ga_landscape,</span>
+<span id="cb16-34"><a href=""></a>    on<span class="op">=</span>[<span class="st">"contractid"</span>, <span class="st">"planid"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>],</span>
+<span id="cb16-35"><a href=""></a>    how<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb16-36"><a href=""></a>)</span>
+<span id="cb16-37"><a href=""></a></span>
+<span id="cb16-38"><a href=""></a><span class="co"># ga_ma_2022 is now a GA plan‚Äìcounty‚Äìyear dataset with enrollment,</span></span>
+<span id="cb16-39"><a href=""></a><span class="co"># service area, penetration, and premium_partc information for 2022.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-5-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 3,096
+Columns: 29
+$ contractid         &lt;chr&gt; "H0111", "H0111", "H0111", "H0111", "H0111", "H0111‚Ä¶
+$ planid             &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ‚Ä¶
+$ fips               &lt;dbl&gt; 13001, 13009, 13013, 13015, 13017, 13019, 13021, 13‚Ä¶
+$ year               &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 202‚Ä¶
+$ n_nonmiss          &lt;int&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, ‚Ä¶
+$ avg_enrollment     &lt;dbl&gt; 11.66667, 27.00000, 46.33333, 47.33333, 14.33333, 1‚Ä¶
+$ sd_enrollment      &lt;dbl&gt; 0.5773503, 1.0000000, 0.5773503, 5.1316014, 0.57735‚Ä¶
+$ min_enrollment     &lt;dbl&gt; 11, 26, 46, 43, 14, 13, 116, 21, 40, 69, 43, 42, 11‚Ä¶
+$ max_enrollment     &lt;dbl&gt; 12, 28, 47, 53, 15, 17, 118, 23, 45, 73, 45, 45, 11‚Ä¶
+$ first_enrollment   &lt;dbl&gt; 11, 27, 47, 43, 14, 13, 116, 21, 40, 73, 44, 42, 11‚Ä¶
+$ last_enrollment    &lt;dbl&gt; 12, 26, 46, 53, 14, 16, 117, 23, 44, 69, 43, 44, 11‚Ä¶
+$ state              &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA‚Ä¶
+$ county             &lt;chr&gt; "Appling", "Baldwin", "Barrow", "Bartow", "Ben Hill‚Ä¶
+$ org_type           &lt;chr&gt; "Local CCP", "Local CCP", "Local CCP", "Local CCP",‚Ä¶
+$ plan_type          &lt;chr&gt; "Local PPO", "Local PPO", "Local PPO", "Local PPO",‚Ä¶
+$ partd              &lt;chr&gt; "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Y‚Ä¶
+$ snp                &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ eghp               &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "No‚Ä¶
+$ org_name           &lt;chr&gt; "WELLCARE OF GEORGIA, INC.", "WELLCARE OF GEORGIA, ‚Ä¶
+$ org_marketing_name &lt;chr&gt; "Wellcare", "Wellcare", "Wellcare", "Wellcare", "We‚Ä¶
+$ plan_name          &lt;chr&gt; "Wellcare No Premium Open (PPO)", "Wellcare No Prem‚Ä¶
+$ parent_org         &lt;chr&gt; "Centene Corporation", "Centene Corporation", "Cent‚Ä¶
+$ contract_date      &lt;chr&gt; "01/01/2018", "01/01/2018", "01/01/2018", "01/01/20‚Ä¶
+$ avg_eligibles      &lt;dbl&gt; 3963.417, 9245.833, 13986.417, 19792.083, 3749.583,‚Ä¶
+$ avg_enrolled       &lt;dbl&gt; 2190.000, 5504.917, 7437.583, 10180.667, 2202.667, ‚Ä¶
+$ ssa                &lt;dbl&gt; 11000, 11030, 11050, 11060, 11070, 11080, 11090, 11‚Ä¶
+$ premium            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ‚Ä¶
+$ premium_partc      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ‚Ä¶
+$ premium_partd      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ‚Ä¶</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1110,112 +1273,127 @@ Ian McCarthy | Emory University
 <section class="slide level2">
 
 <div class="panel-tabset">
-<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">R</a></li><li><a href="#tabset-6-2">Python</a></li></ul>
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">R</a></li><li><a href="#tabset-6-2">Python</a></li><li><a href="#tabset-6-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-6-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb11-2"><a href=""></a></span>
-<span id="cb11-3"><a href=""></a><span class="co"># Step 1: compute market shares within each county-year ------------------</span></span>
-<span id="cb11-4"><a href=""></a><span class="co"># total_ma_enrollment and avg_eligibles come from the penetration file:</span></span>
-<span id="cb11-5"><a href=""></a><span class="co">#   avg_enrolled = total MA enrollment in the county</span></span>
-<span id="cb11-6"><a href=""></a><span class="co">#   avg_eligibles = total Medicare beneficiaries</span></span>
-<span id="cb11-7"><a href=""></a></span>
-<span id="cb11-8"><a href=""></a>ga_ma_2022_shares <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
-<span id="cb11-9"><a href=""></a>  <span class="fu">group_by</span>(fips, county, year) <span class="sc">%&gt;%</span></span>
-<span id="cb11-10"><a href=""></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-11"><a href=""></a>    <span class="at">total_ma_enrollment =</span> <span class="fu">first</span>(avg_enrolled),</span>
-<span id="cb11-12"><a href=""></a>    <span class="at">ma_share =</span> <span class="fu">if_else</span>(</span>
-<span id="cb11-13"><a href=""></a>      total_ma_enrollment <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
-<span id="cb11-14"><a href=""></a>      avg_enrollment <span class="sc">/</span> total_ma_enrollment,</span>
-<span id="cb11-15"><a href=""></a>      <span class="cn">NA_real_</span></span>
-<span id="cb11-16"><a href=""></a>    )</span>
-<span id="cb11-17"><a href=""></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb11-18"><a href=""></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb11-19"><a href=""></a></span>
-<span id="cb11-20"><a href=""></a><span class="co"># Step 2: collapse to county-year level ---------------------------------</span></span>
-<span id="cb11-21"><a href=""></a></span>
-<span id="cb11-22"><a href=""></a>ga_county_2022 <span class="ot">&lt;-</span> ga_ma_2022_shares <span class="sc">%&gt;%</span></span>
-<span id="cb11-23"><a href=""></a>  <span class="fu">group_by</span>(fips, county, year) <span class="sc">%&gt;%</span></span>
-<span id="cb11-24"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb11-25"><a href=""></a>    <span class="co"># Competition: HHI = sum of squared MA shares</span></span>
-<span id="cb11-26"><a href=""></a>    <span class="at">hhi_ma =</span> <span class="fu">sum</span>(ma_share<span class="sc">^</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb11-27"><a href=""></a></span>
-<span id="cb11-28"><a href=""></a>    <span class="co"># Prices: simple average of Part C premiums across plans in the county</span></span>
-<span id="cb11-29"><a href=""></a>    <span class="at">avg_premium_partc =</span> <span class="fu">mean</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb11-30"><a href=""></a></span>
-<span id="cb11-31"><a href=""></a>    <span class="co"># Count of plans with positive premium</span></span>
-<span id="cb11-32"><a href=""></a>    <span class="at">n_pos_premiums =</span> <span class="fu">sum</span>(premium_partc <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb11-33"><a href=""></a></span>
-<span id="cb11-34"><a href=""></a>    <span class="co"># Premium range: max - min within county-year</span></span>
-<span id="cb11-35"><a href=""></a>    <span class="at">premium_range =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb11-36"><a href=""></a>      <span class="fu">all</span>(<span class="fu">is.na</span>(premium_partc)),</span>
-<span id="cb11-37"><a href=""></a>      <span class="cn">NA_real_</span>,</span>
-<span id="cb11-38"><a href=""></a>      <span class="fu">max</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb11-39"><a href=""></a>    ),</span>
-<span id="cb11-40"><a href=""></a></span>
-<span id="cb11-41"><a href=""></a>    <span class="co"># Total MA enrollment in the county (from penetration)</span></span>
-<span id="cb11-42"><a href=""></a>    <span class="at">total_ma_enrollment =</span> <span class="fu">first</span>(avg_enrolled),</span>
-<span id="cb11-43"><a href=""></a></span>
-<span id="cb11-44"><a href=""></a>    <span class="co"># Total Medicare eligibles (from penetration)</span></span>
-<span id="cb11-45"><a href=""></a>    <span class="at">avg_eligibles =</span> <span class="fu">first</span>(avg_eligibles),</span>
-<span id="cb11-46"><a href=""></a></span>
-<span id="cb11-47"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb11-48"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a><span class="co"># Step 1: compute market shares within each county-year ------------------</span></span>
+<span id="cb18-2"><a href=""></a><span class="co"># total_ma_enrollment and avg_eligibles come from the penetration file:</span></span>
+<span id="cb18-3"><a href=""></a><span class="co">#   avg_enrolled = total MA enrollment in the county</span></span>
+<span id="cb18-4"><a href=""></a><span class="co">#   avg_eligibles = total Medicare beneficiaries</span></span>
+<span id="cb18-5"><a href=""></a></span>
+<span id="cb18-6"><a href=""></a>ga_ma_2022_shares <span class="ot">&lt;-</span> ga_ma_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href=""></a>  <span class="fu">group_by</span>(fips, county, year) <span class="sc">%&gt;%</span></span>
+<span id="cb18-8"><a href=""></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-9"><a href=""></a>    <span class="at">total_ma_enrollment =</span> <span class="fu">first</span>(avg_enrolled),</span>
+<span id="cb18-10"><a href=""></a>    <span class="at">ma_share =</span> <span class="fu">if_else</span>(</span>
+<span id="cb18-11"><a href=""></a>      total_ma_enrollment <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb18-12"><a href=""></a>      avg_enrollment <span class="sc">/</span> total_ma_enrollment,</span>
+<span id="cb18-13"><a href=""></a>      <span class="cn">NA_real_</span></span>
+<span id="cb18-14"><a href=""></a>    )</span>
+<span id="cb18-15"><a href=""></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb18-16"><a href=""></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb18-17"><a href=""></a></span>
+<span id="cb18-18"><a href=""></a><span class="co"># Step 2: collapse to county-year level ---------------------------------</span></span>
+<span id="cb18-19"><a href=""></a></span>
+<span id="cb18-20"><a href=""></a>ga_county_2022 <span class="ot">&lt;-</span> ga_ma_2022_shares <span class="sc">%&gt;%</span></span>
+<span id="cb18-21"><a href=""></a>  <span class="fu">group_by</span>(fips, county, year) <span class="sc">%&gt;%</span></span>
+<span id="cb18-22"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb18-23"><a href=""></a>    <span class="co"># Competition: HHI = sum of squared MA shares</span></span>
+<span id="cb18-24"><a href=""></a>    <span class="at">hhi_ma =</span> <span class="fu">sum</span>(ma_share<span class="sc">^</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb18-25"><a href=""></a></span>
+<span id="cb18-26"><a href=""></a>    <span class="co"># Prices: simple average of Part C premiums across plans in the county</span></span>
+<span id="cb18-27"><a href=""></a>    <span class="at">avg_premium_partc =</span> <span class="fu">mean</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb18-28"><a href=""></a></span>
+<span id="cb18-29"><a href=""></a>    <span class="co"># Count of plans with positive premium</span></span>
+<span id="cb18-30"><a href=""></a>    <span class="at">n_pos_premiums =</span> <span class="fu">sum</span>(premium_partc <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb18-31"><a href=""></a></span>
+<span id="cb18-32"><a href=""></a>    <span class="co"># Premium range: max - min within county-year</span></span>
+<span id="cb18-33"><a href=""></a>    <span class="at">premium_range =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb18-34"><a href=""></a>      <span class="fu">all</span>(<span class="fu">is.na</span>(premium_partc)),</span>
+<span id="cb18-35"><a href=""></a>      <span class="cn">NA_real_</span>,</span>
+<span id="cb18-36"><a href=""></a>      <span class="fu">max</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(premium_partc, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-37"><a href=""></a>    ),</span>
+<span id="cb18-38"><a href=""></a></span>
+<span id="cb18-39"><a href=""></a>    <span class="co"># Total MA enrollment in the county (from penetration)</span></span>
+<span id="cb18-40"><a href=""></a>    <span class="at">total_ma_enrollment =</span> <span class="fu">first</span>(avg_enrolled),</span>
+<span id="cb18-41"><a href=""></a></span>
+<span id="cb18-42"><a href=""></a>    <span class="co"># Total Medicare eligibles (from penetration)</span></span>
+<span id="cb18-43"><a href=""></a>    <span class="at">avg_eligibles =</span> <span class="fu">first</span>(avg_eligibles),</span>
+<span id="cb18-44"><a href=""></a></span>
+<span id="cb18-45"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb18-46"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-6-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb12-2"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb12-3"><a href=""></a></span>
-<span id="cb12-4"><a href=""></a><span class="co"># Step 1: compute market shares within each county-year ------------------</span></span>
-<span id="cb12-5"><a href=""></a><span class="co"># total_ma_enrollment and avg_eligibles come from the penetration file:</span></span>
-<span id="cb12-6"><a href=""></a><span class="co">#   avg_enrolled = total MA enrollment in the county</span></span>
-<span id="cb12-7"><a href=""></a><span class="co">#   avg_eligibles = total Medicare beneficiaries</span></span>
-<span id="cb12-8"><a href=""></a></span>
-<span id="cb12-9"><a href=""></a><span class="kw">def</span> add_shares(df):</span>
-<span id="cb12-10"><a href=""></a>    total_ma <span class="op">=</span> df[<span class="st">"avg_enrolled"</span>].iloc[<span class="dv">0</span>]</span>
-<span id="cb12-11"><a href=""></a>    df <span class="op">=</span> df.copy()</span>
-<span id="cb12-12"><a href=""></a>    df[<span class="st">"total_ma_enrollment"</span>] <span class="op">=</span> total_ma</span>
-<span id="cb12-13"><a href=""></a>    df[<span class="st">"ma_share"</span>] <span class="op">=</span> np.where(</span>
-<span id="cb12-14"><a href=""></a>        total_ma <span class="op">&gt;</span> <span class="dv">0</span>,</span>
-<span id="cb12-15"><a href=""></a>        df[<span class="st">"avg_enrollment"</span>] <span class="op">/</span> total_ma,</span>
-<span id="cb12-16"><a href=""></a>        np.nan</span>
-<span id="cb12-17"><a href=""></a>    )</span>
-<span id="cb12-18"><a href=""></a>    <span class="cf">return</span> df</span>
-<span id="cb12-19"><a href=""></a></span>
-<span id="cb12-20"><a href=""></a>ga_ma_2022_shares <span class="op">=</span> (</span>
-<span id="cb12-21"><a href=""></a>    ga_ma_2022</span>
-<span id="cb12-22"><a href=""></a>    .groupby([<span class="st">"fips"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>], group_keys<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb12-23"><a href=""></a>    .<span class="bu">apply</span>(add_shares)</span>
-<span id="cb12-24"><a href=""></a>)</span>
-<span id="cb12-25"><a href=""></a></span>
-<span id="cb12-26"><a href=""></a><span class="co"># Step 2: collapse to county-year level ---------------------------------</span></span>
-<span id="cb12-27"><a href=""></a></span>
-<span id="cb12-28"><a href=""></a>ga_county_2022 <span class="op">=</span> (</span>
-<span id="cb12-29"><a href=""></a>    ga_ma_2022_shares</span>
-<span id="cb12-30"><a href=""></a>    .groupby([<span class="st">"fips"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb12-31"><a href=""></a>    .agg(</span>
-<span id="cb12-32"><a href=""></a>        <span class="co"># HHI on MA shares</span></span>
-<span id="cb12-33"><a href=""></a>        hhi_ma<span class="op">=</span>(<span class="st">"ma_share"</span>, <span class="kw">lambda</span> x: np.nansum(x<span class="op">**</span><span class="dv">2</span>)),</span>
-<span id="cb12-34"><a href=""></a></span>
-<span id="cb12-35"><a href=""></a>        <span class="co"># Average premium</span></span>
-<span id="cb12-36"><a href=""></a>        avg_premium_partc<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="st">"mean"</span>),</span>
-<span id="cb12-37"><a href=""></a></span>
-<span id="cb12-38"><a href=""></a>        <span class="co"># Count of plans with positive premium</span></span>
-<span id="cb12-39"><a href=""></a>        n_pos_premiums<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="kw">lambda</span> x: (x <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">sum</span>()),</span>
-<span id="cb12-40"><a href=""></a></span>
-<span id="cb12-41"><a href=""></a>        <span class="co"># Premium range: max - min</span></span>
-<span id="cb12-42"><a href=""></a>        premium_range<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="kw">lambda</span> x: x.<span class="bu">max</span>() <span class="op">-</span> x.<span class="bu">min</span>()),</span>
-<span id="cb12-43"><a href=""></a></span>
-<span id="cb12-44"><a href=""></a>        <span class="co"># Total MA enrollment (from penetration)</span></span>
-<span id="cb12-45"><a href=""></a>        total_ma_enrollment<span class="op">=</span>(<span class="st">"avg_enrolled"</span>, <span class="st">"first"</span>),</span>
-<span id="cb12-46"><a href=""></a></span>
-<span id="cb12-47"><a href=""></a>        <span class="co"># Total Medicare eligibles (from penetration)</span></span>
-<span id="cb12-48"><a href=""></a>        avg_eligibles<span class="op">=</span>(<span class="st">"avg_eligibles"</span>, <span class="st">"first"</span>),</span>
-<span id="cb12-49"><a href=""></a>    )</span>
-<span id="cb12-50"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb19-2"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb19-3"><a href=""></a></span>
+<span id="cb19-4"><a href=""></a><span class="co"># Step 1: compute market shares within each county-year ------------------</span></span>
+<span id="cb19-5"><a href=""></a><span class="co"># total_ma_enrollment and avg_eligibles come from the penetration file:</span></span>
+<span id="cb19-6"><a href=""></a><span class="co">#   avg_enrolled = total MA enrollment in the county</span></span>
+<span id="cb19-7"><a href=""></a><span class="co">#   avg_eligibles = total Medicare beneficiaries</span></span>
+<span id="cb19-8"><a href=""></a></span>
+<span id="cb19-9"><a href=""></a><span class="kw">def</span> add_shares(df):</span>
+<span id="cb19-10"><a href=""></a>    total_ma <span class="op">=</span> df[<span class="st">"avg_enrolled"</span>].iloc[<span class="dv">0</span>]</span>
+<span id="cb19-11"><a href=""></a>    df <span class="op">=</span> df.copy()</span>
+<span id="cb19-12"><a href=""></a>    df[<span class="st">"total_ma_enrollment"</span>] <span class="op">=</span> total_ma</span>
+<span id="cb19-13"><a href=""></a>    df[<span class="st">"ma_share"</span>] <span class="op">=</span> np.where(</span>
+<span id="cb19-14"><a href=""></a>        total_ma <span class="op">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb19-15"><a href=""></a>        df[<span class="st">"avg_enrollment"</span>] <span class="op">/</span> total_ma,</span>
+<span id="cb19-16"><a href=""></a>        np.nan</span>
+<span id="cb19-17"><a href=""></a>    )</span>
+<span id="cb19-18"><a href=""></a>    <span class="cf">return</span> df</span>
+<span id="cb19-19"><a href=""></a></span>
+<span id="cb19-20"><a href=""></a>ga_ma_2022_shares <span class="op">=</span> (</span>
+<span id="cb19-21"><a href=""></a>    ga_ma_2022</span>
+<span id="cb19-22"><a href=""></a>    .groupby([<span class="st">"fips"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>], group_keys<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-23"><a href=""></a>    .<span class="bu">apply</span>(add_shares)</span>
+<span id="cb19-24"><a href=""></a>)</span>
+<span id="cb19-25"><a href=""></a></span>
+<span id="cb19-26"><a href=""></a><span class="co"># Step 2: collapse to county-year level ---------------------------------</span></span>
+<span id="cb19-27"><a href=""></a></span>
+<span id="cb19-28"><a href=""></a>ga_county_2022 <span class="op">=</span> (</span>
+<span id="cb19-29"><a href=""></a>    ga_ma_2022_shares</span>
+<span id="cb19-30"><a href=""></a>    .groupby([<span class="st">"fips"</span>, <span class="st">"county"</span>, <span class="st">"year"</span>], as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-31"><a href=""></a>    .agg(</span>
+<span id="cb19-32"><a href=""></a>        <span class="co"># HHI on MA shares</span></span>
+<span id="cb19-33"><a href=""></a>        hhi_ma<span class="op">=</span>(<span class="st">"ma_share"</span>, <span class="kw">lambda</span> x: np.nansum(x<span class="op">**</span><span class="dv">2</span>)),</span>
+<span id="cb19-34"><a href=""></a></span>
+<span id="cb19-35"><a href=""></a>        <span class="co"># Average premium</span></span>
+<span id="cb19-36"><a href=""></a>        avg_premium_partc<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb19-37"><a href=""></a></span>
+<span id="cb19-38"><a href=""></a>        <span class="co"># Count of plans with positive premium</span></span>
+<span id="cb19-39"><a href=""></a>        n_pos_premiums<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="kw">lambda</span> x: (x <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">sum</span>()),</span>
+<span id="cb19-40"><a href=""></a></span>
+<span id="cb19-41"><a href=""></a>        <span class="co"># Premium range: max - min</span></span>
+<span id="cb19-42"><a href=""></a>        premium_range<span class="op">=</span>(<span class="st">"premium_partc"</span>, <span class="kw">lambda</span> x: x.<span class="bu">max</span>() <span class="op">-</span> x.<span class="bu">min</span>()),</span>
+<span id="cb19-43"><a href=""></a></span>
+<span id="cb19-44"><a href=""></a>        <span class="co"># Total MA enrollment (from penetration)</span></span>
+<span id="cb19-45"><a href=""></a>        total_ma_enrollment<span class="op">=</span>(<span class="st">"avg_enrolled"</span>, <span class="st">"first"</span>),</span>
+<span id="cb19-46"><a href=""></a></span>
+<span id="cb19-47"><a href=""></a>        <span class="co"># Total Medicare eligibles (from penetration)</span></span>
+<span id="cb19-48"><a href=""></a>        avg_eligibles<span class="op">=</span>(<span class="st">"avg_eligibles"</span>, <span class="st">"first"</span>),</span>
+<span id="cb19-49"><a href=""></a>    )</span>
+<span id="cb19-50"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-6-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 159
+Columns: 9
+$ fips                &lt;dbl&gt; 13001, 13003, 13005, 13007, 13009, 13011, 13013, 1‚Ä¶
+$ county              &lt;chr&gt; "Appling", "Atkinson", "Bacon", "Baker", "Baldwin"‚Ä¶
+$ year                &lt;dbl&gt; 2022, 2022, 2022, 2022, 2022, 2022, 2022, 2022, 20‚Ä¶
+$ hhi_ma              &lt;dbl&gt; 0.02155152, 0.02328918, 0.02714814, 0.01953548, 0.‚Ä¶
+$ avg_premium_partc   &lt;dbl&gt; 3.864286, 0.000000, 5.422222, 0.000000, 3.188889, ‚Ä¶
+$ n_pos_premiums      &lt;int&gt; 3, 0, 2, 0, 3, 2, 5, 1, 2, 1, 4, 2, 2, 1, 4, 1, 1,‚Ä¶
+$ premium_range       &lt;dbl&gt; 47.2, 0.0, 47.2, 0.0, 47.2, 47.2, 47.2, 47.2, 47.2‚Ä¶
+$ total_ma_enrollment &lt;dbl&gt; 2190.0000, 798.5833, 1090.7500, 463.8333, 5504.916‚Ä¶
+$ avg_eligibles       &lt;dbl&gt; 3963.4167, 1370.3333, 2209.8333, 755.0833, 9245.83‚Ä¶</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1245,30 +1423,39 @@ Ian McCarthy | Emory University
 <li>This doesn‚Äôt establish causality; it just helps visualize how <strong>more concentrated markets (higher HHI)</strong> line up with <strong>average premiums</strong> in our GA sample.</li>
 </ul>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">R</a></li><li><a href="#tabset-7-2">Python</a></li></ul>
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">R</a></li><li><a href="#tabset-7-2">Python</a></li><li><a href="#tabset-7-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-7-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb13-2"><a href=""></a></span>
-<span id="cb13-3"><a href=""></a><span class="fu">ggplot</span>(ga_county_2022, <span class="fu">aes</span>(<span class="at">x =</span> hhi_ma, <span class="at">y =</span> avg_premium_partc)) <span class="sc">+</span></span>
-<span id="cb13-4"><a href=""></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb13-5"><a href=""></a>  <span class="fu">labs</span>(</span>
-<span id="cb13-6"><a href=""></a>    <span class="at">x =</span> <span class="st">"MA market concentration (HHI)"</span>,</span>
-<span id="cb13-7"><a href=""></a>    <span class="at">y =</span> <span class="st">"Average Part C premium"</span>,</span>
-<span id="cb13-8"><a href=""></a>    <span class="at">title =</span> <span class="st">"County-level MA premiums and competition in Georgia, 2022"</span></span>
-<span id="cb13-9"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">ggplot</span>(ga_county_2022, <span class="fu">aes</span>(<span class="at">x =</span> hhi_ma, <span class="at">y =</span> avg_premium_partc)) <span class="sc">+</span></span>
+<span id="cb21-2"><a href=""></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb21-3"><a href=""></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-4"><a href=""></a>    <span class="at">x =</span> <span class="st">"MA market concentration (HHI)"</span>,</span>
+<span id="cb21-5"><a href=""></a>    <span class="at">y =</span> <span class="st">"Average Part C premium"</span>,</span>
+<span id="cb21-6"><a href=""></a>    <span class="at">title =</span> <span class="st">"County-level MA premiums and competition in Georgia, 2022"</span></span>
+<span id="cb21-7"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-7-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb14-2"><a href=""></a></span>
-<span id="cb14-3"><a href=""></a>plt.scatter(ga_county_2022[<span class="st">"hhi_ma"</span>], ga_county_2022[<span class="st">"avg_premium_partc"</span>])</span>
-<span id="cb14-4"><a href=""></a>plt.xlabel(<span class="st">"MA market concentration (HHI)"</span>)</span>
-<span id="cb14-5"><a href=""></a>plt.ylabel(<span class="st">"Average Part C premium"</span>)</span>
-<span id="cb14-6"><a href=""></a>plt.title(<span class="st">"County-level MA premiums and competition in Georgia, 2022"</span>)</span>
-<span id="cb14-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb22-2"><a href=""></a></span>
+<span id="cb22-3"><a href=""></a>plt.scatter(ga_county_2022[<span class="st">"hhi_ma"</span>], ga_county_2022[<span class="st">"avg_premium_partc"</span>])</span>
+<span id="cb22-4"><a href=""></a>plt.xlabel(<span class="st">"MA market concentration (HHI)"</span>)</span>
+<span id="cb22-5"><a href=""></a>plt.ylabel(<span class="st">"Average Part C premium"</span>)</span>
+<span id="cb22-6"><a href=""></a>plt.title(<span class="st">"County-level MA premiums and competition in Georgia, 2022"</span>)</span>
+<span id="cb22-7"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-7-3">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="selection-02_files/figure-revealjs/unnamed-chunk-24-1.png" width="960"></p>
+</figure>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1756,4 +1943,54 @@ Ian McCarthy | Emory University
     </script>
     
 
-</body></html>
+</body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0Ç'*	*ÜHÜ˜†Ç'0Ç'10	`ÜHe 0Ç	+Ç7
+†Ç˛0Ç˙0
++Ç7n“¢ˆV‰O≥8X4ö-˘251009020941Z0
++Ç7 0Åº0Åç 1Hm§‹˘v5%∆c´ı œ:ﬂæ”ÿP‘·íõÙÛÔ“1i0
++Ç71Ç 0U
++Ç71G0E0
++Ç7¢Ä 010	`ÜHe  1Hm§‹˘v5%∆c´ı œ:ﬂæ”ÿP‘·íõÙÛÔ“0*õ©h˝´¥V«“± ï
+t_ÆŸU˙10
++Ç71Ç †Å˘0Åˆ0w
++Ç7i0g P a c k a g e N a m e Hw i n p e - s e c u r e s t a r t u p - p a c k a g e - W r a p p e r   0{
++Ç7m0k O S A t t r V2 : 1 0 . 0 , 2 : 6 . 3 , 2 : 6 . 2 , 2 : 6 . 1 , 2 : 6 . 0 , 2 : 5 . 2 , 2 : 5 . 1   †Ç
+Ÿ0Ç˙0Ç‚†3  ⁄›™ã‹D≤í    0	*ÜHÜ˜ 0ÅÑ10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1.0,U%Microsoft Windows Production PCA 20110250619181144Z260617181144Z0p10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation10UMicrosoft Windows0Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç ô ªt9Ü)C@€∏ H•Ù„ ï°ÖÜ^'˛bD£]∞¬0ÿ¬œÀd{¥öQ¿√‰lRÓ“Kó$˘BR/ç≠NÖY≥Ω¬–¬jv‚π-E(téN:L¢|∏%P„<¬Sªªéöv≠yÈV‹áÜVãoátê.µN‘öChÊ [m◊ˆÄS«°≈a.lèMπ'hGvP‡ËhìL∏}j–N‡ 3'ÿ.‡ù+„©±Cﬁécƒ ≠ÿ\ËOﬂn˙∂ˆØhıß|goVcOÜ:$ùñ≥*nÀ1H:2JoT≤€˙`àY8!À˜§ß⁄=k¬»…98àb5T‘˜„ÀH¥æHÿÑ £Çv0Çr0U%0
++Ç7
++0U‡9Z¸ß–´í—Êá^9!ªÕ0EU>0<§:0810UMicrosoft Corporation10U229879+5053260U#0Ä©)9éƒóxÕê˘ûOö·|UØS0WUP0N0L†J†HÜFhttp://www.microsoft.com/pkiops/crl/MicWinProPCA2011_2011-10-19.crl%200a+U0S0Q+0ÜEhttp://www.microsoft.com/pkiops/certs/MicWinProPCA2011_2011-10-19.crt0Uˇ0 0	*ÜHÜ˜ Ç óhzÓx∏iX«≥q®	 L]•IY‚Ë≥≥Xq¶“P˛ÁíI•
+gV~q_‚R5ÈŸ≥Œ);≤	°„#Ç o.Jù@”$°◊3oâ8NnMeñb ç	›ƒ @¿ÃˆÀBV FLtõÄ1ˆ›ÿM3…4EØp§b*™¶q	≤∑]·êFe«ù]Ò}∆„n≥sbªÍôH,z»≠+‰i¯îû+Q"ëVît}†µ€?¬•á˛Ç…rlËû‡^’ÚæN®Mú&scÎ…n©`¢‘ìÕlà≠ı9BÛU¸K∆¡ÈﬁÒƒÓçs?è~®ÉÊÚısŒzw+a0Ç◊0Çø†
+avV     0	*ÜHÜ˜ 0Åà10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1200U)Microsoft Root Certificate Authority 20100111019184142Z261019185142Z0ÅÑ10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1.0,U%Microsoft Windows Production PCA 20110Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç ›ª¢‰.	„Á≈˜ñiº !Ωi33Ô≠ÀTÄÓÉª≈ ÑŸ˜“ãÛ8∞´§≠-|byˇ„J?5 p„ƒÁk‡ú¿6uÈä1›çpÂ‹7µtFñ([á`#,ø‹G•g˜Q'ûrÎ¶…π;S5|Â”Ï'πá˛π…#	o®Fë¡nñ<A”À£?]jMÏi%(\6ˇ˝C
+î‡¥œﬂ¬‚¬['Ó'x0ã[*	k"âS`,¿hS∫ÏIÛùaåÖh	sD]}¢T+›y˜œ5]l+\Œºú#ãonµ&Ÿ6√O÷'Æπ2;Aí,·«ÕwË™TN˜\áe¥C®≤‡mwÏZ$˙H £ÇC0Ç?0	+Ç7 0U©)9éƒóxÕê˘ûOö·|UØS0	+Ç7
+ S u b C A0UÜ0Uˇ0ˇ0U#0Ä’ˆVÀèË¢\bh—=îê[◊Œöƒ0VUO0M0K†I†GÜEhttp://crl.microsoft.com/pki/crl/products/MicRooCerAut_2010-06-23.crl0Z+N0L0J+0Ü>http://www.microsoft.com/pki/certs/MicRooCerAut_2010-06-23.crt0	*ÜHÜ˜ Ç ¸|qQ•y¬n≤Ô9>º<Rn+?s˛®h–H¶4Mäñ&Ó1Fêay÷ˇ8.EkÙ¿Â(∏⁄èä€	◊«L
+6fjåÏ◊ê®§õπ‚@26vƒ¡Z∆ø‰¿Í”¨√hÔb¨›TlP0X¶Î|˛îßNéÙÏ|ÜsW¬R!s4ZÛ£äV»⁄	Ì¯ã„ŒÙ~éÆˆä˚?…rS∏Îæc‡„=1e∞ÅÂÚ¨Õ§ü=®±õ¬B–êÑ_TˇâÍ∫Gêo∞sNAü@ü_Â°*≤ësä!(Œﬁs9_>´\`Ïﬂ®”	ÈÙˆñÖ∂QàfGç¢∞=Å*hwªëLb{∂¡«∫zá4KbzôÈ ¸ŒJ7…-§W|˛=‹∏Z˙÷ƒ≥Ö:Í≥Ÿn‰i!7ﬁÅ—ˆug”ìW^)9»Ó-·Õ‰Es[–“Œz´ÇFX–^ùÅ≥gØl5ÚºÂ?$‚5¢
+uˆVô‘x,—Î–àù™Òﬂ∫~,c∑õ#!ƒ˘xl‚X6+ëÃ§ŸÚ-∫˘îù@ÌEÒŒä\k>´”p*
+j‡_G—’c
+2ÚØ◊6*pZÂBYqKW∫~ÉÅ!<Ù¡≈πêìàEìÜÈ± ôæòÀ≈ï§]b÷†c Ωuw}=ÛEπüóüÀWÄo3©œw§bY~1Ç0Ç0Åú0ÅÑ10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1.0,U%Microsoft Windows Production PCA 20113  ⁄›™ã‹D≤í    0	`ÜHe †Å≠0	*ÜHÜ˜	1	+Ç7
+0
++Ç710
++Ç70/	*ÜHÜ˜	1" Èî
+¢ÇÅ£˘ØÇ`;Ω‘LºbcjBf∑¿ºä’É0B
++Ç71402†Ä M i c r o s o f t°Ähttp://www.microsoft.com0	*ÜHÜ˜ Ç JJO9¨PÁÆ€«+¯	~,R2$›uﬂ (éΩ#)Qè∏›4Qåê »‰eDW≠·Rë∂ffìﬁV¬{E›—5T~E‹œ˛[r O
+ˇ*…Õ=ìn»g±öÈÒIà‰Î≥X£¿=Æ⁄n≤¢ ≥ûÃ[ã£L◊ËïõH0ˆ!⁄∫´Vë≈≈ùRNôQÒ]É{_c≠’¶ÎDº◊rpEÎnÅ+∆|X∆ï®ç¿ô|”A„;Å‡Ω~…	ÂªØy˘≤måá2iUï6´Á#/«Òü;(^(£;~|ˆ´bVìπ›Ûkîa%ø)¿ó»c—Õ”¢n`n…QÛ8¡Õﬂäc˜°Çï0Çë
++Ç71ÇÅ0Ç}	*ÜHÜ˜†Çn0Çj10	`ÜHe 0ÇP*ÜHÜ˜	†Ç?Ç;0Ç7
++ÑY
+010	`ÜHe  í#\.ùª>Zhû¨1FH÷*D™uÉÉ÷ôïRÈYh◊À'cÚ20251009021535.8Z0ÄÙ†Å—§ÅŒ0ÅÀ10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1%0#UMicrosoft America Operations1'0%UnShield TSS ESN:3303-05E0-D9471%0#UMicrosoft Time-Stamp Service†ÇÌ0Ç 0Ç†3  WöG@ÊFÊ   0	*ÜHÜ˜ 0|10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1&0$UMicrosoft Time-Stamp PCA 20100250130194304Z260422194304Z0ÅÀ10	UUS10U
+Washington10URedmond10U
+Microsoft Corporation1%0#UMicrosoft America Operations1'0%UnShield TSS ESN:3303-05E0-D9471%0#UMicrosoft Time-Stamp Service0Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç •Ë4ÓØ˙Íé˜@6»™5˛v/!0P±ﬁtùíC:6q*Ì¯@ƒ ÂKsXê˚∫45gWLlƒ˙bª%K≈ãëÔ⁄O˜ø|pÛvöÓ¡¥˛≥Ué/OΩÉ– Èa£2?-ö∑˛‹«Øû¢üˆ~˙èˆ≤Å°»hJ0<óÇx/QgÚwm†ÕR&œv©∞òıÈ‘-hˇì‡µºÜ@Ál©t<ŸJÈ[§˜%Ω∑.““DO÷u‰«åﬂssÔˇπ∂®$vıqÊgÖ8Â¡/ˆÉOVDøPXãGåÒâb;â—…2¨·µí«¿ec˛Ô\
+∏≥PZ˛Á^¿¬ÏSÜõ⁄æ—≥£`Ô·ÿ≥—m–Ãp«“ıñ·´]!\˛ôttE~Ææ@Ä˝óE °KøÄ€¬®på£˝ÓÁhÌÂé

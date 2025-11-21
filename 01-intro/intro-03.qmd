@@ -193,7 +193,6 @@ head(ga_enrollment)
 
 ```{r}
 #| eval: false
-library(dplyr)
 
 # Structure
 glimpse(ga_enrollment)
@@ -277,26 +276,6 @@ ga_enrollment.groupby("year").agg(
 )
 ```
 
-### Output
-
-```{r}
-#| eval: true
-#| echo: false
-
-# How many plans per year?
-ga_enrollment %>%
-  count(year)
-
-# Average enrollment by year
-ga_enrollment %>%
-  group_by(year) %>%
-  summarise(
-    avg_enrollment = mean(enrollment, na.rm = TRUE),
-    n_plans        = n()
-  )
-```
-
-
 :::
 
 - These quick summaries help you understand what’s in the data **before** you start estimating models
@@ -323,13 +302,13 @@ ga_enrollment %>%
 ### R
 
 ```{r}
-#| eval: false
-library(dplyr)
+#| eval: true
+#| results: "hide"
 
 # Keep only key vars and a subset of years
 ga_enrollment_small <- ga_enrollment %>%
-  select(year, contract_id, plan_id, county, enrollment) %>%
-  filter(year >= 2015, enrollment > 0)
+  select(contractid, planid, county, enrollment) %>%
+  filter(!is.na(enrollment))
 ```
 
 ### Python
@@ -341,10 +320,21 @@ import pandas as pd
 # Keep only key vars and a subset of years
 ga_enrollment_small = (
     ga_enrollment
-      [["year", "contract_id", "plan_id", "county", "enrollment"]]
-      .loc[(ga_enrollment["year"] >= 2015) & (ga_enrollment["enrollment"] > 0)]
+        [["contractid", "planid", "county", "enrollment"]]
+        .dropna(subset=["enrollment"])
 )
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+glimpse(ga_enrollment_small)
+
+```
+
 :::
 
 - This kind of early trimming makes later manipulation and merging much easier
@@ -358,12 +348,11 @@ ga_enrollment_small = (
 ### R
 
 ```{r}
-#| eval: false
+#| eval: true
+#| results: "hide"
 ga_enrollment_clean <- ga_enrollment_small %>%
   mutate(
-    log_enrollment = log(enrollment),
-    rural          = if_else(county_type == "Rural", 1L, 0L),
-    year_factor    = factor(year)
+    log_enrollment = log(enrollment)
   )
 ```
 
@@ -373,9 +362,18 @@ ga_enrollment_clean <- ga_enrollment_small %>%
 #| eval: false
 ga_enrollment_clean = ga_enrollment_small.copy()
 ga_enrollment_clean["log_enrollment"] = np.log(ga_enrollment_clean["enrollment"])
-ga_enrollment_clean["rural"] = (ga_enrollment_clean["county_type"] == "Rural").astype(int)
-ga_enrollment_clean["year_factor"] = ga_enrollment_clean["year"].astype("category")
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+glimpse(ga_enrollment_clean)
+
+```
+
 :::
 
 - Aim is to get variables into forms that line up with the models you’ll eventually estimate
@@ -391,12 +389,13 @@ ga_enrollment_clean["year_factor"] = ga_enrollment_clean["year"].astype("categor
 ### R
 
 ```{r}
-#| eval: false
+#| eval: true
+#| results: "hide"
 ga_enrollment_checked <- ga_enrollment_clean %>%
   mutate(
     enrollment = if_else(enrollment < 0, NA_real_, enrollment)
   ) %>%
-  filter(!is.na(enrollment), !is.na(contract_id))
+  filter(!is.na(enrollment), !is.na(contractid))
 ```
 
 ### Python
@@ -413,9 +412,19 @@ ga_enrollment_checked.loc[
 
 # Drop rows missing key fields
 ga_enrollment_checked = ga_enrollment_checked.dropna(
-    subset=["enrollment", "contract_id"]
+    subset=["enrollment", "contractid"]
 )
 ```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+glimpse(ga_enrollment_checked)
+```
+
 :::
 
 - These are judgment calls; the key is to make them **explicit** and reproducible in code
@@ -439,21 +448,21 @@ ga_enrollment_checked = ga_enrollment_checked.dropna(
 ### R
 
 ```{r}
-#| eval: false
-library(dplyr)
+#| eval: true
+#| results: "hide"
 
 # Merge enrollment with contract-level info
 ga_enroll_contract <- ga_enrollment %>%
   left_join(
     ga_contract,
-    by = c("contract_id", "year")
+    by = c("contractid")
   )
 
 # Add service area info
 ga_enroll_full <- ga_enroll_contract %>%
   left_join(
     ga_service,
-    by = c("contract_id", "plan_id", "county", "year")
+    by = c("contractid", "county")
   )
 ```
 
@@ -466,16 +475,26 @@ import pandas as pd
 # Merge enrollment with contract-level info
 ga_enroll_contract = ga_enrollment.merge(
     ga_contract,
-    on=["contract_id", "year"],
+    on=["contractid"],
     how="left"
 )
 
 # Add service area info
 ga_enroll_full = ga_enroll_contract.merge(
     ga_service,
-    on=["contract_id", "plan_id", "county", "year"],
+    on=["contractid", "county"],
     how="left"
 )
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+glimpse(ga_enroll_full)
+
 ```
 
 :::
@@ -495,10 +514,6 @@ ga_enroll_full = ga_enroll_contract.merge(
 
 ```{r}
 #| eval: false
-library(dplyr)
-library(purrr)
-library(readr)
-
 years <- 2015:2018
 
 ga_enrollment_multi <- map_dfr(
@@ -541,12 +556,10 @@ ga_enrollment_multi = pd.concat(frames, ignore_index=True)
 
 ```{r}
 #| eval: false
-library(dplyr)
-library(tidyr)
 
 # Aggregate enrollment by contract and year
 ga_contract_year <- ga_enrollment %>%
-  group_by(contract_id, year) %>%
+  group_by(contractid, year) %>%
   summarise(
     total_enrollment = sum(enrollment, na.rm = TRUE),
     .groups = "drop"
@@ -580,20 +593,20 @@ import pandas as pd
 # Aggregate enrollment by contract and year
 ga_contract_year = (
     ga_enrollment
-      .groupby(["contract_id", "year"], as_index=False)
+      .groupby(["contractid", "year"], as_index=False)
       .agg(total_enrollment=("enrollment", "sum"))
 )
 
 # Long → wide: years as columns
 ga_contract_wide = ga_contract_year.pivot(
-    index="contract_id",
+    index="contractid",
     columns="year",
     values="total_enrollment"
 ).add_prefix("enroll_").reset_index()
 
 # Wide → long: back to year/enrollment columns
 ga_contract_long = ga_contract_wide.melt(
-    id_vars="contract_id",
+    id_vars="contractid",
     var_name="year",
     value_name="total_enrollment"
 )
@@ -603,6 +616,7 @@ ga_contract_long["year"] = (
     ga_contract_long["year"].str.replace("enroll_", "", regex=False).astype(int)
 )
 ```
+
 
 :::
 
@@ -635,7 +649,6 @@ ga_contract_long["year"] = (
 
 ```{r}
 #| eval: false
-library(readr)
 
 # Save cleaned enrollment data as CSV
 write_csv(
@@ -716,8 +729,6 @@ ga_enrollment_checked = pd.read_pickle(
 
 ```{r}
 #| eval: false
-library(dplyr)
-library(readr)
 
 # Example: summary table by year and rural status
 enroll_summary <- ga_enrollment_checked %>%
