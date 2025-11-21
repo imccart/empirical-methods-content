@@ -23,20 +23,54 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
                hrbrthemes, gganimate, OECD, here, MatchIt, ggthemes)
 ```
 
+## Outline for Today
 
-# Goal
+1. What is "Selection on Observables"?
+2. Many different estimators
+3. Practice with simulated data
+
+
+# Selection on Observables
+
+## Problem of "Selection"
+
+Recall the selection or endogeneity problem:
+
+- **Estimand**: $$\delta_{ATE} = E[Y_{1} - Y_{0}] = E[Y | D=1] - E[Y | D=0]$$
+- **Estimate**: $$\hat{\delta}_{ATE} = \frac{1}{N_{1}} \sum_{D_{i}=1} Y_{i} - \frac{1}{N_{0}} \sum_{D_{i}=0} Y_{i},$$ where $N_{1}$ is number of treated and $N_{0}$ is number untreated (control)
+
+---
+
+$$\hat{\delta}_{ATE} = \frac{1}{N_{1}} \sum_{D_{i}=1} Y_{i} - \frac{1}{N_{0}} \sum_{D_{i}=0} Y_{i}$$
+
+- Since we don't observe $Y_{0}$ and $Y_{1}$, we have to use the observed outcomes, $Y_{i}$
+
+$$\begin{align}
+E[Y_{i} | D_{i}=1] &- E[Y_{i} | D_{i}=0] \\
+=& E[Y_{1i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \\
+=& \delta + E[Y_{0i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \\
+=& \text{ATE } + \text{ Selection Bias}
+\end{align}$$
+
+- Selection bias means $E[Y_{0i} | D_{i}=1] - E[Y_{0i} | D_{i}=0] \neq 0$
+
+## Clarification of terminology
+
+- "Selection" or "self-selection" sometimes used to describe process of missing data (e.g., people "self-select" into the labor market)
+- We're using "selection" differently...captures process by which units are associated with specific values of covariates (e.g., in a study of hospital admits and health, patients are in the hospital because of unobserved things also related to their health)
+
+## Potential Solution...
 
 Find covariates $X_{i}$ such that the following assumptions are plausible:
-
 
 1. Selection on observables: $$Y_{0i}, Y_{1i} \perp\!\!\!\perp D_{i} | X_{i}$$
 2. Common support: $$0 < \text{Pr}(D_{i}=1|X_{i}) < 1$$
 
 ::: {.fragment}
-Then we can use $X_{i}$ to group observations and use expected values from control group as the predicted counterfactuals among treated, and vice versa. 
+- KEY INTUITION: My *potential outcomes* are unchanged by treatment status...treatment status governs which potential outcome is observed in the data
+- Then we can use $X_{i}$ to group observations and use expected values from control group as the predicted counterfactuals among treated, and vice versa. 
 :::
 
----
 
 ## Assumption 1: Selection on Observables
 
@@ -48,8 +82,6 @@ In words...nothing else, outside of $X$, that determines treatment selection and
 :::
 
 
----
-
 ## Assumption 2: Common Support
 
 Someone of each type must be in both the treated and untreated groups
@@ -59,8 +91,7 @@ $$0 < \text{Pr}(D=1|X) <1$$
 :::
 
 
-
-# Causal inference with observational data
+# Estimators Based on Selection on Observables Assumption
 
 With selection on observables and common support:
 
@@ -70,16 +101,12 @@ With selection on observables and common support:
 4. Regression estimators
 
 
-
----
-
 ## Subclassification
 
 Sum the average treatment effects by group, and take a weighted average over those groups:
 
 $$ATE=\sum_{i=1}^{N} P(X=x_{i}) \left(E[Y | X, D=1] - E[Y | X, D=0]\right)$$
 
----
 
 ## Subclassification: Example
 
@@ -92,10 +119,12 @@ $$ATE=\sum_{i=1}^{N} P(X=x_{i}) \left(E[Y | X, D=1] - E[Y | X, D=0]\right)$$
 | Medium     | 0.35           | 15           | 11           | 4              | 1.4            |
 | High       | 0.25           | 18           | 14           | 4              | 1.0            |
 
+<br>
+<br>
+
 **Final ATE Calculation:**
 $$ATE = (0.4 \times 2) + (0.35 \times 4) + (0.25 \times 4) = 3.2$$
 
----
 
 ## Subclassification: Graph
 
@@ -164,7 +193,6 @@ ggplot(df_long, aes(x = Stratum, y = Outcome, fill = Group)) +
   theme_minimal()
 ```
 
----
 
 ## Problem with Subclassification
 
@@ -173,8 +201,6 @@ ggplot(df_long, aes(x = Stratum, y = Outcome, fill = Group)) +
 - As the number of variables in $X$ (i.e., the dimensionality) grows, this becomes more likely
 - This is the *curse of dimensionality*
 
-
----
 
 ## Matching: The process
 
@@ -192,27 +218,30 @@ $$\hat{Y}_{1i} = \begin{cases}
 3. Form "matched" ATE:
 $$\hat{\delta}^{\text{match}} = \frac{1}{N} \sum_{i=1}^{N} \left(\hat{Y}_{1i} - \hat{Y}_{0i} \right)$$
 
----
 
 ## Matching: Example
 
-Let's assume we are evaluating the effect of a treatment on an outcome variable (e.g., a job training program on income). We match **on education level**, considering the **"High School Only"** group. We will use **all available matches** within the stratum.
+Let's assume we are evaluating the effect of a treatment on an outcome variable (e.g., a job training program on income)
+
+- Match on education level, considering the **"High School Only"** group
+- Use **all available matches** within the stratum.
 
 
-| ID  | D  | Income |
-|----|-----|----------------|
-| 1  | 1   | 35,000  |
-| 2  | 1   | 37,000  |
-| 3  | 0   | 30,000  |
-| 4  | 0   | 32,000  |
-| 5  | 0   | 31,000  |
+| ID  | D  | Income | Education |
+|----|-----|---------|----------|
+| 1  | 1   | 35,000  | HS       |
+| 2  | 1   | 37,000  | HS       |
+| 3  | 0   | 30,000  | HS       |
+| 4  | 0   | 32,000  | HS       |
+| 5  | 0   | 31,000  | HS       |
+| 6  | 1   | 41,000  | College  |
 
 ---
 
 ### **Step 1: Identify Matches**
 
-- **All treated individuals (IDs 1 and 2) are matched to all control individuals (IDs 3, 4, and 5).**
-- The number of matches per treated unit: **\( m = 3 \)**.
+- Treated units with HS education (IDs 1 and 2) are matched to all control individuals (IDs 3, 4, and 5)
+- Yields, 3 matches per treated unit, $m = 3$
 
 ---
 
@@ -257,20 +286,17 @@ $$= \frac{25,000}{5} = 5,000$$
 - **Interpretation:** After matching on education level, we estimate that the **job training program increases income by $5,000 on average.**  
 
 
----
-
 ## Matching: Defining "nearest"
 
 1. Euclidean distance:
-$\sum_{k=1}^{K} (X_{ik} - X_{jk})^{2}$
+$$\sum_{k=1}^{K} (X_{ik} - X_{jk})^{2}$$
 
 2. Scaled Euclidean distance:
-$\sum_{k=1}^{K} \frac{1}{\sigma_{X_{k}}^{2}} (X_{ik} - X_{jk})^{2}$
+$$\sum_{k=1}^{K} \frac{1}{\sigma_{X_{k}}^{2}} (X_{ik} - X_{jk})^{2}$$
 
 3. Mahalanobis distance:
-$(X_{i} - X_{j})' \Sigma_{X}^{-1} (X_{i} - X_{j})$
+$$(X_{i} - X_{j})' \Sigma_{X}^{-1} (X_{i} - X_{j})$$
 
----
 
 ## Animation for matching
 
@@ -341,8 +367,6 @@ anim_save("images/match_animate.gif", anim.p)
 ![](../images/match_animate.gif)
 
 
----
-
 ## Matching: Bias Correction
 
 - But are observations really the same in each group? Potential for "matching discrepancies" to introduce bias in estimates
@@ -351,7 +375,6 @@ anim_save("images/match_animate.gif", anim.p)
   - $x_{i}$ is the covariate vector for a **treated** unit.
   - $x_{j(i)}$ is the covariate vector for its **matched control**.
 
----
 
 ## Matching: Bias Correction
 
@@ -364,8 +387,6 @@ where:
 - The **bias correction term** ensures differences in covariates do not confound the estimate.
 
 
----
-
 ## Weighting
 
 1. Estimate propensity score, denoted $\hat{\pi}(X_{i})$
@@ -377,12 +398,11 @@ $$\hat{\mu}_{1} = \frac{ \sum_{i=1}^{N} \frac{Y_{i} D_{i}}{\hat{\pi}(X_{i})} }{ 
 3. Form "inverse-propensity weighted" ATE:
 $$\hat{\delta}^{IPW} = \hat{\mu}_{1} - \hat{\mu}_{0}$$
 
----
 
 ## What is the propensity score?
 
 - Want to estimate the probability of being in the treatment group given covariates
-- Need probabilities to be between 0 and 1
+- Need probabilities to be between 0 and 1 (not guaranteed in simple linear regression)
 - Latent utility setup:
   - $u_{i} = \beta x_{i} + \varepsilon_{i}$
   - $D_{i} = 1$ if $u_{i} > 0$
@@ -391,8 +411,8 @@ $$\hat{\delta}^{IPW} = \hat{\mu}_{1} - \hat{\mu}_{0}$$
   - Requires a distributional assumption on $\varepsilon_{i}$, e.g., logistic or normal
   - Estimated via maximum likelihood or other methods
   - In R: `ps <- glm(D~X, family=binomial, data)`
+  - In Python: `ps = smf.glm("D ~ X", data, family=sm.families.Binomial()).fit()`
 
----
 
 ## Regression
 
@@ -401,7 +421,6 @@ $$\hat{\delta}^{IPW} = \hat{\mu}_{1} - \hat{\mu}_{0}$$
 3. Form difference in predictions:
 $$\hat{\delta}^{reg} = \frac{1}{N} \sum_{i=1}^{N} \left(\hat{\mu}_{1}(X_{i}) - \hat{\mu}_{0}(X_{i})\right)$$
 
----
 
 ## Regression
 
@@ -412,7 +431,6 @@ $$Y_{i} = \delta D_{i} + \beta X_{i} + D_{i} \times \left(X_{i} - \bar{X}\right)
 - Note the $(X_{i} - \bar{X})$. What does this do?
 :::
 
----
 
 ## Animation for regression
 
@@ -466,12 +484,18 @@ anim_save("images/reg_animate.gif", anim.reg)
 
 ![](../images/reg_animate.gif)
 
+# Practice with Simulated Data
 
----
+Now let's do some matching, re-weighting, and regression with simulated data
 
 ## Simulated data
 
-Now let's do some matching, re-weighting, and regression with simulated data:
+First we'll simulate the data
+
+::: {.panel-tabset}
+
+### R
+
 ```{r}
 n <- 5000
 select.dat <- tibble(
@@ -484,39 +508,169 @@ select.dat <- tibble(
 )
 ```
 
----
+### Python
 
-## Simulation: nearest neighbor matching
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+
+n = 5000
+x = np.random.uniform(0, 1, n)
+z = np.random.normal(0, 1, n)
+
+w     = (x > 0.65).astype(int)
+y     = -2.5 + 4*w + 1.5*x + np.random.normal(0, 1, n)
+w_alt = ((x + z) > 0.35).astype(int)
+y_alt = -2.5 + 4*w_alt + 1.5*x + 2.25*z + np.random.normal(0, 1, n)
+
+select_dat = pd.DataFrame({
+    "x": x,
+    "z": z,
+    "w": w,
+    "y": y,
+    "w_alt": w_alt,
+    "y_alt": y_alt
+})
+```
+
+:::
+
+## Simulation: nearest neighbor matching with inverse-variance
+
+::: {.panel-tabset}
+
+### R
+
+- Using `R` package `Matching`
 
 ```{r}
+#| eval: true
+#| results: "hide"
 nn.est1 <- Matching::Match(Y=select.dat$y,
                             Tr=select.dat$w,
                             X=select.dat$x,
                             M=1,
                             Weight=1,
                             estimand="ATE")
+```
+
+### Python
+
+- No direct analogue in Python...
+
+```{python}
+#| eval: false
+
+!pip install rpy2
+%load_ext rpy2.ipython
+
+%%R -i select_dat
+
+# select_dat is now an R data.frame
+
+if (!requireNamespace("Matching", quietly = TRUE)) {
+  install.packages("Matching")
+}
+library(Matching)
+
+nn.est1 <- Matching::Match(
+  Y  = select_dat$y,
+  Tr = select_dat$w,
+  X  = select_dat$x,
+  M  = 1,
+  Weight = 1,
+  estimand = "ATE"
+)
+
+summary(nn.est1)
+
+%%R -o nn.est1
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
 summary(nn.est1)
 ```
 
----
+:::
 
-## Simulation: nearest neighbor matching 
+## Simulation: nearest neighbor matching with Mahalanobis
+
+::: {.panel-tabset}
+
+### R
+
 ```{r}
+#| eval: true
+#| results: "hide"
 nn.est2 <- Matching::Match(Y=select.dat$y,
                             Tr=select.dat$w,
                             X=select.dat$x,
                             M=1,
-                            Weight=2, #<<
+                            Weight=2,
                             estimand="ATE")
-summary(nn.est2)
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+!pip install rpy2
+%load_ext rpy2.ipython
+
+%%R -i select_dat
+
+# select_dat is now an R data.frame
+
+if (!requireNamespace("Matching", quietly = TRUE)) {
+  install.packages("Matching")
+}
+library(Matching)
+
+nn.est2 <- Matching::Match(
+  Y  = select_dat$y,
+  Tr = select_dat$w,
+  X  = select_dat$x,
+  M  = 1,
+  Weight = 2,
+  estimand = "ATE"
+)
+
+summary(nn.est1)
+
+%%R -o nn.est2
 ```
 
 
----
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(nn.est2)
+```
+
+:::
+
 
 ## Simulation: regression
 
+::: {.panel-tabset}
+
+### R
+
 ```{r}
+#| eval: true
+#| results: "hide"
 reg1.dat <- select.dat %>% filter(w==1)
 reg1 <- lm(y ~ x, data=reg1.dat)
 
@@ -524,10 +678,41 @@ reg0.dat <- select.dat %>% filter(w==0)
 reg0 <- lm(y ~ x, data=reg0.dat)
 pred1 <- predict(reg1,new=select.dat)
 pred0 <- predict(reg0,new=select.dat)
-mean(pred1-pred0)
+ATE <- pred1-pred0
 ```
 
----
+### Python
+
+```{python}
+#| eval: false
+import statsmodels.formula.api as smf
+
+# Separate regressions by treatment status
+reg1_data = select_dat[select_dat["w"] == 1]
+reg0_data = select_dat[select_dat["w"] == 0]
+
+reg1 = smf.ols("y ~ x", data=reg1_data).fit()
+reg0 = smf.ols("y ~ x", data=reg0_data).fit()
+
+# Predict for everyone under each regime
+pred1 = reg1.predict(select_dat)   # E[Y | w=1, x]
+pred0 = reg0.predict(select_dat)   # E[Y | w=0, x]
+
+ATE = pred1 - pred0                # individual-level effect
+# Optional overall ATE:
+ATE_hat = ATE.mean()
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(ATE)
+```
+
+:::
 
 ## Violation of selection on observables
 
@@ -537,6 +722,9 @@ mean(pred1-pred0)
 NN Matching
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Code"
+
 nn.est3 <- Matching::Match(Y=select.dat$y_alt,
                             Tr=select.dat$w_alt,
                             X=select.dat$x,
@@ -551,6 +739,9 @@ summary(nn.est3)
 Regression
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Code"
+
 reg1.dat <- select.dat %>% filter(w_alt==1)
 reg1 <- lm(y_alt ~ x, data=reg1.dat)
 
@@ -558,12 +749,12 @@ reg0.dat <- select.dat %>% filter(w_alt==0)
 reg0 <- lm(y_alt ~ x, data=reg0.dat)
 pred1_alt <- predict(reg1,new=select.dat)
 pred0_alt <- predict(reg0,new=select.dat)
-mean(pred1_alt-pred0_alt)
+ATE <- pred1_alt-pred0_alt
+summary(ATE)
 ```
 :::
 ::::
 
----
 
 ## What covariates to use?
 
