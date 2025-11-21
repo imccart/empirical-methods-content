@@ -961,15 +961,15 @@ Y_{i} &amp; \text{if} &amp; D_{i}=1 \\
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
-Estimate...  3.7049 
-AI SE......  0.70596 
-T-stat.....  5.2481 
-p.val......  1.5371e-07 
+Estimate...  5.2219 
+AI SE......  0.73392 
+T-stat.....  7.1151 
+p.val......  1.118e-12 
 
 Original number of observations..............  5000 
-Original number of treated obs...............  1711 
+Original number of treated obs...............  1764 
 Matched number of observations...............  5000 
-Matched number of observations  (unweighted).  5378 </code></pre>
+Matched number of observations  (unweighted).  5012 </code></pre>
 </div>
 </div>
 </div>
@@ -1023,15 +1023,77 @@ Matched number of observations  (unweighted).  5378 </code></pre>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
-Estimate...  3.7049 
-AI SE......  0.70596 
-T-stat.....  5.2481 
-p.val......  1.5371e-07 
+Estimate...  5.2219 
+AI SE......  0.73392 
+T-stat.....  7.1151 
+p.val......  1.118e-12 
 
 Original number of observations..............  5000 
-Original number of treated obs...............  1711 
+Original number of treated obs...............  1764 
 Matched number of observations...............  5000 
-Matched number of observations  (unweighted).  5378 </code></pre>
+Matched number of observations  (unweighted).  5012 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="simulation-reweighting" class="slide level2">
+<h2>Simulation: reweighting</h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">R</a></li><li><a href="#tabset-4-2">Python</a></li><li><a href="#tabset-4-3">Output</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>logit.model <span class="ot">&lt;-</span> <span class="fu">glm</span>(w<span class="sc">~</span>x, <span class="at">family=</span>binomial, <span class="at">data=</span>select.dat)</span>
+<span id="cb10-2"><a href=""></a>ps <span class="ot">&lt;-</span> <span class="fu">fitted</span>(logit.model)</span>
+<span id="cb10-3"><a href=""></a></span>
+<span id="cb10-4"><a href=""></a>select.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">ipw =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-6"><a href=""></a>    w<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span><span class="sc">/</span>ps,</span>
+<span id="cb10-7"><a href=""></a>    w<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>ps),</span>
+<span id="cb10-8"><a href=""></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span></span>
+<span id="cb10-9"><a href=""></a>  ))</span>
+<span id="cb10-10"><a href=""></a>mean.w1 <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href=""></a>  <span class="fu">select</span>(y, ipw) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">mean_y=</span><span class="fu">weighted.mean</span>(y, ipw))</span>
+<span id="cb10-12"><a href=""></a>mean.w0 <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-13"><a href=""></a>  <span class="fu">select</span>(y, ipw) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">mean_y=</span><span class="fu">weighted.mean</span>(y, ipw))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-4-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-2"><a href=""></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb11-3"><a href=""></a></span>
+<span id="cb11-4"><a href=""></a><span class="co"># 1. Estimate propensity scores -----------------------------------------</span></span>
+<span id="cb11-5"><a href=""></a>logit_res <span class="op">=</span> smf.logit(<span class="st">"w ~ x"</span>, data<span class="op">=</span>select_dat).fit()</span>
+<span id="cb11-6"><a href=""></a>select_dat <span class="op">=</span> select_dat.copy()</span>
+<span id="cb11-7"><a href=""></a>select_dat[<span class="st">"ps"</span>] <span class="op">=</span> logit_res.predict(select_dat)</span>
+<span id="cb11-8"><a href=""></a></span>
+<span id="cb11-9"><a href=""></a><span class="co"># Optional safety: avoid exactly 0 or 1</span></span>
+<span id="cb11-10"><a href=""></a>eps <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb11-11"><a href=""></a>select_dat[<span class="st">"ps"</span>] <span class="op">=</span> select_dat[<span class="st">"ps"</span>].clip(eps, <span class="dv">1</span> <span class="op">-</span> eps)</span>
+<span id="cb11-12"><a href=""></a></span>
+<span id="cb11-13"><a href=""></a><span class="co"># 2. Manual IPW ---------------------------------------------------------</span></span>
+<span id="cb11-14"><a href=""></a>select_dat[<span class="st">"ipw"</span>] <span class="op">=</span> np.where(</span>
+<span id="cb11-15"><a href=""></a>    select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">1</span>,</span>
+<span id="cb11-16"><a href=""></a>    <span class="fl">1.0</span> <span class="op">/</span> select_dat[<span class="st">"ps"</span>],          <span class="co"># treated</span></span>
+<span id="cb11-17"><a href=""></a>    <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">-</span> select_dat[<span class="st">"ps"</span>])   <span class="co"># controls</span></span>
+<span id="cb11-18"><a href=""></a>)</span>
+<span id="cb11-19"><a href=""></a></span>
+<span id="cb11-20"><a href=""></a>treated  <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb11-21"><a href=""></a>controls <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb11-22"><a href=""></a></span>
+<span id="cb11-23"><a href=""></a>mean_w1 <span class="op">=</span> np.average(treated[<span class="st">"y"</span>],  weights<span class="op">=</span>treated[<span class="st">"ipw"</span>])</span>
+<span id="cb11-24"><a href=""></a>mean_w0 <span class="op">=</span> np.average(controls[<span class="st">"y"</span>], weights<span class="op">=</span>controls[<span class="st">"ipw"</span>])</span>
+<span id="cb11-25"><a href=""></a></span>
+<span id="cb11-26"><a href=""></a>ate_ipw <span class="op">=</span> mean_w1 <span class="op">-</span> mean_w0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-4-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.751411</code></pre>
 </div>
 </div>
 </div>
@@ -1041,45 +1103,88 @@ Matched number of observations  (unweighted).  5378 </code></pre>
 <section id="simulation-regression" class="slide level2">
 <h2>Simulation: regression</h2>
 <div class="panel-tabset">
-<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">R</a></li><li><a href="#tabset-4-2">Python</a></li><li><a href="#tabset-4-3">Output</a></li></ul>
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">R</a></li><li><a href="#tabset-5-2">Python</a></li><li><a href="#tabset-5-3">Output</a></li></ul>
 <div class="tab-content">
-<div id="tabset-4-1">
+<div id="tabset-5-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>reg1.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">1</span>)</span>
-<span id="cb10-2"><a href=""></a>reg1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data=</span>reg1.dat)</span>
-<span id="cb10-3"><a href=""></a></span>
-<span id="cb10-4"><a href=""></a>reg0.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">0</span>)</span>
-<span id="cb10-5"><a href=""></a>reg0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data=</span>reg0.dat)</span>
-<span id="cb10-6"><a href=""></a>pred1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg1,<span class="at">new=</span>select.dat)</span>
-<span id="cb10-7"><a href=""></a>pred0 <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg0,<span class="at">new=</span>select.dat)</span>
-<span id="cb10-8"><a href=""></a>ATE <span class="ot">&lt;-</span> pred1<span class="sc">-</span>pred0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>reg1.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">1</span>)</span>
+<span id="cb13-2"><a href=""></a>reg1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data=</span>reg1.dat)</span>
+<span id="cb13-3"><a href=""></a></span>
+<span id="cb13-4"><a href=""></a>reg0.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w<span class="sc">==</span><span class="dv">0</span>)</span>
+<span id="cb13-5"><a href=""></a>reg0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data=</span>reg0.dat)</span>
+<span id="cb13-6"><a href=""></a>pred1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg1,<span class="at">new=</span>select.dat)</span>
+<span id="cb13-7"><a href=""></a>pred0 <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg0,<span class="at">new=</span>select.dat)</span>
+<span id="cb13-8"><a href=""></a>ATE <span class="ot">&lt;-</span> pred1<span class="sc">-</span>pred0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<div id="tabset-4-2">
+<div id="tabset-5-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href=""></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb11-2"><a href=""></a></span>
-<span id="cb11-3"><a href=""></a><span class="co"># Separate regressions by treatment status</span></span>
-<span id="cb11-4"><a href=""></a>reg1_data <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
-<span id="cb11-5"><a href=""></a>reg0_data <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">0</span>]</span>
-<span id="cb11-6"><a href=""></a></span>
-<span id="cb11-7"><a href=""></a>reg1 <span class="op">=</span> smf.ols(<span class="st">"y ~ x"</span>, data<span class="op">=</span>reg1_data).fit()</span>
-<span id="cb11-8"><a href=""></a>reg0 <span class="op">=</span> smf.ols(<span class="st">"y ~ x"</span>, data<span class="op">=</span>reg0_data).fit()</span>
-<span id="cb11-9"><a href=""></a></span>
-<span id="cb11-10"><a href=""></a><span class="co"># Predict for everyone under each regime</span></span>
-<span id="cb11-11"><a href=""></a>pred1 <span class="op">=</span> reg1.predict(select_dat)   <span class="co"># E[Y | w=1, x]</span></span>
-<span id="cb11-12"><a href=""></a>pred0 <span class="op">=</span> reg0.predict(select_dat)   <span class="co"># E[Y | w=0, x]</span></span>
-<span id="cb11-13"><a href=""></a></span>
-<span id="cb11-14"><a href=""></a>ATE <span class="op">=</span> pred1 <span class="op">-</span> pred0                <span class="co"># individual-level effect</span></span>
-<span id="cb11-15"><a href=""></a><span class="co"># Optional overall ATE:</span></span>
-<span id="cb11-16"><a href=""></a>ATE_hat <span class="op">=</span> ATE.mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb14-2"><a href=""></a></span>
+<span id="cb14-3"><a href=""></a><span class="co"># Separate regressions by treatment status</span></span>
+<span id="cb14-4"><a href=""></a>reg1_data <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb14-5"><a href=""></a>reg0_data <span class="op">=</span> select_dat[select_dat[<span class="st">"w"</span>] <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb14-6"><a href=""></a></span>
+<span id="cb14-7"><a href=""></a>reg1 <span class="op">=</span> smf.ols(<span class="st">"y ~ x"</span>, data<span class="op">=</span>reg1_data).fit()</span>
+<span id="cb14-8"><a href=""></a>reg0 <span class="op">=</span> smf.ols(<span class="st">"y ~ x"</span>, data<span class="op">=</span>reg0_data).fit()</span>
+<span id="cb14-9"><a href=""></a></span>
+<span id="cb14-10"><a href=""></a><span class="co"># Predict for everyone under each regime</span></span>
+<span id="cb14-11"><a href=""></a>pred1 <span class="op">=</span> reg1.predict(select_dat)   <span class="co"># E[Y | w=1, x]</span></span>
+<span id="cb14-12"><a href=""></a>pred0 <span class="op">=</span> reg0.predict(select_dat)   <span class="co"># E[Y | w=0, x]</span></span>
+<span id="cb14-13"><a href=""></a></span>
+<span id="cb14-14"><a href=""></a>ATE <span class="op">=</span> pred1 <span class="op">-</span> pred0                <span class="co"># individual-level effect</span></span>
+<span id="cb14-15"><a href=""></a><span class="co"># Optional overall ATE:</span></span>
+<span id="cb14-16"><a href=""></a>ATE_hat <span class="op">=</span> ATE.mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<div id="tabset-4-3">
+<div id="tabset-5-3">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  3.684   3.780   3.880   3.881   3.982   4.084 </code></pre>
+  3.930   3.943   3.955   3.955   3.968   3.981 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="simulation-regression-with-weights" class="slide level2">
+<h2>Simulation: regression with weights</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">R</a></li><li><a href="#tabset-6-2">Python</a></li><li><a href="#tabset-6-3">Output</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>ipw.reg <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> w, <span class="at">data=</span>select.dat, <span class="at">weights=</span>ipw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-6-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href=""></a>ipw_mod <span class="op">=</span> smf.wls(<span class="st">"y ~ w"</span>, data<span class="op">=</span>select_dat, weights<span class="op">=</span>select_dat[<span class="st">"ipw"</span>]).fit(cov_type<span class="op">=</span><span class="st">"HC1"</span>)</span>
+<span id="cb17-2"><a href=""></a>ate_ipw <span class="op">=</span> ipw_mod.params[<span class="st">"w"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-6-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ w, data = select.dat, weights = ipw)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.3589 -0.7080 -0.0087  0.6766  4.3348 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -2.05271    0.01812  -113.3   &lt;2e-16 ***
+wTRUE        4.75141    0.03050   155.8   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.031 on 4998 degrees of freedom
+Multiple R-squared:  0.8292,    Adjusted R-squared:  0.8292 
+F-statistic: 2.427e+04 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
@@ -1094,25 +1199,25 @@ Matched number of observations  (unweighted).  5378 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>nn.est3 <span class="ot">&lt;-</span> Matching<span class="sc">::</span><span class="fu">Match</span>(<span class="at">Y=</span>select.dat<span class="sc">$</span>y_alt,</span>
-<span id="cb13-2"><a href=""></a>                            <span class="at">Tr=</span>select.dat<span class="sc">$</span>w_alt,</span>
-<span id="cb13-3"><a href=""></a>                            <span class="at">X=</span>select.dat<span class="sc">$</span>x,</span>
-<span id="cb13-4"><a href=""></a>                            <span class="at">M=</span><span class="dv">1</span>,</span>
-<span id="cb13-5"><a href=""></a>                            <span class="at">Weight=</span><span class="dv">2</span>,</span>
-<span id="cb13-6"><a href=""></a>                            <span class="at">estimand=</span><span class="st">"ATE"</span>)</span>
-<span id="cb13-7"><a href=""></a><span class="fu">summary</span>(nn.est3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>nn.est3 <span class="ot">&lt;-</span> Matching<span class="sc">::</span><span class="fu">Match</span>(<span class="at">Y=</span>select.dat<span class="sc">$</span>y_alt,</span>
+<span id="cb19-2"><a href=""></a>                            <span class="at">Tr=</span>select.dat<span class="sc">$</span>w_alt,</span>
+<span id="cb19-3"><a href=""></a>                            <span class="at">X=</span>select.dat<span class="sc">$</span>x,</span>
+<span id="cb19-4"><a href=""></a>                            <span class="at">M=</span><span class="dv">1</span>,</span>
+<span id="cb19-5"><a href=""></a>                            <span class="at">Weight=</span><span class="dv">2</span>,</span>
+<span id="cb19-6"><a href=""></a>                            <span class="at">estimand=</span><span class="st">"ATE"</span>)</span>
+<span id="cb19-7"><a href=""></a><span class="fu">summary</span>(nn.est3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-Estimate...  7.6298 
-AI SE......  0.054139 
-T-stat.....  140.93 
+Estimate...  7.6158 
+AI SE......  0.052728 
+T-stat.....  144.44 
 p.val......  &lt; 2.22e-16 
 
 Original number of observations..............  5000 
 Original number of treated obs...............  2762 
 Matched number of observations...............  5000 
-Matched number of observations  (unweighted).  22155 </code></pre>
+Matched number of observations  (unweighted).  22537 </code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
@@ -1120,19 +1225,19 @@ Matched number of observations  (unweighted).  22155 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>reg1.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w_alt<span class="sc">==</span><span class="dv">1</span>)</span>
-<span id="cb15-2"><a href=""></a>reg1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y_alt <span class="sc">~</span> x, <span class="at">data=</span>reg1.dat)</span>
-<span id="cb15-3"><a href=""></a></span>
-<span id="cb15-4"><a href=""></a>reg0.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w_alt<span class="sc">==</span><span class="dv">0</span>)</span>
-<span id="cb15-5"><a href=""></a>reg0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y_alt <span class="sc">~</span> x, <span class="at">data=</span>reg0.dat)</span>
-<span id="cb15-6"><a href=""></a>pred1_alt <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg1,<span class="at">new=</span>select.dat)</span>
-<span id="cb15-7"><a href=""></a>pred0_alt <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg0,<span class="at">new=</span>select.dat)</span>
-<span id="cb15-8"><a href=""></a>ATE <span class="ot">&lt;-</span> pred1_alt<span class="sc">-</span>pred0_alt</span>
-<span id="cb15-9"><a href=""></a><span class="fu">summary</span>(ATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>reg1.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w_alt<span class="sc">==</span><span class="dv">1</span>)</span>
+<span id="cb21-2"><a href=""></a>reg1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y_alt <span class="sc">~</span> x, <span class="at">data=</span>reg1.dat)</span>
+<span id="cb21-3"><a href=""></a></span>
+<span id="cb21-4"><a href=""></a>reg0.dat <span class="ot">&lt;-</span> select.dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(w_alt<span class="sc">==</span><span class="dv">0</span>)</span>
+<span id="cb21-5"><a href=""></a>reg0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y_alt <span class="sc">~</span> x, <span class="at">data=</span>reg0.dat)</span>
+<span id="cb21-6"><a href=""></a>pred1_alt <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg1,<span class="at">new=</span>select.dat)</span>
+<span id="cb21-7"><a href=""></a>pred0_alt <span class="ot">&lt;-</span> <span class="fu">predict</span>(reg0,<span class="at">new=</span>select.dat)</span>
+<span id="cb21-8"><a href=""></a>ATE <span class="ot">&lt;-</span> pred1_alt<span class="sc">-</span>pred0_alt</span>
+<span id="cb21-9"><a href=""></a><span class="fu">summary</span>(ATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  7.599   7.620   7.640   7.640   7.660   7.679 </code></pre>
+  7.452   7.524   7.597   7.598   7.671   7.743 </code></pre>
 </div>
 </div>
 </div></div>

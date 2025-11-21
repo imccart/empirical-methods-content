@@ -661,6 +661,75 @@ summary(nn.est2)
 
 :::
 
+## Simulation: reweighting
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+logit.model <- glm(w~x, family=binomial, data=select.dat)
+ps <- fitted(logit.model)
+
+select.dat <- select.dat %>%
+  mutate(ipw = case_when(
+    w==1 ~ 1/ps,
+    w==0 ~ 1/(1-ps),
+    TRUE ~ NA_real_
+  ))
+mean.w1 <- select.dat %>% filter(w==1) %>%
+  select(y, ipw) %>% summarize(mean_y=weighted.mean(y, ipw))
+mean.w0 <- select.dat %>% filter(w==0) %>%
+  select(y, ipw) %>% summarize(mean_y=weighted.mean(y, ipw))
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+import numpy as np
+import statsmodels.formula.api as smf
+
+# 1. Estimate propensity scores -----------------------------------------
+logit_res = smf.logit("w ~ x", data=select_dat).fit()
+select_dat = select_dat.copy()
+select_dat["ps"] = logit_res.predict(select_dat)
+
+# Optional safety: avoid exactly 0 or 1
+eps = 1e-6
+select_dat["ps"] = select_dat["ps"].clip(eps, 1 - eps)
+
+# 2. Manual IPW ---------------------------------------------------------
+select_dat["ipw"] = np.where(
+    select_dat["w"] == 1,
+    1.0 / select_dat["ps"],          # treated
+    1.0 / (1.0 - select_dat["ps"])   # controls
+)
+
+treated  = select_dat[select_dat["w"] == 1]
+controls = select_dat[select_dat["w"] == 0]
+
+mean_w1 = np.average(treated["y"],  weights=treated["ipw"])
+mean_w0 = np.average(controls["y"], weights=controls["ipw"])
+
+ate_ipw = mean_w1 - mean_w0
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+mean.w1$mean_y - mean.w0$mean_y
+```
+
+:::
 
 ## Simulation: regression
 
@@ -713,6 +782,42 @@ summary(ATE)
 ```
 
 :::
+
+
+## Simulation: regression with weights
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: "hide"
+
+ipw.reg <- lm(y ~ w, data=select.dat, weights=ipw)
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+ipw_mod = smf.wls("y ~ w", data=select_dat, weights=select_dat["ipw"]).fit(cov_type="HC1")
+ate_ipw = ipw_mod.params["w"]
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(ipw.reg)
+```
+
+:::
+
 
 ## Violation of selection on observables
 
