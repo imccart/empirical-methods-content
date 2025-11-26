@@ -2,8 +2,8 @@
 # Meta --------------------------------------------------------------------
 # Author:        Ian McCarthy
 # Date Created:  11/10/2025
-# Date Edited:   11/10/2025
-# Notes:         R file to extract snippets of MA data for google colab work
+# Date Edited:   11/22/2025
+# Notes:         R file to extract snippets of MA data for in-class examples
 
 
 
@@ -406,3 +406,36 @@ write_csv(final.landscape, "data/output/ma-snippets/ga-landscape-2022.csv")
     select(fips, county, year, avg_eligibles, avg_enrolled, ssa)
 
 write_csv(ga.penetration.2022, "data/output/ma-snippets/ga-penetration-2022.csv")
+
+# FFS Costs data for 2022 --------------------------------------------
+
+ffs.data <- read_xlsx("data/input/raw/ffs-costs/Extracted Data/FFS2022/FFS22.xlsx",
+                  skip=2,
+                  col_names=c("ssa","state","county_name","parta_enroll",
+                              "parta_reimb","parta_percap","parta_reimb_unadj",
+                              "parta_percap_unadj","parta_ime","parta_dsh",
+                              "parta_gme","partb_enroll",
+                              "partb_reimb","partb_percap"), na=c("*","."))
+
+
+ga.ffs.costs <- ffs.data %>%
+  select(ssa,state,county_name,parta_enroll,parta_reimb,
+         partb_enroll,partb_reimb) %>%
+  filter(state == "GEORGIA") %>%
+  mutate(ssa=as.numeric(ssa)) %>%
+  mutate(across(c(parta_enroll, parta_reimb, partb_enroll, partb_reimb),
+              ~ parse_number(as.character(.))))
+
+write_csv(ga.ffs.costs, "data/output/ma-snippets/ga-ffs-costs-2022.csv")
+
+
+# Final GA data ------------------------------------------------------------
+
+ma.data.2022 <- read_tsv("data/input/processed/ma/ma_data_2022.txt") %>%
+  filter(state=="GA", planid < 800 | planid > 899, snp=="No",
+         !is.na(avg_enrollment)) %>%
+  select(contractid, planid, fips, plan_type, partd, avg_enrollment,
+         avg_eligibles, avg_enrolled, premium, premium_partc, premium_partd=premium_partd_total,
+         rebate_partc, ma_rate, bid, avg_ffscost)
+
+write_csv(ma.data.2022, "data/output/ma-snippets/ga-ma-data-2022.csv")

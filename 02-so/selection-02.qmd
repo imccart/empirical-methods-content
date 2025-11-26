@@ -782,7 +782,7 @@ glimpse(ga_ma_2022)
 #   avg_eligibles = total Medicare beneficiaries
 
 ga_ma_2022_shares <- ga_ma_2022 %>%
-  group_by(fips, county, year) %>%
+  group_by(fips) %>%
   mutate(
     total_ma_enrollment = first(avg_enrolled),
     ma_share = if_else(
@@ -796,7 +796,7 @@ ga_ma_2022_shares <- ga_ma_2022 %>%
 # Step 2: collapse to county-year level ---------------------------------
 
 ga_county_2022 <- ga_ma_2022_shares %>%
-  group_by(fips, county, year) %>%
+  group_by(fips) %>%
   summarize(
     # Competition: HHI = sum of squared MA shares
     hhi_ma = sum(ma_share^2, na.rm = TRUE),
@@ -849,7 +849,7 @@ def add_shares(df):
 
 ga_ma_2022_shares = (
     ga_ma_2022
-    .groupby(["fips", "county", "year"], group_keys=False)
+    .groupby(["fips"], group_keys=False)
     .apply(add_shares)
 )
 
@@ -857,7 +857,7 @@ ga_ma_2022_shares = (
 
 ga_county_2022 = (
     ga_ma_2022_shares
-    .groupby(["fips", "county", "year"], as_index=False)
+    .groupby(["fips"], as_index=False)
     .agg(
         # HHI on MA shares
         hhi_ma=("ma_share", lambda x: np.nansum(x**2)),

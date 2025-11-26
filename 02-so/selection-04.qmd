@@ -19,126 +19,554 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, MatchIt, cobalt)
+pacman::p_load(tidyverse, ggplot2, lubridate, MatchIt, cobalt, knitr, kableExtra)
 ```
 
 
-## Penalized hospitals
+## Outline for Today
+
+1. Organize "Full" MA Data for analysis
+2. ATEs using Matching, Weighting, and Regression
+
+# Constructing Analytic Data
+
+## County-level Data
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Find Penalized Hospitals"
-hcris.data <- read_rds(here("data/HCRIS_Data.rds"))
+#| eval: true
+#| results: "hide"
 
-hcris.data <- hcris.data %>%
-  mutate( discount_factor = 1-tot_discounts/tot_charges,
-          price_num = (ip_charges + icu_charges + ancillary_charges)*discount_factor - tot_mcare_payment,
-          price_denom = tot_discharges - mcare_discharges,
-          price = price_num/price_denom)
+ga_ma_2022 <- read_csv("../data/output/ma-snippets/ga-ma-data-2022.csv") %>%
+  group_by(fips) %>%
+  mutate(
+    total_ma_enrollment = first(avg_enrolled),
+    ma_share = if_else(
+      total_ma_enrollment > 0,
+      (avg_enrollment / total_ma_enrollment) * 100,
+      NA_real_
+    )
+  ) %>%
+  summarize(
+    hhi_ma              = sum(ma_share^2, na.rm = TRUE),
+    plan_count          = n_distinct(contractid, planid),
+    avg_premium_partc   = mean(premium_partc, na.rm = TRUE),
+    share_pos_premiums  = mean(premium_partc > 0, na.rm = TRUE),
+    avg_bid             = mean(bid, na.rm = TRUE),
+    avg_eligibles       = first(avg_eligibles),
+    ffs_cost            = first(avg_ffscost)
+  ) %>%
+  ungroup()
 
-final.hcris <- hcris.data %>% ungroup() %>%
-  filter(price_denom>100, !is.na(price_denom), 
-         price_num>0, !is.na(price_num),
-         price<100000, 
-         beds>30, year==2012) %>%  #<<
-  mutate( hvbp_payment = ifelse(is.na(hvbp_payment),0,hvbp_payment),
-          hrrp_payment = ifelse(is.na(hrrp_payment),0,abs(hrrp_payment)), #<<
-    penalty = (hvbp_payment-hrrp_payment<0)) #<<
 ```
 
-```{r}
-#| code-fold: true
-#| code-summary: "Mean Prices by Penalty"
-mean.pen <- round(mean(final.hcris$price[which(final.hcris$penalty==1)]),2)
-mean.nopen <- round(mean(final.hcris$price[which(final.hcris$penalty==0)]),2)
-```
+### Python
 
----
+```{python}
+#| eval: false
 
-## Summary stats
+import pandas as pd
+import numpy as np
 
-Always important to look at your data before doing any formal analysis. Ask yourself a few questions:
+# Read the raw GA MA data
+ga_ma_2022_raw = pd.read_csv("../data/output/ma-snippets/ga-ma-data-2022.csv")
 
-1. Are the magnitudes reasonable?
-2. Are there lots of missing values?
-3. Are there clear examples of misreporting?
+def summarize_fips(group: pd.DataFrame) -> pd.Series:
+    # Total MA enrollment in the county (same as first(avg_enrolled))
+    total_ma_enrollment = group["avg_enrolled"].iloc[0]
 
----
+    # Shares in percent, like (avg_enrollment / total_ma_enrollment) * 100
+    ma_share = np.where(
+        total_ma_enrollment > 0,
+        (group["avg_enrollment"] / total_ma_enrollment) * 100.0,
+        np.nan
+    )
+
+    # HHI = sum of squared shares
+    hhi_ma = np.nansum(ma_share ** 2)
+
+    # Plan count = distinct (contractid, planid)
+    plan_count = group[["contractid", "planid"]].drop_duplicates().shape[0]
+
+    # Average Part C premium
+    avg_premium_partc = group["premium_partc"].mean(skipna=True)
+
+    # Share of plans with positive premium
+    share_pos_premiums = (group["premium_partc"] > 0).mean()
+
+    # Average bid
+    avg_bid = group["bid"].mean(skipna=True)
+
+    # First avg_eligibles and avg_ffscost (to mimic first())
+    avg_eligibles = group["avg_eligibles"].iloc[0]
+    ffs_cost      = group["avg_ffscost"].iloc[0]
+
+    return pd.Series(
+        {
+            "hhi_ma": hhi_ma,
+            "plan_count": plan_count,
+            "avg_premium_partc": avg_premium_partc,
+            "share_pos_premiums": share_pos_premiums,
+            "avg_bid": avg_bid,
+            "avg_eligibles": avg_eligibles,
+            "ffs_cost": ffs_cost,
+        }
+    )
+
+ga_ma_2022 = (
+    ga_ma_2022_raw
+    .groupby("fips", as_index=False)
+    .apply(summarize_fips)
+    .reset_index(drop=True)
+)
 
 
-:::: {.columns}
-
-::: {.column width="50%"}
-
-```{r}
-summary(hcris.data$price)
-plot(density(hcris.data$price, na.rm=TRUE))
 ```
 
 :::
 
-::: {.column width="50%"}
+## Overall Summary
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-summary(final.hcris$price)
-plot(density(final.hcris$price))
+#| eval: true
+#| results: "hide"
+
+vars <- c(
+"hhi_ma",
+"plan_count",
+"avg_premium_partc",
+"share_pos_premiums",
+"avg_bid",
+"avg_eligibles",
+"ffs_cost"
+)
+
+ga_summary <- ga_ma_2022 %>%
+pivot_longer(
+cols      = all_of(vars),
+names_to  = "variable",
+values_to = "value"
+) %>%
+group_by(variable) %>%
+summarize(
+n_nonmissing = sum(!is.na(value)),
+n_missing    = sum(is.na(value)),
+mean         = mean(value, na.rm = TRUE),
+sd           = sd(value,   na.rm = TRUE),
+min          = min(value,  na.rm = TRUE),
+max          = max(value,  na.rm = TRUE),
+.groups      = "drop"
+) %>%
+mutate(
+variable = recode(
+variable,
+"hhi_ma"             = "MA HHI",
+"plan_count"         = "# of plans",
+"avg_premium_partc"  = "Avg Part C premium",
+"share_pos_premiums" = "Share with positive premium",
+"avg_bid"            = "Avg bid",
+"avg_eligibles"      = "Avg eligibles",
+"ffs_cost"           = "Avg FFS cost"
+),
+across(c(mean, sd, min, max), ~round(., 2))
+)
+
+
 ```
-:::
 
-::::
+### Python
 
----
+```{python}
+#| eval: false
 
-## Dealing with problems
+import pandas as pd
+import numpy as np
 
-We've adopted a very brute force way to deal with outlier prices. Other approaches include:
+# Variables to summarize
+vars_to_summarize = [
+    "hhi_ma",
+    "plan_count",
+    "avg_premium_partc",
+    "share_pos_premiums",
+    "avg_bid",
+    "avg_eligibles",
+    "ffs_cost",
+]
 
-1. Investigate very closely the hospitals with extreme values
-2. Winsorize at certain thresholds (replace extreme values with pre-determined thresholds)
-3. Impute prices for extreme hospitals
+# Long format, then summarize
+ga_summary = (
+    ga_ma_2022
+    .melt(
+        value_vars=vars_to_summarize,
+        var_name="variable",
+        value_name="value"
+    )
+    .groupby("variable", as_index=False)
+    .agg(
+        n_nonmissing=("value", lambda x: x.notna().sum()),
+        n_missing   =("value", lambda x: x.isna().sum()),
+        mean        =("value", "mean"),
+        sd          =("value", "std"),
+        min         =("value", "min"),
+        max         =("value", "max"),
+    )
+)
 
----
+# Relabel variables and round moments
+rename_map = {
+    "hhi_ma"            : "MA HHI",
+    "plan_count"        : "# of plans",
+    "avg_premium_partc" : "Avg Part C premium",
+    "share_pos_premiums": "Share with positive premium",
+    "avg_bid"           : "Avg bid",
+    "avg_eligibles"     : "Avg eligibles",
+    "ffs_cost"          : "Avg FFS cost",
+}
 
-## Differences among penalized hospitals
+ga_summary["variable"] = ga_summary["variable"].replace(rename_map)
 
-- Mean price among penalized hospitals: `r format(mean.pen, big.mark=",")`
-- Mean price among non-penalized hospitals: `r format(mean.nopen, big.mark=",")`
-- Mean difference: `r format(mean.pen-mean.nopen, big.mark=",")`
+for col in ["mean", "sd", "min", "max"]:
+    ga_summary[col] = ga_summary[col].round(2)
 
----
 
-## Comparison of hospitals
-Are penalized hospitals sufficiently similar to non-penalized hospitals?
+```
 
-::: {.fragment}
-Let's look at covariate balance using a love plot, part of the `library(cobalt)` package.
-:::
-
----
-
-## Love plots without adjustment
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Subset Data"
-lp.vars <- final.hcris %>% 
-  select(beds, mcaid_discharges, penalty, ip_charges, 
-         mcare_discharges, tot_mcare_payment, price) %>%
+#| eval: true
+#| echo: false
+
+ga_summary
+
+```
+
+:::
+
+## Defining "Treatment"
+
+- Want to keep things simple with binary treatment
+- Let's focus on "highly concentrated" versus "unconcentrated" markets:
+  - DOJ/FTC define highly concentrated as HHI $>$ 2,500
+  - unconcentrated as HHI $<$ 1,500
+  - note differences between these thresholds and "merger" guidelines involving hypothetical HHI after a merger
+  - We need some different thresholds for our application (plan-level versus insurer-level shares)
+
+## Summary by Treatment Status
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+# Quartiles of HHI
+q_hhi <- quantile(ga_ma_2022$hhi_ma, probs = c(0.33, 0.66), na.rm = TRUE)
+
+# Define treatment: high vs low HHI (drop middle 50%)
+ga_tab <- ga_ma_2022 %>%
+  mutate(
+    hhi_group = case_when(
+      hhi_ma >= q_hhi[2] ~ "treated",  # top quartile: concentrated / low competition
+      hhi_ma <= q_hhi[1] ~ "control",  # bottom quartile: competitive / high competition
+      TRUE               ~ NA_character_
+    ),
+    treated_dummy = case_when(
+      hhi_group == "treated" ~ 1L,
+      hhi_group == "control" ~ 0L,
+      TRUE                   ~ NA_integer_
+    )
+  ) %>%
+  filter(!is.na(hhi_group))
+
+# Means by group: outcomes + key covariates
+by_group <- ga_tab %>%
+  group_by(hhi_group) %>%
+  summarize(
+    avg_premium_partc   = mean(avg_premium_partc,   na.rm = TRUE),
+    share_pos_premiums  = mean(share_pos_premiums,  na.rm = TRUE),
+    avg_bid             = mean(avg_bid,             na.rm = TRUE),
+    ffs_cost            = mean(ffs_cost,            na.rm = TRUE),
+    avg_eligibles       = mean(avg_eligibles,       na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(
+    cols      = c(avg_premium_partc,
+                  share_pos_premiums,
+                  avg_bid,
+                  ffs_cost,
+                  avg_eligibles),
+    names_to  = "variable",
+    values_to = "mean"
+  ) %>%
+  pivot_wider(
+    names_from  = hhi_group,
+    values_from = mean
+  )
+
+# Overall means (restricted to same sample)
+overall <- ga_tab %>%
+  summarize(
+    avg_premium_partc   = mean(avg_premium_partc,   na.rm = TRUE),
+    share_pos_premiums  = mean(share_pos_premiums,  na.rm = TRUE),
+    avg_bid             = mean(avg_bid,             na.rm = TRUE),
+    ffs_cost            = mean(ffs_cost,            na.rm = TRUE),
+    avg_eligibles       = mean(avg_eligibles,       na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to  = "variable",
+    values_to = "overall"
+  )
+
+# Final table: rows = vars, cols = treated / control / overall
+balance_table <- by_group %>%
+  left_join(overall, by = "variable")
+
+balance_table
+
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import numpy as np
+
+# Quartiles of HHI -------------------------------------------------------
+q_hhi = ga_ma_2022["hhi_ma"].quantile([0.33, 0.66])
+q_low, q_high = q_hhi.loc[0.33], q_hhi.loc[0.66]
+
+# Define treatment: high vs low HHI (drop middle 50%) --------------------
+ga_tab = ga_ma_2022.copy()
+
+ga_tab["hhi_group"] = np.where(
+    ga_tab["hhi_ma"] >= q_high,
+    "treated",                           # top quartile: concentrated / low competition
+    np.where(
+        ga_tab["hhi_ma"] <= q_low,
+        "control",                       # bottom quartile: competitive / high competition
+        np.nan
+    )
+)
+
+ga_tab["treated_dummy"] = np.where(
+    ga_tab["hhi_group"] == "treated", 1,
+    np.where(ga_tab["hhi_group"] == "control", 0, np.nan)
+)
+
+ga_tab = ga_tab[~ga_tab["hhi_group"].isna()].copy()
+
+# Variables to summarize -------------------------------------------------
+vars_to_summarize = [
+    "avg_premium_partc",
+    "share_pos_premiums",
+    "avg_bid",
+    "ffs_cost",
+    "avg_eligibles",
+]
+
+# Means by group ---------------------------------------------------------
+by_group = (
+    ga_tab
+    .groupby("hhi_group")[vars_to_summarize]
+    .mean()
+    .reset_index()
+    .melt(id_vars="hhi_group",
+          value_vars=vars_to_summarize,
+          var_name="variable",
+          value_name="mean")
+    .pivot(index="variable", columns="hhi_group", values="mean")
+    .reset_index()
+)
+
+# Overall means (same restricted sample) --------------------------------
+overall = (
+    ga_tab[vars_to_summarize]
+    .mean()
+    .rename("overall")
+    .reset_index()
+    .rename(columns={"index": "variable"})
+)
+
+# Final table: rows = variables; cols = treated / control / overall -----
+balance_table = by_group.merge(overall, on="variable")
+
+# Optional: make sure columns are in a nice order
+balance_table = balance_table[["variable", "treated", "control", "overall"]]
+
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+balance_table_pretty <- balance_table %>%
+mutate(
+variable = recode(
+variable,
+"avg_premium_partc"  = "Avg Part C premium",
+"share_pos_premiums" = "Share with positive premium",
+"avg_bid"            = "Avg bid",
+"ffs_cost"           = "Avg FFS cost",
+"avg_eligibles"      = "Avg eligibles"
+)
+) %>%
+mutate(
+across(
+c(treated, control, overall),
+~ round(., 2)
+)
+)
+
+kable(
+balance_table_pretty,
+format  = "html",
+align   = c("l", "r", "r", "r"),
+col.names = c("Variable", "Treated", "Control", "Overall"),
+caption = "County-level means by HHI treatment status"
+)
+
+```
+
+:::
+
+
+## Assessing Balance
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+lp.vars <- ga_tab %>%
+  select(
+    treated_dummy,
+    hhi_ma,
+    plan_count,
+    avg_premium_partc,
+    share_pos_premiums,
+    avg_bid,
+    avg_eligibles,
+    ffs_cost
+  ) %>%
   filter(complete.cases(.))
-lp.covs <- lp.vars %>% select(-c("penalty","price"))
+
+# Covariates only (no treatment indicator) -----------------------------
+lp.covs <- lp.vars %>%
+  select(ffs_cost, avg_eligibles)
+
+
 ```
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+covariates = [
+    "avg_eligibles",
+    "ffs_cost",
+]
+
+lp_vars = ga_tab[["hhi_group"] + covariates].dropna()
+
+treated  = lp_vars[lp_vars["hhi_group"] == "treated"]
+control  = lp_vars[lp_vars["hhi_group"] == "control"]
+
+# -------------------------------------------------------------------
+#  Standardized mean differences (treated – control)
+#    SMD = (m1 - m0) / sqrt((s1^2 + s0^2)/2)
+# -------------------------------------------------------------------
+def smd(x_t, x_c):
+    m1, m0 = x_t.mean(), x_c.mean()
+    v1, v0 = x_t.var(ddof=1), x_c.var(ddof=1)
+    return (m1 - m0) / np.sqrt((v1 + v0) / 2)
+
+smd_list = []
+for var in covariates:
+    smd_val = smd(treated[var], control[var])
+    smd_list.append({"variable": var, "smd": smd_val})
+
+smd_df = pd.DataFrame(smd_list)
+smd_df["abs_smd"] = smd_df["smd"].abs()
+
+# Optional: nicer labels
+rename_map = {
+    "avg_eligibles"     : "Avg eligibles",
+    "ffs_cost"          : "Avg FFS cost",
+}
+smd_df["label"] = smd_df["variable"].replace(rename_map)
+
+# Sort by absolute SMD for a nicer plot
+smd_df = smd_df.sort_values("abs_smd")
+
+# -------------------------------------------------------------------
+# “Love plot” using matplotlib
+# -------------------------------------------------------------------
+fig, ax = plt.subplots(figsize=(6, 4))
+
+ax.scatter(smd_df["smd"], smd_df["label"])
+
+# Reference lines at 0 and +/- 0.1
+ax.axvline(0.0,  color="black", linewidth=1)
+ax.axvline(0.1,  color="grey", linestyle="--", linewidth=1)
+ax.axvline(-0.1, color="grey", linestyle="--", linewidth=1)
+
+ax.set_xlabel("Standardized mean difference (treated - control)")
+ax.set_ylabel("Covariate")
+ax.set_title("Covariate balance by HHI treatment status")
+
+plt.tight_layout()
+plt.show()
+
+
+```
+
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Love Plot"
+#| eval: true
+#| echo: false
 #| fig-align: center
-love.plot(bal.tab(lp.covs,treat=lp.vars$penalty), colors="black", shapes="circle", threshold=0.1) + 
-  theme_bw() + theme(legend.position="none")
+
+# Love plot of standardized differences --------------------------------
+love.plot(
+  bal.tab(lp.covs, treat = lp.vars$treated_dummy),
+  var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),
+  colors    = "black",
+  shapes    = "circle",
+  threshold = 0.1
+) +
+  theme_bw() +
+  theme(legend.position = "none")
+
 ```
 
+:::
 
----
 
 ## Using matching to improve balance
 
@@ -148,82 +576,213 @@ Some things to think about:
 - with or without ties (and how to break ties)
 - measure of distance
 
----
 
 ## 1. Exact Matching
 
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: true
-#| code-summary: "Exact Matching"
-m.exact <- Matching::Match(Y=lp.vars$price,
-                           Tr=lp.vars$penalty,
+#| eval: true
+#| results: "hide"
+
+m.exact <- Matching::Match(Y=lp.vars$avg_bid,
+                           Tr=lp.vars$treated_dummy,
                            X=lp.covs,
                            M=1,
-                           exact=TRUE) #<<
-print(m.exact)
+                           exact=TRUE)
 ```
 
----
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import numpy as np
+
+# covariate columns corresponding to lp.covs
+cov_cols = [
+    "avg_eligibles",
+    "ffs_cost",
+]
+
+# restrict to complete cases on covariates and outcome
+lp_df_cc = lp_df.dropna(subset=cov_cols + ["avg_bid", "treated_dummy"])
+
+treated = (
+    lp_df_cc[lp_df_cc["treated_dummy"] == 1]
+    .reset_index()
+    .rename(columns={"index": "id_t"})
+)
+
+controls = (
+    lp_df_cc[lp_df_cc["treated_dummy"] == 0]
+    .reset_index()
+    .rename(columns={"index": "id_c"})
+)
+
+# Exact matching on all covariates in X (equivalent to exact = TRUE)
+pairs = treated.merge(
+    controls,
+    on=cov_cols,
+    suffixes=("_t", "_c")
+)
+
+# M = 1: keep one control per treated unit (first match here; you could randomize)
+matched = pairs.drop_duplicates(subset=["id_t"])
+
+# Estimate ATE (or ATT, depending on your interpretation)
+effect_avg_bid = (matched["avg_bid_t"] - matched["avg_bid_c"]).mean()
+
+print("Exact-match estimate for avg_bid (treated - control):", effect_avg_bid)
+
+```
+
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(m.exact)
+```
+
+:::
 
 ## 1. Exact Matching (on a subset)
 
+::: {.panel-tabset}
+
+### R Code
+
 ```{r}
-#| code-fold: true
-#| code-summary: "Exact Matching"
-lp.covs2 <- lp.covs %>% select(beds, mcaid_discharges)
-m.exact <- Matching::Match(Y=lp.vars$price,
-                           Tr=lp.vars$penalty,
+#| eval: true
+#| results: "hide"
+lp.covs2 <- lp.covs %>% select(ffs_cost)
+m.exact <- Matching::Match(Y=lp.vars$avg_bid,
+                           Tr=lp.vars$treated_dummy,
                            X=lp.covs2,
                            M=1,
                            exact=TRUE,
-                           estimand="ATE") #<<
+                           estimand="ATE")
 ```
 
----
+### Output - Balance
 
-## 1. Exact Matching (on a subset)
 ```{r}
-#| code-fold: true
-#| code-summary: "Exact Matching Plot"
+#| eval: true
+#| echo: false
 #| fig-align: center
-love.plot(bal.tab(m.exact, covs = lp.covs2, treat = lp.vars$penalty),  
-          threshold=0.1, 
-          grid=FALSE, sample.names=c("Unmatched", "Matched"),
-          position="top", shapes=c("circle","triangle"),
-          colors=c("black","blue")) + 
-  theme_bw()
+
+love.plot(
+  bal.tab(lp.covs2, treat = lp.vars$treated_dummy),
+  var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),  
+  colors    = "black",
+  shapes    = "circle",
+  threshold = 0.1
+) +
+  theme_bw() +
+  theme(legend.position = "none")
+
 ```
 
-
----
-
-## 2. Nearest neighbor matching (inverse variance)
+### Output - ATE
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching, Multiple Match"
-m.nn.var <- Matching::Match(Y=lp.vars$price,
-                            Tr=lp.vars$penalty,
+#| eval: true
+#| echo: false
+
+summary(m.exact)
+```
+:::
+
+
+## 2. Nearest neighbor matching (inverse variance, many matches)
+
+::: {.panel-tabset}
+
+### R 
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+m.nn.var <- Matching::Match(Y=lp.vars$avg_bid,
+                            Tr=lp.vars$treated_dummy,
                             X=lp.covs,
-                            M=4,  #<<
+                            M=4,
                             Weight=1,
                             estimand="ATE")
 
-v.name=data.frame(new=c("Beds","Medicaid Discharges", "Inaptient Charges",
-                   "Medicare Discharges", "Medicare Payments"))
 ```
 
----
+### Python
 
-## 2. Nearest neighbor matching (inverse variance)
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
+
+# lp_df should contain:
+#  - 'avg_bid' (outcome, like Y)
+#  - 'treated_dummy' (0/1, like Tr)
+#  - all columns in lp.covs (covariates for matching)
+
+cov_cols = [
+    "avg_eligibles",
+    "ffs_cost",
+]
+
+# Drop missing
+lp_df_cc = lp_df.dropna(subset=cov_cols + ["avg_bid", "treated_dummy"]).copy()
+
+treated = lp_df_cc[lp_df_cc["treated_dummy"] == 1].copy()
+controls = lp_df_cc[lp_df_cc["treated_dummy"] == 0].copy()
+
+X_t = treated[cov_cols].values
+X_c = controls[cov_cols].values
+y_t = treated["avg_bid"].values
+y_c = controls["avg_bid"].values
+
+# Standardize covariates (rough analogue to Weight=1 / inverse-variance scaling)
+scaler = StandardScaler()
+X_c_scaled = scaler.fit_transform(X_c)
+X_t_scaled = scaler.transform(X_t)
+
+# Nearest neighbors: M = 4 matches per treated
+M = 4
+nn = NearestNeighbors(n_neighbors=M, metric="euclidean")
+nn.fit(X_c_scaled)
+
+distances, indices = nn.kneighbors(X_t_scaled, return_distance=True)
+
+# For each treated unit, average its matched controls' outcomes
+matched_ctrl_means = y_c[indices].mean(axis=1)
+
+# ATT-style estimate: E[Y(1) - Y(0) | treated]
+effect_nn = np.mean(y_t - matched_ctrl_means)
+
+print("Nearest-neighbor estimate for avg_bid (treated - control):", effect_nn)
+
+```
+
+### Output - Balance
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching Plot"
+#| eval: true
+#| echo: false
 #| fig-align: center
-love.plot(bal.tab(m.nn.var, covs = lp.covs, treat = lp.vars$penalty), 
+
+love.plot(bal.tab(m.nn.var, covs = lp.covs, treat = lp.vars$treated_dummy), 
           threshold=0.1, 
-          var.names=v.name,
+          var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),
           grid=FALSE, sample.names=c("Unmatched", "Matched"),
           position="top", shapes=c("circle","triangle"),
           colors=c("black","blue")) + 
@@ -231,65 +790,192 @@ love.plot(bal.tab(m.nn.var, covs = lp.covs, treat = lp.vars$penalty),
 ```
 
 
-
----
-
-## 2. Nearest neighbor matching (inverse variance)
+### Output - ATE
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching, Single Match"
-m.nn.var2 <- Matching::Match(Y=lp.vars$price,
-                             Tr=lp.vars$penalty,
+#| eval: true
+#| echo: false
+
+summary(m.nn.var)
+```
+:::
+
+
+
+## 2. Nearest neighbor matching (inverse variance, one-to-one)
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+m.nn.var2 <- Matching::Match(Y=lp.vars$avg_bid,
+                             Tr=lp.vars$treated_dummy,
                              X=lp.covs,
                              M=1,   #<<
                              Weight=1,
                              estimand="ATE")
 ```
 
----
+### Python
 
-## 2. Nearest neighbor matching (inverse variance)
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
+
+# lp_df should contain:
+#  - 'avg_bid' (outcome, like Y)
+#  - 'treated_dummy' (0/1, like Tr)
+#  - all columns in lp.covs (covariates for matching)
+
+cov_cols = [
+    "avg_eligibles",
+    "ffs_cost",
+]
+
+# Drop missing
+lp_df_cc = lp_df.dropna(subset=cov_cols + ["avg_bid", "treated_dummy"]).copy()
+
+treated = lp_df_cc[lp_df_cc["treated_dummy"] == 1].copy()
+controls = lp_df_cc[lp_df_cc["treated_dummy"] == 0].copy()
+
+X_t = treated[cov_cols].values
+X_c = controls[cov_cols].values
+y_t = treated["avg_bid"].values
+y_c = controls["avg_bid"].values
+
+# Standardize covariates (rough analogue to Weight=1 / inverse-variance scaling)
+scaler = StandardScaler()
+X_c_scaled = scaler.fit_transform(X_c)
+X_t_scaled = scaler.transform(X_t)
+
+# Nearest neighbors: M = 1 match per treated
+M = 1
+nn = NearestNeighbors(n_neighbors=M, metric="euclidean")
+nn.fit(X_c_scaled)
+
+distances, indices = nn.kneighbors(X_t_scaled, return_distance=True)
+
+# For each treated unit, average its matched controls' outcomes
+matched_ctrl_means = y_c[indices].mean(axis=1)
+
+# ATT-style estimate: E[Y(1) - Y(0) | treated]
+effect_nn = np.mean(y_t - matched_ctrl_means)
+
+print("Nearest-neighbor estimate for avg_bid (treated - control):", effect_nn)
+
+```
+
+### Output - Balance
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching Plot"
-love.plot(bal.tab(m.nn.var2, covs = lp.covs, treat = lp.vars$penalty), 
+#| eval: true
+#| echo: false
+#| fig-align: center
+
+love.plot(bal.tab(m.nn.var2, covs = lp.covs, treat = lp.vars$treated_dummy), 
           threshold=0.1, 
-          var.names=v.name,
+          var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),
           grid=FALSE, sample.names=c("Unmatched", "Matched"),
           position="top", shapes=c("circle","triangle"),
           colors=c("black","blue")) + 
   theme_bw()
 ```
 
+### Output - ATE
 
----
+```{r}
+#| eval: true
+#| echo: false
+
+summary(m.nn.var2)
+```
+
+:::
+
 
 ## 2. Nearest neighbor matching (Mahalanobis)
 
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching"
-m.nn.md <- Matching::Match(Y=lp.vars$price,
-                           Tr=lp.vars$penalty,
+#| eval: true
+#| results: "hide"
+m.nn.md <- Matching::Match(Y=lp.vars$avg_bid,
+                           Tr=lp.vars$treated_dummy,
                            X=lp.covs,
                            M=1,
                            Weight=2,
                            estimand="ATE")                           
 ```
 
----
+### Python
 
-## 2. Nearest neighbor matching (Mahalanobis)
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+
+# Covariate set X (matching variables)
+cov_cols = [
+    "avg_eligibles",
+    "ffs_cost",
+]
+
+# Drop missing on outcome / treatment / covariates
+lp_df_cc = lp_df.dropna(subset=cov_cols + ["avg_bid", "treated_dummy"]).copy()
+
+treated  = lp_df_cc[lp_df_cc["treated_dummy"] == 1].copy()
+controls = lp_df_cc[lp_df_cc["treated_dummy"] == 0].copy()
+
+X_t = treated[cov_cols].to_numpy()
+X_c = controls[cov_cols].to_numpy()
+y_t = treated["avg_bid"].to_numpy()
+y_c = controls["avg_bid"].to_numpy()
+
+# Pooled covariance of covariates (R's Matching uses Mahalanobis on X)
+V = np.cov(np.vstack([X_t, X_c]).T)
+
+# 1-nearest neighbor with Mahalanobis distance --------------------------
+nn = NearestNeighbors(
+    n_neighbors=1,
+    metric="mahalanobis",
+    metric_params={"V": V}
+)
+nn.fit(X_c)
+
+distances, indices = nn.kneighbors(X_t, return_distance=True)
+
+# Matched control outcomes
+matched_ctrl = y_c[indices.flatten()]
+
+# ATT-style effect (treated minus matched controls)
+effect_nn_md = np.mean(y_t - matched_ctrl)
+
+print("Mahalanobis 1-NN estimate for avg_bid (treated - control):", effect_nn_md)
+
+```
+
+### Output - Balance
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching Plot, Mahalanobis"
+#| eval: true
+#| echo: false
 #| fig-align: center
-love.plot(bal.tab(m.nn.md, covs = lp.covs, treat = lp.vars$penalty), 
+
+love.plot(bal.tab(m.nn.md, covs = lp.covs, treat = lp.vars$treated_dummy), 
           threshold=0.1, 
-          var.names=v.name,
+          var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),
           grid=FALSE, sample.names=c("Unmatched", "Matched"),
           position="top", shapes=c("circle","triangle"),
           colors=c("black","blue")) + 
@@ -297,202 +983,384 @@ love.plot(bal.tab(m.nn.md, covs = lp.covs, treat = lp.vars$penalty),
 ```
 
 
----
+### Output - ATE
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(m.nn.md)
+```
+
+:::
 
 ## 2. Nearest neighbor matching (propensity score)
 
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching, PS" 
-logit.model <- glm(penalty ~ beds + mcaid_discharges + ip_charges + mcare_discharges +
-            tot_mcare_payment, family=binomial, data=lp.vars)
+#| eval: true
+#| results: "hide"
+
+logit.model <- glm(treated_dummy ~ avg_eligibles + ffs_cost, family=binomial, data=lp.vars)
 ps <- fitted(logit.model)
-m.nn.ps <- Matching::Match(Y=lp.vars$price,
-                           Tr=lp.vars$penalty,
+m.nn.ps <- Matching::Match(Y=lp.vars$avg_bid,
+                           Tr=lp.vars$treated_dummy,
                            X=ps,
                            M=1,
                            estimand="ATE")
 ```
 
----
 
-## 2. Nearest neighbor matching (propensity score)
+### Python
 
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+from sklearn.neighbors import NearestNeighbors
+
+# lp_df should contain:
+#   - 'avg_bid'          (outcome)
+#   - 'treated_dummy'    (0/1)
+#   - 'avg_eligibles'
+#   - 'ffs_cost'         # use 'ffs_cost' here if that's your column name
+
+# 1. Estimate propensity scores ----------------------------------------
+logit_res = smf.logit(
+    "treated_dummy ~ avg_eligibles + ffs_cost",
+    data=lp_df
+).fit()
+
+lp_df_ps = lp_df.copy()
+lp_df_ps["ps"] = logit_res.predict(lp_df_ps)
+
+# Optional: trim extreme PS
+eps = 1e-6
+lp_df_ps["ps"] = lp_df_ps["ps"].clip(eps, 1 - eps)
+
+# 2. Prepare treated / control samples ---------------------------------
+lp_df_cc = lp_df_ps.dropna(subset=["avg_bid", "treated_dummy", "ps"]).copy()
+
+treated  = lp_df_cc[lp_df_cc["treated_dummy"] == 1].copy()
+controls = lp_df_cc[lp_df_cc["treated_dummy"] == 0].copy()
+
+y_t = treated["avg_bid"].to_numpy()
+y_c = controls["avg_bid"].to_numpy()
+
+X_t = treated[["ps"]].to_numpy()   # 1D propensity score as matching covariate
+X_c = controls[["ps"]].to_numpy()
+
+# 3. 1-nearest neighbor on propensity score (ATT-style) ----------------
+nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
+nn.fit(X_c)
+
+distances, indices = nn.kneighbors(X_t, return_distance=True)
+
+matched_ctrl = y_c[indices.flatten()]
+
+effect_ps_nn = np.mean(y_t - matched_ctrl)
+
+print("PS 1-NN estimate for avg_bid (treated - control):", effect_ps_nn)
+
+```
+
+### Output - Balance
 ```{r}
-#| code-fold: true
-#| code-summary: "Nearest Neighbor Matching Plot, PS"
+#| eval: true
+#| echo: false
 #| fig-align: center
-love.plot(bal.tab(m.nn.ps, covs = lp.covs, treat = lp.vars$penalty), 
+
+love.plot(bal.tab(m.nn.ps, covs = lp.covs, treat = lp.vars$treated_dummy), 
           threshold=0.1, 
-          var.names=v.name,
+          var.names = c(ffs_cost="FFS Costs", avg_eligibles="Medicare Eligibles"),
           grid=FALSE, sample.names=c("Unmatched", "Matched"),
           position="top", shapes=c("circle","triangle"),
           colors=c("black","blue")) + 
   theme_bw()
 ```
 
----
-
-## 3. Weighting
+### Output - ATE
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Propensity Weights"
-#| fig-align: center
-ggplot(lp.vars, aes(x=ps)) + geom_histogram() + 
-  facet_wrap(~ penalty, ncol=1) +
-  theme_bw()
-```
-
----
-
-## Results: Exact matching
-
-```{r}
+#| eval: true
 #| echo: false
-summary(m.exact)
-```
 
-
----
-
-## Results: Nearest neighbor
-
-- Inverse variance
-```{r}
-#| echo: false
-summary(m.nn.var2)
-```
-
----
-
-## Results: Nearest neighbor
-
-- Mahalanobis
-```{r}
-#| echo: false
-summary(m.nn.md)
-```
-
----
-
-## Results: Nearest neighbor
-
-- Propensity score
-```{r}
-#| echo: false
 summary(m.nn.ps)
 ```
 
-
----
-
-## Results: IPW weighting
-
-```{r}
-#| code-fold: true
-#| code-summary: "IPW Weights"
-lp.vars <- lp.vars %>%
-  mutate(ipw = case_when(
-    penalty==1 ~ 1/ps,
-    penalty==0 ~ 1/(1-ps),
-    TRUE ~ NA_real_
-  ))
-mean.t1 <- lp.vars %>% filter(penalty==1) %>%
-  select(price, ipw) %>% summarize(mean_p=weighted.mean(price,w=ipw))
-mean.t0 <- lp.vars %>% filter(penalty==0) %>%
-  select(price, ipw) %>% summarize(mean_p=weighted.mean(price,w=ipw))
-mean.t1$mean_p - mean.t0$mean_p
-```
-
----
-
-## Results: IPW weighting with regression
-
-```{r}
-#| code-fold: true
-#| code-summary: "IPW Regression"
-ipw.reg <- lm(price ~ penalty, data=lp.vars, weights=ipw)
-summary(ipw.reg)
-```
-
----
-
-## Results: Regression
-
-```{r}
-#| code-fold: true
-#| code-summary: "Two-step Regression"
-reg1.dat <- lp.vars %>% filter(penalty==1, complete.cases(.))
-reg1 <- lm(price ~ beds+ mcaid_discharges + ip_charges + mcare_discharges +
-            tot_mcare_payment, data=reg1.dat)
-
-reg0.dat <- lp.vars %>% filter(penalty==0, complete.cases(.))
-reg0 <- lm(price ~ beds + mcaid_discharges + ip_charges + mcare_discharges +
-            tot_mcare_payment, data=reg0.dat)
-pred1 <- predict(reg1,new=lp.vars)
-pred0 <- predict(reg0,new=lp.vars)
-mean(pred1-pred0)
-```
-
----
-
-## Results: Regression in one step
-
-```{r}
-#| code-fold: true
-#| code-summary: "One-step Regression"
-reg.dat <- lp.vars %>% ungroup() %>% filter(complete.cases(.)) %>%
-  mutate(beds_diff = penalty*(beds - mean(beds)),
-         mcaid_diff = penalty*(mcaid_discharges - mean(mcaid_discharges)),
-         ip_diff = penalty*(ip_charges - mean(ip_charges)),
-         mcare_diff = penalty*(mcare_discharges - mean(mcare_discharges)),
-         mpay_diff = penalty*(tot_mcare_payment - mean(tot_mcare_payment)))
-reg <- lm(price ~ penalty + beds + mcaid_discharges + ip_charges + mcare_discharges + tot_mcare_payment + 
-            beds_diff + mcaid_diff + ip_diff + mcare_diff + mpay_diff,
-          data=reg.dat)
-summary(reg)
-```
-
-
----
-
-## Summary of ATEs
-
-1. Exact matching: `r round(m.exact$est[1],2)`
-2. NN matching, inverse variance: `r round(m.nn.var2$est[1],2)`
-3. NN matching, mahalanobis: `r round(m.nn.md$est[1],2)`
-4. NN matching, pscore: `r round(m.nn.ps$est[1],2)`
-5. Inverse pscore weighting: `r round(mean.t1$mean_p - mean.t0$mean_p,2)`
-6. IPW regression: `r round(ipw.reg$coeff[2],2)`
-7. Regression: `r round(mean(pred1-pred0),2)`
-8. Regression 1-step: `r round(reg$coeff[2],2)`
-
-
----
-
-## Summary of ATEs
-
-Why such large differences between linear (unweighted) regression and other approaches?
-
-
-::: {.fragment}
-Problem is due to common support. Without weighting, the treated group looks very different than the control group, and standard OLS (without weights) doesn't do anything to account for this.
 :::
 
 
+## 3. Weighting with Simple Averages
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+lp.vars <- lp.vars %>%
+  mutate(ipw = case_when(
+    treated_dummy==1 ~ 1/ps,
+    treated_dummy==0 ~ 1/(1-ps),
+    TRUE ~ NA_real_
+  ))
+mean.t1 <- lp.vars %>% filter(treated_dummy==1) %>%
+  select(avg_bid, ipw) %>% summarize(mean_bid=weighted.mean(avg_bid,w=ipw))
+mean.t0 <- lp.vars %>% filter(treated_dummy==0) %>%
+  select(avg_bid, ipw) %>% summarize(mean_bid=weighted.mean(avg_bid,w=ipw))
+
+```
+
+
+### Python
+
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+
+p_vars = lp_df.copy()
+
+# Inverse probability weights
+p_vars["ipw"] = np.where(
+    p_vars["treated_dummy"] == 1,
+    1.0 / p_vars["ps"],
+    1.0 / (1.0 - p_vars["ps"])
+)
+
+# Treated group weighted mean of avg_bid
+treated = p_vars[p_vars["treated_dummy"] == 1]
+mean_t1 = np.average(treated["avg_bid"], weights=treated["ipw"])
+
+# Control group weighted mean of avg_bid
+controls = p_vars[p_vars["treated_dummy"] == 0]
+mean_t0 = np.average(controls["avg_bid"], weights=controls["ipw"])
+
+ate_ipw = mean_t1 - mean_t0
+print("IPW mean (treated):", mean_t1)
+print("IPW mean (control):", mean_t0)
+print("IPW ATE (treated - control):", ate_ipw)
+
+```
+
+### Output - PS Overlap
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-align: center
+ggplot(lp.vars, aes(x=ps)) + geom_histogram() + 
+  facet_wrap(~ treated_dummy, ncol=1) +
+  theme_bw()
+```
+
+### Output - ATE
+
+```{r}
+#| eval: true
+#| echo: false
+
+print(mean.t1$mean_bid - mean.t0$mean_bid)
+```
+
+:::
+
+
+
+## 3. Weighting with Regression
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+ipw.reg <- lm(avg_bid ~ treated_dummy, data=lp.vars, weights=ipw)
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+# Assume lp_df has columns: avg_bid, treated_dummy, ipw
+ipw_mod = smf.wls("avg_bid ~ treated_dummy",
+                  data=lp_df,
+                  weights=lp_df["ipw"]).fit()
+
+print(ipw_mod.summary())
+ate_ipw = ipw_mod.params["treated_dummy"]
+
+
+```
+
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: true
+
+summary(ipw.reg)
+
+```
+
+:::
+
+
+## 4. Regression without Weighting
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+# Two-step regression
+reg1.dat <- lp.vars %>% filter(treated_dummy==1, complete.cases(.))
+reg1 <- lm(avg_bid ~ ffs_cost + avg_eligibles, data=reg1.dat)
+
+reg0.dat <- lp.vars %>% filter(treated_dummy==0, complete.cases(.))
+reg0 <- lm(avg_bid ~ ffs_cost + avg_eligibles, data=reg0.dat)
+pred1 <- predict(reg1,new=lp.vars)
+pred0 <- predict(reg0,new=lp.vars)
+
+# One-step regression
+reg.dat <- lp.vars %>% ungroup() %>% filter(complete.cases(.)) %>%
+  mutate(ffs_diff = treated_dummy*(ffs_cost - mean(ffs_cost)),
+         eligibles_diff = treated_dummy*(avg_eligibles - mean(avg_eligibles)))
+reg <- lm(avg_bid ~ treated_dummy + ffs_cost + avg_eligibles +
+            ffs_diff + eligibles_diff,
+          data=reg.dat)
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import statsmodels.formula.api as smf
+
+# lp_df is the Python analogue of lp.vars
+# It must contain: avg_bid, treated_dummy, ffs_cost, avg_eligibles
+
+# ---------------------------------------------------------
+# 1. Two separate regressions by treatment, then predict
+# ---------------------------------------------------------
+
+# Complete cases for the variables we need
+cols_needed = ["avg_bid", "treated_dummy", "ffs_cost", "avg_eligibles"]
+lp_complete = lp_df.dropna(subset=cols_needed).copy()
+
+# Treated: treated_dummy == 1
+reg1_data = lp_complete[lp_complete["treated_dummy"] == 1]
+reg1 = smf.ols("avg_bid ~ ffs_cost + avg_eligibles", data=reg1_data).fit()
+
+# Controls: treated_dummy == 0
+reg0_data = lp_complete[lp_complete["treated_dummy"] == 0]
+reg0 = smf.ols("avg_bid ~ ffs_cost + avg_eligibles", data=reg0_data).fit()
+
+# Predict avg_bid for everyone under each regime
+pred1 = reg1.predict(lp_df)  # E[avg_bid | treated=1, X]
+pred0 = reg0.predict(lp_df)  # E[avg_bid | treated=0, X]
+
+# ---------------------------------------------------------
+# 2. One-step regression with interactions
+# ---------------------------------------------------------
+
+reg_df = lp_complete.copy()  # already complete on needed cols
+
+ffs_mean   = reg_df["ffs_cost"].mean()
+elig_mean  = reg_df["avg_eligibles"].mean()
+
+reg_df["ffs_diff"]        = reg_df["treated_dummy"] * (reg_df["ffs_cost"] - ffs_mean)
+reg_df["eligibles_diff"]  = reg_df["treated_dummy"] * (reg_df["avg_eligibles"] - elig_mean)
+
+reg = smf.ols(
+    "avg_bid ~ treated_dummy + ffs_cost + avg_eligibles + ffs_diff + eligibles_diff",
+    data=reg_df
+).fit()
+
+print(reg.summary())
+
+```
+
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+# Two-step regression
+mean(pred1-pred0)
+
+# One-step regression
+summary(reg)
+
+```
+
+:::
+
+
+## Summary of ATEs
+
+1. Exact matching: no matches available
+2. NN matching, inverse variance: `r round(m.nn.var2$est[1],2)`
+3. NN matching, mahalanobis: `r round(m.nn.md$est[1],2)`
+4. NN matching, pscore: `r round(m.nn.ps$est[1],2)`
+5. IPW weighting: `r round(mean.t1$mean_bid - mean.t0$mean_bid,2)`
+6. IPW regression: `r round(ipw.reg$coeff[2],2)`
+7. Regression 2-step: `r round(mean(pred1-pred0),2)`
+8. Regression 1-step: `r round(reg$coeff[2],2)`
+
+
+## Summary of ATEs
+
+Why such large differences between IPW and other approaches?
+
+::: {.fragment}
+Problem is due to common support in the propensity scores.  Failure to account for this severly deflates estimates.
+:::
+
+## Adjusting for poor overlap
+
+```{r}
+#| code-fold: true
+#| code-summary: "R Code"
+
+mean.t1 <- lp.vars %>% filter(treated_dummy==1, ps>0.15, ps<0.95) %>%
+  select(avg_bid, ipw) %>% summarize(mean_bid=weighted.mean(avg_bid,w=ipw))
+mean.t0 <- lp.vars %>% filter(treated_dummy==0, ps>0.15, ps<0.95) %>%
+  select(avg_bid, ipw) %>% summarize(mean_bid=weighted.mean(avg_bid,w=ipw))
+print(mean.t1-mean.t0)
+```
+
 # So what have we learned?
 
-
----
 
 ## Key assumptions for causal inference so far
 
 1. Selection on observables
 2. Common support
 
-
----
 
 ## Causal effect assuming selection on observables
 
