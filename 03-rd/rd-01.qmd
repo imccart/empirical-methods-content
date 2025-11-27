@@ -1,5 +1,5 @@
 ---
-title: "Medicare Advantage Star Ratings"
+title: "Quality Disclosure and Medicare Advantage Star Ratings"
 author: "Ian McCarthy | Emory University"
 format: 
   revealjs:
@@ -11,7 +11,6 @@ format:
     width: 1600
     height: 900    
 #    embed-resources: true
-from: markdown+emoji
 execute: 
   echo: true
 ---
@@ -19,12 +18,69 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, modelsummary)
+pacman::p_load(tidyverse, ggplot2, lubridate, scales, gganimate, here, modelsummary)
 ```
 
+## Outline for Today
 
-## Medicare Advantage Quality Ratings
+1. Quality Disclosure in Economics
+2. Background on MA Star Ratings
+3. Quality *Disclosure* and Plan Choice
+
+# Quality Disclosure
+
+## Hidden quality
+
+- Many goods have unobserved quality (e.g., used cars, hospitals, schools, mutual funds)
+- Asymmetric information implies potential **adverse selection** and market shrinkage
+- Quality disclosure tools: ratings, report cards, warranties, online reviews, certifications
+
+
+## Lemons logic
+
+- Sellers know quality; buyers only know the distribution of quality
+- Buyers pay price based on expected quality of sellers who accept a given price
+- With lower prices, high-quality sellers exit, expected quality falls, prices decline further
+- High-quality firms cannot sufficiently relay information on quality, so only low-quality “lemons” may remain
+
+## Voluntary disclosure and “unraveling”
+
+- Assume each seller can **credibly** disclose their own quality at low cost
+- If a good-quality seller stays silent, buyers suspect they’re like the **worst** silent type
+- Slightly better types want to separate by disclosing
+- Result: almost all types disclose; **silence = bad news**
+
+
+## Why full unraveling may fail
+
+- Disclosure is costly (data collection, audits, risk adjustment)
+- Information is noisy or complex; buyers may not understand it
+- Quality is multi-dimensional; firms highlight strong metrics, hide weak ones
+- Outcome: **partial disclosure** and strategic framing instead of full unraveling
+
+
+## Evidence from report cards
+
+- Cardiac surgery and hospital report cards:
+  - Higher-rated providers often gain volume but may avoid sicker patients or focus on scored outcomes
+- Restaurant hygiene grades:
+  - Public scores push restaurants to improve measured cleanliness and reduce violations
+- Overall: disclosure changes both **demand** (patient choice) and **supply** (quality effort and selection)
+
+
+## Policy lessons
+
+- Well-designed disclosure can:
+  - Reduce adverse selection and reward high quality
+  - Strengthen competition on performance, not just price or brand
+- Poorly designed disclosure can:
+  - Encourage cream-skimming and metric gaming
+- Key design choices: which outcomes, how risk-adjusted, and how information is presented to users
+
+
+# Medicare Advantage Quality Ratings
+
+## Overview
 
 - Initial MA Star Ratings (2007)
 - Overall rating introduced in 2009
@@ -35,7 +91,6 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 - More details available [here](https://www.cms.gov/Medicare/Prescription-Drug-Coverage/PrescriptionDrugCovGenIn/PerformanceData)
 :::
 
----
 
 ## Role of Quality Ratings
 
@@ -44,7 +99,6 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
   - Demonstration program at first (2012 through 2015)
   - ACA quality bonus payments begin 2015
   
----
 
 ## Details of QBP
 
@@ -59,7 +113,6 @@ Eligible plans may receive two bonuses:
 - Applied to plans with 4-stars and above beginning 2015 
 :::
 
----
 
 ## Some good primers
 
@@ -70,8 +123,6 @@ Eligible plans may receive two bonuses:
 # Quality Ratings and Plan Choice
 
 
----
-
 ## Quality Ratings as Information Disclosure
 
 - Health insurance is a complicated product with many dimensions
@@ -79,5 +130,9 @@ Eligible plans may receive two bonuses:
 - Quality disclosure might help consumers make better choices
 
 
+## Disclosure versus Quality
 
+- We are interested in the effects of **disclosure**, not just quality ratings themselves
+- Correlation between ratings and enrollments will combine the disclosure effect as well as the "higher quality" effect
+- Our RD design will exploit differential reporting but for otherwise very similiar underlying quality
 
