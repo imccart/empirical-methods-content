@@ -429,6 +429,47 @@ ga.ffs.costs <- ffs.data %>%
 write_csv(ga.ffs.costs, "data/output/ma-snippets/ga-ffs-costs-2022.csv")
 
 
+# Star Ratings for 2022 --------------------------------------------
+
+source("analysis/rating_variables.R")
+ma.path.a <- "data/input/raw/ma/star-ratings/Extracted Star Ratings/2022/2022 Star Ratings Data Table - Measure Stars (Oct 06 2021).csv"
+star.data.a <- fread(
+  ma.path.a,
+  skip = 4,
+  stringsAsFactors=FALSE,
+  select=c(1:33),
+  col.names=rating.vars.2022,
+  na = c("", "NA", "*")
+) %>%
+  mutate(across(
+    -any_of(c("contractid","org_type","contract_name","org_marketing","org_parent")),
+    ~ parse_number(as.character(.))
+  ))
+
+
+ma.path.b <- "data/input/raw/ma/star-ratings/Extracted Star Ratings/2022/2022 Star Ratings Data Table - Summary Rating (Oct 06 2021).csv"
+star.data.b <- fread(
+  ma.path.b,
+  skip = 2,
+  stringsAsFactors=FALSE, 
+  select=c(1:11),
+  col.names=c("contractid","org_type","contract_name","org_marketing","org_parent","snp","disaster_2019","disaster_2020","partc_score","partd_score","partcd_score"),
+  na = c("", "NA", "*")
+) %>%
+  mutate(
+    new_contract=ifelse(partc_score=="Plan too new to be measured",1, ifelse(partcd_score=="Plan too new to be measured",1,0)),
+    partc_score  = ifelse(new_contract == 1, NA_real_, parse_number(as.character(partc_score))),
+    partcd_score = ifelse(new_contract == 1, NA_real_, parse_number(as.character(partcd_score)))
+  ) %>%
+  select(contractid, new_contract, partc_score, partcd_score)
+
+ratings.2022 <- as_tibble(star.data.a) %>%
+  select(-contract_name, -org_type, -org_marketing) %>%  
+  left_join(star.data.b, by=c("contractid"))  %>%
+  select(contractid, new_contract, partc_score, partcd_score)
+
+write_csv(ratings.2022, "data/output/ma-snippets/ga-ratings-2022.csv")
+
 # Final GA data ------------------------------------------------------------
 
 ma.data.2022 <- read_tsv("data/input/processed/ma/ma_data_2022.txt") %>%
@@ -436,6 +477,6 @@ ma.data.2022 <- read_tsv("data/input/processed/ma/ma_data_2022.txt") %>%
          !is.na(avg_enrollment)) %>%
   select(contractid, planid, fips, plan_type, partd, avg_enrollment,
          avg_eligibles, avg_enrolled, premium, premium_partc, premium_partd=premium_partd_total,
-         rebate_partc, ma_rate, bid, avg_ffscost)
+         rebate_partc, ma_rate, bid, avg_ffscost, partc_score)
 
 write_csv(ma.data.2022, "data/output/ma-snippets/ga-ma-data-2022.csv")
