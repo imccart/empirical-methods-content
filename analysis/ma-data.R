@@ -465,8 +465,7 @@ star.data.b <- fread(
 
 ratings.2022 <- as_tibble(star.data.a) %>%
   select(-contract_name, -org_type, -org_marketing) %>%  
-  left_join(star.data.b, by=c("contractid"))  %>%
-  select(contractid, new_contract, partc_score, partcd_score)
+  left_join(star.data.b, by=c("contractid")) 
 
 write_csv(ratings.2022, "data/output/ma-snippets/ga-ratings-2022.csv")
 
