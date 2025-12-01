@@ -19,120 +19,296 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, modelsummary)
+pacman::p_load(tidyverse, ggplot2, lubridate, scales, here, modelsummary, knitr, kableExtra)
+```
+
+## Outline for Today
+
+1. Revisit Medicare Advantage Data
+2. Examine Relationship between Ratings and Enrollments
+
+
+# Medicare Advantage Data
+
+- Recall the Medicare Advantage repository, [Medicare Advantage GitHub repository](https://github.com/imccart/Medicare-Advantage)
+
+## Building the Data
+
+Recall from the last two homework assignments (or snippets of those data, focusing on GA in 2022)
+
+- `ga_plans_year` – yearly GA plan panel (from contracts + enrollment).  
+- `ga_service_year` – yearly GA service-area panel.  
+- `ga_landscape` – GA plan characteristics (landscape, incl. `premium_partc`).  
+- `ga_penetration` – GA penetration data.
+
+::: {.fragment}
+- Now incorporate yearly `star-ratings` files
+:::
+
+## Understanding the Ratings Data
+
+- Underlying measures change from year to year
+- File `rating_variables.R` lists the relevant variables for each year
+- `partc_score` reflects specific star rating for Part C
+  - Compilation of all underying measures plus additional adjustments
+  - For our purposes...just use the average of the underying measures
+
+## Contracts versus Plans
+
+- Recall the difference between contractid and planid
+- Star ratings are calculated at the contract level
+  - Applies to all plans operating under the same contractid
+  - Applies to all counties in which the same contractid is approved
+- For our purposes...treat everything at the plan level
+
+## Example: Star Ratings in 2022
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+ga_ma_2022 <- read_csv("../data/output/ma-snippets/ga-ma-data-2022.csv") %>%
+  select(-partc_score) %>% ungroup()
+
+ma_ratings <- read_csv("../data/output/ma-snippets/ga-ratings-2022.csv")
+
+ga_ma_full <- ga_ma_2022 %>%
+  left_join(ma_ratings, by="contractid") %>%
+  mutate(raw_rating=rowMeans(
+    cbind(breastcancer_screen, rectalcancer_screen, flu_vaccine,
+          physical_monitor, specialneeds_manage, older_medication, older_pain,
+          osteo_manage, diabetes_eye, diabetes_kidney, diabetes_bloodsugar,
+          ra_manage, falling, bladder, medication, statin, nodelays,
+          carequickly, customer_service, overallrating_care, overallrating_plan,
+          coordination, complaints_plan, leave_plan, improve, appeals_timely,
+          appeals_review, ttyt_available),
+    na.rm=T)) %>%
+    select(contractid, planid, fips, plan_type, partd, avg_enrollment, avg_eligibles,
+           avg_enrolled, premium, premium_partc, premium_partd, rebate_partc, ma_rate,
+           bid, avg_ffscost, partc_score, partcd_score, raw_rating)
+
 ```
 
 
-## Medicare Advantage Data
+### Python
 
-- Recall the Medicare Advantage repository, [Medicare Advantage GitHub repository](https://github.com/imccart/ma-class)
+```{python}
+#| eval: false
 
-::: {.fragment}
-- Now we need to work with the **final** dataset, 'final_ma_data'
+import pandas as pd
+
+# Read in data
+ga_ma_2022 = (
+    pd.read_csv("../data/output/ma-snippets/ga-ma-data-2022.csv")
+    .drop(columns=["partc_score"], errors="ignore")
+)
+
+ma_ratings = pd.read_csv("../data/output/ma-snippets/ga-ratings-2022.csv")
+
+# Merge on contractid
+ga_ma_full = ga_ma_2022.merge(ma_ratings, on="contractid", how="left")
+
+# Variables used to construct the raw rating
+rating_vars = [
+    "breastcancer_screen", "rectalcancer_screen", "flu_vaccine",
+    "physical_monitor", "specialneeds_manage", "older_medication", "older_pain",
+    "osteo_manage", "diabetes_eye", "diabetes_kidney", "diabetes_bloodsugar",
+    "ra_manage", "falling", "bladder", "medication", "statin", "nodelays",
+    "carequickly", "customer_service", "overallrating_care", "overallrating_plan",
+    "coordination", "complaints_plan", "leave_plan", "improve", "appeals_timely",
+    "appeals_review", "ttyt_available"
+]
+
+# Row-wise mean, ignoring missing values (na.rm = TRUE)
+ga_ma_full["raw_rating"] = ga_ma_full[rating_vars].mean(axis=1, skipna=True)
+
+# Keep the desired columns
+ga_ma_full = ga_ma_full[
+    [
+        "contractid", "planid", "fips", "plan_type", "partd", "avg_enrollment",
+        "avg_eligibles", "avg_enrolled", "premium", "premium_partc",
+        "premium_partd", "rebate_partc", "ma_rate", "bid", "avg_ffscost",
+        "partc_score", "partcd_score", "raw_rating"
+    ]
+]
+
+
+```
+
+
+### Output - Raw vs Rounded Ratings
+
+```{r}
+#| echo: false
+#| eval: true
+
+ggplot(ga_ma_full, aes(x = raw_rating, y = partc_score)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    x = "Raw score",
+    y = "Rounded star rating",
+    title = "Raw score vs rounded star rating"
+  ) +
+  theme_minimal()
+```
+
+
+### Output - Rounding
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+rounding_counts_3_75 <- ga_ma_full %>%
+  filter(
+    !is.na(raw_rating), !is.na(partc_score),
+    partc_score %in% c(3.5, 4.0),
+    raw_rating >= 3.5, raw_rating <= 4.0, 
+    (raw_rating >= 3.75 & partc_score==4.0) | (raw_rating <= 3.75 & partc_score==3.5)
+  ) %>%
+  mutate(
+    `Raw Score` = if_else(raw_rating >= 3.75, "≥ 3.75", "< 3.75"),
+    `Star`   = if_else(partc_score == 4.0, "4.0", "3.5")
+  ) %>%
+  count(`Raw Score`, `Star`, name = "Plans")
+
+rounding_counts_3_75 %>%
+  kbl(
+    format  = "html",
+    caption = "Ratings vs Raw Score"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width        = FALSE,
+    position          = "center"
+  )
+
+```
 :::
 
----
+
+
+# Enrollments and Star Ratings
 
 ## Summary stats
 
 Focus on enrollments and star ratings:
 
-```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
+::: {.panel-tabset}
 
-ma.data <- read_rds(here("data/ma/final_ma_data.rds"))
-sum.vars <- ma.data %>% select("MA Enrollment" = avg_enrollment, "MA Eligibles" = avg_eligibles, "Star Rating" = Star_Rating)
-datasummary(All(sum.vars) ~ Mean + SD + Histogram, data=sum.vars, fmt=2)
+### R 
+```{r}
+#| eval: true
+
+miss_n <- function(x) sum(is.na(x))
+sum.vars <- ga_ma_full %>% 
+      select("MA Enrollment" = avg_enrollment, "MA Eligibles" = avg_eligibles, "Star Rating" = partc_score,
+             "Raw Score" = raw_rating)
+datasummary(All(sum.vars) ~ Mean + SD + miss_n + Histogram, data=sum.vars, fmt=2)
 ```
 
+### Python
 
----
+```{python}
+#| eval: false
 
-## Clean the data
+import pandas as pd
+import numpy as np
 
-Limit to plans with:
+# 1. Subset and rename variables (analogous to select + renaming in R)
+sum_vars = ga_ma_full.rename(columns={
+    "avg_enrollment": "MA Enrollment",
+    "avg_eligibles":  "MA Eligibles",
+    "partc_score":    "Star Rating",
+    "raw_rating":     "Raw Score",
+})[["MA Enrollment", "MA Eligibles", "Star Rating", "Raw Score"]]
 
-- Observed enrollments, $>$ 10
-- First year of star rating (2009)
-- Observed star rating
+# 2. Define missing-count function (miss_n)
+def miss_n(x):
+    return x.isna().sum()
 
-::: {.fragment}
-```{r}
-ma.data.clean <- ma.data %>%
-  filter(!is.na(avg_enrollment) & year==2009 & !is.na(partc_score)) #<<
+# 3. (Optional) simple text histogram for each variable
+def hist_text(x, bins=10):
+    counts, _ = np.histogram(x.dropna(), bins=bins)
+    return " | ".join(map(str, counts))
+
+# 4. Build summary table: Mean, SD, missing, and histogram
+summary = pd.DataFrame({
+    "Mean":      sum_vars.mean(),
+    "SD":        sum_vars.std(),
+    "Missing N": sum_vars.apply(miss_n),
+    "Histogram": sum_vars.apply(hist_text),  # drop this line if you don't want the histogram column
+})
+
+# 5. Optional: format to 2 decimal places for Mean and SD
+summary[["Mean", "SD"]] = summary[["Mean", "SD"]].round(2)
+
+summary
+
 ```
+
 :::
 
----
 
-## Calculate raw average rating
+## Simple regression
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-ma.data.clean <- ma.data.clean %>%
-  mutate(raw_rating=rowMeans(
-    cbind(breastcancer_screen,rectalcancer_screen,cv_cholscreen,diabetes_cholscreen,
-          glaucoma_test,monitoring,flu_vaccine,pn_vaccine,physical_health,
-          mental_health,osteo_test,physical_monitor,primaryaccess,
-          hospital_followup,depression_followup,nodelays,carequickly,
-          overallrating_care,overallrating_plan,calltime,
-          doctor_communicate,customer_service,osteo_manage,
-          diabetes_eye,diabetes_kidney,diabetes_bloodsugar,
-          diabetes_chol,antidepressant,bloodpressure,ra_manage,
-          copd_test,betablocker,bladder,falling,appeals_timely,
-          appeals_review),
-    na.rm=T)) %>%
-  select(contractid, planid, fips, avg_enrollment, state, county, raw_rating, partc_score,
-         avg_eligibles, avg_enrolled, premium_partc, risk_ab, Star_Rating,
-         bid, avg_ffscost, ma_rate)
+#| eval: true
+#| results: "hide"
+
+rating.ols <- lm(avg_enrollment~factor(partc_score), data=ga_ma_full)
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+rating_ols = smf.ols("avg_enrollment ~ C(partc_score)", data=ga_ma_full).fit()
+print(rating_ols.summary())
+
 ```
 
 
-# Distribution of star ratings
+### Output
 
 ```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-ma.data.clean %>% 
-  ggplot(aes(x=as.factor(Star_Rating))) + 
-  geom_bar() +
-  labs(
-    x="Star Rating",
-    y="Count of Plans",
-    title="Frequency Distribution of Star Ratings"
-  ) + theme_bw()
+summary(rating.ols)
+
 ```
 
----
-
-## Enrollments and star ratings
-
-```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
-
-summary(lm(avg_enrollment~factor(Star_Rating), data=ma.data.clean))
-```
-
----
+:::
 
 ## Potential endogeneity
 
 - The star rating is a measure of quality
+- Actual "quality" is not the same as "quality disclosure"
 - Quality may be endogenous to enrollment (how?)
 
----
+::: {.panel-tabset}
 
-## Premiums and quality
+### Quality/Price Scatterplot
 
 ```{r} 
-#| code-fold: TRUE
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-ma.data.clean %>% 
-  ggplot(aes(x=partc_score, y=premium_partc)) + 
+ga_ma_full %>% 
+  ggplot(aes(x=partc_score, y=bid)) + 
   geom_point() +
   labs(
     x="Part C Score",
@@ -141,13 +317,13 @@ ma.data.clean %>%
   ) + theme_bw()
 ```
 
----
-
-## Premiums and quality
+### Quality/Price Regression
 
 ```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-summary(lm(premium_partc~factor(Star_Rating), data=ma.data.clean))
+summary(lm(bid~factor(partc_score), data=ga_ma_full))
 ```
+
+:::
