@@ -19,28 +19,27 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, ggthemes, rdrobust)
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, gganimate, here, ggthemes, rdrobust)
 ```
 
+## Outline for Today
 
-## Motivation
+1. What is RD?
+2. Implementing an RD strategy
+3. Practice with Simulated Data
+4. "Fuzzy" RD
 
-- Basic idea: Observations are **identical** just above/below threshold
+# What is Regression Discontinuity?
+
+## Intuition
+
+- Regression discontinuity (RD)
+- Basic idea: Observations are **identical** just above/below some exogenous threshold
 - Some motivation from [Causal Inference: The Mixtape](https://mixtape.scunning.com/06-regression_discontinuity)
-
-
----
-
-## Motivation
-
-Highly relevant in "rule-based" world...
-
-- School eligibility based on age cutoffs
-- Program participation based on discrete income thresholds
-- Performance scores rounded to nearest integer
-
----
+- Highly relevant in "rule-based" world...
+  - School eligibility based on age cutoffs
+  - Program participation based on discrete income thresholds
+  - Performance scores rounded to nearest integer
 
 ## Required elements
 
@@ -48,14 +47,12 @@ Highly relevant in "rule-based" world...
 2. Cutoff
 3. Treatment
 
----
 
 ## Types of RD
 
 1. *Sharp regression discontinuity:* those above the threshold guaranteed to participate<
 2. *Fuzzy regression discontinuity:* those above the threshold are eligible but may not participate
 
----
 
 ## Sharp RD
 
@@ -68,7 +65,6 @@ $$W_{i} = 1(x_{i}>c) = \begin{cases}
 - $x$ is "forcing variable"
 - $c$ is the threshold value or cutoff point
 
----
 
 ## Sharp RD Scatterplot
 
@@ -93,7 +89,6 @@ plot1 <- rd.dat %>% ggplot(aes(x=X,y=Y)) +
 plot1
 ```
 
----
 
 ## Sharp RD Linear Predictions
 
@@ -108,7 +103,6 @@ plot2
 ```
 
 
----
 
 ## Sharp RD Linear Predictions
 
@@ -123,7 +117,6 @@ plot3
 ```
 
 
----
 
 ## Different averages
 
@@ -141,8 +134,6 @@ mean.1.all <- rd.dat %>% filter(W == TRUE) %>% summarize(mean=mean(Y))
 - Mean overall difference, `r round(mean.1.all,2)` - `r round(mean.0.all,2)` = `r round(mean.1.all-mean.0.all,2)`
 
 
----
-
 ## More generally
 
 - Running variable may affect outcome directly
@@ -153,7 +144,6 @@ mean.1.all <- rd.dat %>% filter(W == TRUE) %>% summarize(mean=mean(Y))
   2. "Controls" for unobserved things correlated with running variable and outcome
 :::
 
----
 
 ## Animations!
 
@@ -214,9 +204,9 @@ anim_save("images/rd_animate.gif", anim.rd)
 ![](../images/rd_animate.gif)
 
 
----
+# Implementing RD
 
-## Estimation
+## Ultimate Goal
 
 Goal is to estimate $E[Y_{1}|X=c] - E[Y_{0}|X=c]$
 
@@ -227,15 +217,7 @@ Goal is to estimate $E[Y_{1}|X=c] - E[Y_{0}|X=c]$
   - Linear, different slope: $y = \alpha + \delta D + \beta \tilde{X} + \gamma D\tilde{X} + \varepsilon$
   - Nonlinear: add polynomials in $\tilde{X}$ and interactions $D \tilde{X}$
 
-
-
-# Regression Discontinuity in Practice
-
----
-
-## RDs "in the wild"
-
-Most RD estimates follow a similar set of steps:
+## Key RD Steps
 
 1. Show clear graphical evidence of a change around the discontinuity (bin scatter)
 2. Balance above/below threshold (use baseline covariates as outcomes)
@@ -248,10 +230,7 @@ Most RD estimates follow a similar set of steps:
     - Inclusion of covariates
 
 
----
-
 ## 1. Graphical evidence
-
 
 Before presenting RD estimates, **any** good RD approach first highlights the discontinuity with a simple graph. We can do so by plotting the average outcomes within bins of the forcing variable (i.e., binned averages), $$\bar{Y}_{k} = \frac{1}{N_{k}}\sum_{i=1}^{N} Y_{i} \times 1(b_{k} < X_{i} \leq b_{k+1}).$$<br>
 
@@ -259,20 +238,21 @@ Before presenting RD estimates, **any** good RD approach first highlights the di
 The binned averages helps to remove noise in the graph and can provide a cleaner look at the data. Just make sure that no bin includes observations above and below the cutoff!
 :::
 
----
+::: {.panel-tabset}
 
-## Binned average calculation
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: "hide"
 
 library(rdrobust)
 rd.result <- rdplot(rd.dat$Y, rd.dat$X, 
                     c=1, 
                     title="RD Plot with Binned Average", 
                     x.label="Running Variable", 
-                    y.label="Outcome")
+                    y.label="Outcome",
+                    hide = TRUE)
 bin.avg <- as_tibble(rd.result$vars_bins)
 plot.bin <- bin.avg %>% ggplot(aes(x=rdplot_mean_x,y=rdplot_mean_y)) + 
   geom_point() + theme_bw() +
@@ -284,9 +264,60 @@ plot.bin <- bin.avg %>% ggplot(aes(x=rdplot_mean_x,y=rdplot_mean_y)) +
   xlab("Running Variable") + ylab("Outcome")
 ```
 
----
 
-## With and without binning
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from rdrobust import rdplot
+
+# rd_dat is a pandas DataFrame with columns "Y" and "X"
+
+# Run rdplot but suppress its own figure and grab the binned data
+rd_result = rdplot(
+    y=rd_dat["Y"].values,
+    x=rd_dat["X"].values,
+    c=1,
+    title="RD Plot with Binned Average",
+    x_label="Running Variable",
+    y_label="Outcome",
+    hide=True  # don't show the built-in plot
+)
+
+# vars_bins is already a pandas DataFrame in the Python implementation
+bin_avg = rd_result.vars_bins
+
+# Recreate the custom plot
+sns.set_style("whitegrid")
+fig, ax = plt.subplots()
+
+sns.scatterplot(
+    data=bin_avg,
+    x="rdplot_mean_x",
+    y="rdplot_mean_y",
+    ax=ax
+)
+
+ax.axvline(x=1, linestyle="--", color="black")
+
+ax.set_xticks([0.5, 1.5])
+ax.set_xticklabels(["Untreated", "Treated"])
+
+ax.set_xlabel("Running Variable")
+ax.set_ylabel("Outcome")
+ax.set_title("RD Plot with Binned Average")
+
+sns.despine()
+plt.tight_layout()
+plt.show()
+
+```
+
+### Output
 
 :::: {.columns}
 
@@ -312,8 +343,8 @@ plot.bin
 
 ::::
 
+:::
 
----
 
 ## Selecting "bin" width
 
@@ -324,8 +355,6 @@ plot.bin
 If F-test suggests significance, then we have too few bins and need to narrow the bin width.
 
 
----
-
 ## 2. Balance
 
 - If RD is an appropriate design, passing the cutoff should **only** affect treatment and outcome of interest
@@ -334,26 +363,21 @@ If F-test suggests significance, then we have too few bins and need to narrow th
     - Covariate balance
     - Placebo tests of other outcomes (e.g., t-1 outcomes against treatment at time t)
 
----
 
 ## 3. Manipulation tests
 
 - Individuals should not be able to **precisely** manipulate running variable to enter into treatment
 - Sometimes discussed as "bunching"
-- Test for differences in density to left and right of cutoffs (`rddensity` in Stata and R)
+- Test for differences in density to left and right of cutoffs (`rddensity`)
 - Permutation tests proposed in Ganong and Jager (2017)
 
----
 
-## Bunching?
+## What if there is bunching?
 
 - Gerard, Rokkanen, and Rothe (2020) suggest partial identification allowing for bunching
-- Can also be used as a robustness check
-- `rdbounds` in Stata and R
+- Can also be used as a robustness check (`rdbounds`)
 - Assumption: bunching only moves people in one direction
 
-
----
 
 ## 4. RD Estimation
 
@@ -364,9 +388,7 @@ Start with the "default" options
 - Uniform kernel
 
 
----
-
-## Selecting bandwidth in local linear regression
+## Selecting bandwidth
 
 The bandwidth is a "tuning parameter"
 
@@ -377,7 +399,6 @@ The bandwidth is a "tuning parameter"
 Represent bias-variance tradeoff with the mean-square error, $$MSE(h) = E[(\hat{\tau}_{h} - \tau_{RD})^2]=\left(E[\hat{\tau}_{h} - \tau_{RD}] \right)^2 + V(\hat{\tau}_{h}).$$
 :::
 
----
 
 ## Selecting bandwidth
 
@@ -393,7 +414,6 @@ Goal is to find $h$ that minimizes these values, but we don't know the true $E[Y
 2. Explicitly solve for optimal bandwidth 
 :::
 
----
 
 ## Cross-validation
 
@@ -408,31 +428,18 @@ Essentially a series of "leave-one-out" estimates:
 Select $h$ with lowest $CV(h)$ value.
 :::
 
----
 
-## Back to simulated data
+# RD with Simulated Data
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+## Estimates from Linear Regression
 
-rd.dat %>% ggplot(aes(x=X,y=Y)) + 
-  geom_point() + theme_bw() +
-  geom_vline(aes(xintercept=1),linetype='dashed') +
-  scale_x_continuous(
-    breaks = c(.5, 1.5),
-    label = c("Untreated", "Treated")
-  ) +
-  xlab("Running Variable") + ylab("Outcome")
-```
+::: {.panel-tabset}
 
----
-
-## Back to simulated data
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: "hide"
 
 ols <- lm(Y~X+W, data=rd.dat)
 
@@ -442,31 +449,81 @@ rd.dat3 <- rd.dat %>%
 rd <- lm(Y~x_dev + W, data=rd.dat3)
 ```
 
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import statsmodels.formula.api as smf
+
+# OLS on full sample
+ols = smf.ols("Y ~ X + W", data=rd_dat).fit()
+
+# Local linear regression around cutoff X = 1
+rd_dat3 = (
+    rd_dat
+    .assign(x_dev=lambda df: df["X"] - 1)
+    .query("X > 0.8 and X < 1.2")
+)
+
+rd = smf.ols("Y ~ x_dev + W", data=rd_dat3).fit()
+
+```
+
+### Output
+
 - True effect: 1.5
 - Standard linear regression with same slopes: `r round(ols$coef[3],2)`
 - RD (linear with same slopes): `r round(rd$coef[3],2)`
 
 
----
+:::
 
-## RD with built-in commands
 
-:::: {.columns}
+## Estimates with RD Packages
 
-::: {.column width="50%"}
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: "hide"
 
 rd.y <- rd.dat$Y
 rd.x <- rd.dat$X
 rd.est <- rdrobust(y=rd.y, x=rd.x, c=1)
 summary(rd.est)
 ```
-:::
 
-::: {.column width="50%"}
+### Python
+
+```{python}
+#| eval: false
+
+from rdrobust import rdrobust
+
+# rd_dat is a pandas DataFrame with columns "Y" and "X"
+rd_y = rd_dat["Y"].values
+rd_x = rd_dat["X"].values
+
+rd_est = rdrobust(y=rd_y, x=rd_x, c=1)
+
+# Print a summary (rdrobust returns a custom object with its own __str__)
+print(rd_est)
+
+
+```
+
+### Output
+
+```{r}
+#| echo: false
+
+summary(rd.est)
+
+```
 
 Cattaneo et al. (2020) argue:
 
@@ -475,9 +532,6 @@ Cattaneo et al. (2020) argue:
 
 :::
 
-::::
-
----
 
 ## 5. Robustness and sensitivity
 
@@ -485,8 +539,6 @@ Cattaneo et al. (2020) argue:
 - Different kernels or polynomials
 - Role of covariates in RD estimates
 
-
----
 
 ## Pitfalls of polynomials
 
@@ -501,8 +553,6 @@ For more discussion, see this [World Bank Blog post](https://blogs.worldbank.org
 # Fuzzy RD
 
 
----
-
 ## The Idea
 
 "Fuzzy" just means that assignment isn't guaranteed based on the running variable. For example, maybe students are much more likely to get a scholarship past some threshold SAT score, but it remains possible for students below the threshold to still get the scholarship. 
@@ -510,13 +560,12 @@ For more discussion, see this [World Bank Blog post](https://blogs.worldbank.org
 - Discontinuity reflects a jump in the probability of treatment
 - Other RD assumptions still required (namely, can't manipulate running variable around the threshold)
 
----
 
 ## Fuzzy RD is IV
 
 In practice, fuzzy RD is employed as an instrumental variables estimator
 
-- Difference in outcomes among those above and below the discontinuity divided by the difference in treatment probabilities for those above and below the discontinuity,<br>
-$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0] = \frac{E[Y_{i} | x_{i}\geq c] - E[Y_{i} | x_{i}< c]}{E[D_{i} | x_{i}\geq c] - E[D_{i} | x_{i}<c]}$
+- Difference in outcomes among those above and below the discontinuity divided by the difference in treatment probabilities for those above and below the discontinuity, $$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0] = \frac{E[Y_{i} | x_{i}\geq c] - E[Y_{i} | x_{i}< c]}{E[D_{i} | x_{i}\geq c] - E[D_{i} | x_{i}<c]}$$
+
 - Indicator for $x_{i}\geq c$ is an instrument for treatment status, $D_{i}$.
 - Implemented with `rdrobust` and `fuzzy=t` option
