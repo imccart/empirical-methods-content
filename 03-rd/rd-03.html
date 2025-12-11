@@ -511,8 +511,8 @@ Ian McCarthy | Emory University
 <section id="different-averages" class="slide level2">
 <h2>Different averages</h2>
 <ul>
-<li>Mean difference around threshold of 0.2, 4.01 - 2.33 = 1.68</li>
-<li>Mean overall difference, 3.75 - 1.48 = 2.27</li>
+<li>Mean difference around threshold of 0.2, 3.91 - 2.26 = 1.65</li>
+<li>Mean overall difference, 3.71 - 1.51 = 2.19</li>
 </ul>
 </section>
 <section id="more-generally" class="slide level2">
@@ -572,6 +572,9 @@ Ian McCarthy | Emory University
 <div class="fragment">
 <p>The binned averages helps to remove noise in the graph and can provide a cleaner look at the data. Just make sure that no bin includes observations above and below the cutoff!</p>
 </div>
+</section>
+<section class="slide level2">
+
 <div class="panel-tabset">
 <ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">R</a></li><li><a href="#tabset-1-2">Python</a></li><li><a href="#tabset-1-3">Output</a></li></ul>
 <div class="tab-content">
@@ -796,8 +799,8 @@ Ian McCarthy | Emory University
 <div id="tabset-2-3">
 <ul>
 <li>True effect: 1.5</li>
-<li>Standard linear regression with same slopes: 1.45</li>
-<li>RD (linear with same slopes): 1.6</li>
+<li>Standard linear regression with same slopes: 1.49</li>
+<li>RD (linear with same slopes): 1.69</li>
 </ul>
 </div>
 </div>
@@ -840,20 +843,20 @@ BW type                       mserd
 Kernel                   Triangular
 VCE method                       NN
 
-Number of Obs.                  504          496
-Eff. Number of Obs.             138          141
+Number of Obs.                  498          502
+Eff. Number of Obs.             126          121
 Order est. (p)                    1            1
 Order bias  (q)                   2            2
-BW est. (h)                   0.275        0.275
-BW bias (b)                   0.421        0.421
-rho (h/b)                     0.653        0.653
-Unique Obs.                     504          496
+BW est. (h)                   0.260        0.260
+BW bias (b)                   0.417        0.417
+rho (h/b)                     0.623        0.623
+Unique Obs.                     498          502
 
 =============================================================================
         Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
 =============================================================================
-  Conventional     1.579     0.122    12.910     0.000     [1.339 , 1.819]     
-        Robust         -         -    10.884     0.000     [1.294 , 1.862]     
+  Conventional     1.634     0.124    13.223     0.000     [1.392 , 1.877]     
+        Robust         -         -    11.503     0.000     [1.381 , 1.949]     
 =============================================================================</code></pre>
 </div>
 </div>
@@ -1367,4 +1370,24 @@ Unique Obs.                     504          496
         const ref = bibliorefs[i];
         const citeInfo = findCites(ref);
         if (citeInfo) {
-     
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

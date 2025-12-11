@@ -238,6 +238,8 @@ Before presenting RD estimates, **any** good RD approach first highlights the di
 The binned averages helps to remove noise in the graph and can provide a cleaner look at the data. Just make sure that no bin includes observations above and below the cutoff!
 :::
 
+---
+
 ::: {.panel-tabset}
 
 ### R
