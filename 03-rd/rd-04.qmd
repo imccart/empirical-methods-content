@@ -20,121 +20,99 @@ execute:
 #| include: false
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, modelsummary, 
-               rddensity, rdrobust, MatchIt, cobalt)
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, gganimate, here, modelsummary, rddensity, rdrobust, MatchIt, cobalt)
 ```
 
+## Outline for Today
 
-## MA Data
+1. Revisit MA Data with Star Ratings
+2. Basic RD with Star Ratings
+3. Manipulation and Balance Checks
+4. Effects Across Ratings
+
+
+# Medicare Advantage Star Ratings Data
+
+## Revisit Data Import
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: "hide"
 
-ma.data <- read_rds(here("data/ma/final_ma_data.rds"))
-ma.data.clean <- ma.data %>%
-  filter(!is.na(avg_enrollment) & year==2009 & !is.na(partc_score)) #<<
-```
+ma_2009 <- read_csv("../data/output/ma-snippets/ma-data-2009.csv") %>%
+    mutate(mkt_share=avg_enrollment/avg_enrolled)
 
----
-
-## Calculate raw average rating
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
-ma.data.clean <- ma.data.clean %>%
-  mutate(raw_rating=rowMeans(
-    cbind(breastcancer_screen,rectalcancer_screen,cv_cholscreen,diabetes_cholscreen,
-          glaucoma_test,monitoring,flu_vaccine,pn_vaccine,physical_health,
-          mental_health,osteo_test,physical_monitor,primaryaccess,
-          hospital_followup,depression_followup,nodelays,carequickly,
-          overallrating_care,overallrating_plan,calltime,
-          doctor_communicate,customer_service,osteo_manage,
-          diabetes_eye,diabetes_kidney,diabetes_bloodsugar,
-          diabetes_chol,antidepressant,bloodpressure,ra_manage,
-          copd_test,betablocker,bladder,falling,appeals_timely,
-          appeals_review),
-    na.rm=T)) %>%
-  select(contractid, planid, fips, avg_enrollment, state, county, raw_rating, partc_score,
-         avg_eligibles, avg_enrolled, premium_partc, risk_ab, Star_Rating,
-         bid, avg_ffscost, ma_rate)
 ```
 
 
----
+### Python
 
-## Distribution of star ratings
+```{python}
+#| eval: false
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+import pandas as pd
 
-ma.data.clean %>% 
-  ggplot(aes(x=as.factor(Star_Rating))) + 
-  geom_bar() +
-  labs(
-    x="Star Rating",
-    y="Count of Plans",
-    title="Frequency Distribution of Star Ratings"
-  ) + theme_bw()
+ma_2009 = pd.read_csv("../data/output/ma-snippets/ma-data-2009.csv")
+ma_2009["mkt_share"] = ma_2009["avg_enrollment"] / ma_2009["avg_enrolled"]
+
 ```
 
-
----
+:::
 
 ## Enrollments and star ratings
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+::: {.panel-tabset}
 
-summary(lm(avg_enrollment~factor(Star_Rating), data=ma.data.clean))
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+rating.ols <- lm(mkt_share~factor(Star_Rating), data=ma_2009)
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+rating_ols = smf.ols("mkt_share ~ C(Star_Rating)", data=ma_2009).fit()
+print(rating_ols.summary())
+
 ```
 
 
----
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+summary(rating.ols)
+
+```
+
+:::
+
 
 ## Problems
 
-- Certainly not the effect of a higher rating...
+- Certainly not the effect of quality *disclosure*
 - Lots of things unobserved, like
   - actual quality
   - perceived quality
   - prices
   
----
 
-## Effect of 3-star rating
-
-:::: {.columns}
-
-::: {.column width=50%}
-
-```{r}
-ma.rd1 <- ma.data.clean %>%
-  filter(Star_Rating==2 | Star_Rating==2.5)
-```
-:::
-
-::: {.column width=50%}
-
-```{r}
-ma.rd1 %>% ggplot(aes(x=raw_rating)) + 
-  geom_bar(width=.025) + theme_bw() +
-  labs(
-    x="Running Variable",
-    y="Number of Plans",
-    title="Distribution of Raw Scores"
-  ) 
-```
-:::
-
-::::
-
----
+# Regression Discontinuity with Star Ratings
 
 ## Note about scores
 
@@ -142,22 +120,204 @@ CMS does more than just an average...
 
 - variance across individual metrics
 - high variance is punished, low variance rewarded
+- Part C and D scores combined for online reporting (not relevant for 2009)
+- For our setting, we'll just drop contracts that don't seem to match our strategy very well, but in practice, you'd want to recreate the star ratings much more closely
 
----
+## Data Cleanup
 
-## RD estimates
+- Focus on ratings around the 4-star cutoffs (running value of 3.75)
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
 
-ma.rd1 <- ma.rd1 %>%
+# Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score
+ma_25star_candidates <- ma_2009 %>%
+  filter(
+    !is.na(raw_rating),
+    !is.na(partc_score),
+    Star_Rating %in% c(2.0, 2.5)
+  )
+
+n_candidates_total <- nrow(ma_25star_candidates)
+n_candidates_by_score <- ma_25star_candidates %>% count(partc_score)
+
+# Final sample: raw_rating in the range consistent with the star score
+ma_25star <- ma_25star_candidates %>%
+  filter(
+    raw_rating >= 2,
+    raw_rating <= 2.5,
+    (raw_rating >= 2.25 & Star_Rating == 2.5) | (raw_rating < 2.25 & Star_Rating == 2)
+  )
+
+n_25star_total <- nrow(ma_25star)
+n_25star_by_score <- ma_25star %>% count(partc_score)
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+# Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score
+candidates_mask = (
+    ma_2009["raw_rating"].notna()
+    & ma_2009["Star_Rating"].notna()
+    & ma_2009["Star_Rating"].isin([2.0, 2.5])
+)
+ma_25star_candidates = ma_2009.loc[candidates_mask].copy()
+
+n_candidates_total = len(ma_25star_candidates)
+n_candidates_by_score = ma_25star_candidates["Star_Rating"].value_counts()
+
+# Final sample: raw_rating in the range consistent with the star score
+match_mask = (
+    ma_25star_candidates["raw_rating"].between(2, 2.5)
+    & (
+        ((ma_25star_candidates["Star_Rating"] == 2.5) &
+         (ma_25star_candidates["raw_rating"] >= 2.25))
+        |
+        ((ma_25star_candidates["Star_Rating"] == 2) &
+         (ma_25star_candidates["raw_rating"] <= 2.25))
+    )
+)
+ma_4star = ma_4star_candidates.loc[match_mask].copy()
+
+n_4star_total = len(ma_25star)
+n_4star_by_score = ma_25star["Star_Rating"].value_counts()
+
+print("Obs with partc_score 2 or 2.5:", n_candidates_total)
+print(n_candidates_by_score)
+print("Obs with raw_rating in the matching range:", n_25star_total)
+print(n_4star_by_score)
+
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+cat("Obs with partc_score 2 or 2.5:", n_candidates_total, "\n")
+print(n_candidates_by_score)
+cat("Obs with raw_rating in the matching range:", n_25star_total, "\n")
+print(n_25star_by_score)
+
+```
+
+:::
+
+
+## Binned Scatterplot
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+rd.result <- rdplot(ma_25star$mkt_share, ma_25star$raw_rating, 
+                    c=2.25, p=2,
+                    title="RD Plot with Binned Average", 
+                    x.label="Running Variable", 
+                    y.label="Outcome",
+                    hide = TRUE)
+bin.avg <- as_tibble(rd.result$vars_bins)
+plot.bin <- bin.avg %>% ggplot(aes(x=rdplot_mean_x,y=rdplot_mean_y)) + 
+  geom_point() + theme_bw() +
+  geom_vline(aes(xintercept=2.25),linetype='dashed') +
+  scale_x_continuous(
+    breaks = c(2, 2.5),
+    label = c("Untreated", "Treated")
+  ) +
+  xlab("Running Variable") + ylab("Outcome")
+```
+
+
+### Python
+
+```{python}
+#| eval: false
+
+#| eval: false
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from rdrobust import rdplot
+
+# RD plot using mkt_share as outcome and raw_rating as running variable
+rd_result = rdplot(
+    y=ma_25star["mkt_share"].values,
+    x=ma_25star["raw_rating"].values,
+    c=2.25,
+    title="RD Plot with Binned Average",
+    x_label="Running Variable",
+    y_label="Outcome",
+    hide=True  # don't show the built-in plot
+)
+
+# vars_bins is already a pandas DataFrame in the Python implementation
+bin_avg = rd_result.vars_bins
+
+# Recreate the custom plot
+fig, ax = plt.subplots()
+
+ax.scatter(
+    bin_avg["rdplot_mean_x"],
+    bin_avg["rdplot_mean_y"]
+)
+
+ax.axvline(x=2.25, linestyle="--")
+
+ax.set_xticks([2.0, 2.5])
+ax.set_xticklabels(["Untreated", "Treated"])
+
+ax.set_xlabel("Running Variable")
+ax.set_ylabel("Outcome")
+ax.set_title("RD Plot with Binned Average")
+
+plt.tight_layout()
+plt.show()
+
+
+```
+
+
+### Output
+
+```{r}
+#| echo: false
+
+plot.bin
+```
+
+
+
+:::
+
+## RD from OLS
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: "hide"
+
+ma.rd1 <- ma_25star %>%
   mutate(score = raw_rating - 2.25,
          treat = (score>=0),
          window1 = (score>=-.175 & score<=.175),
          window2 = (score>=-.125 & score<=.125),
-         mkt_share = avg_enrollment/avg_eligibles,
-         ln_share = log(mkt_share),
          score_treat=score*treat)
 star25.1 <- lm(mkt_share ~ score + treat, data=ma.rd1)
 star25.2 <- lm(mkt_share ~ score + treat, data= (ma.rd1 %>% filter(window1==TRUE)))
@@ -171,6 +331,62 @@ est4 <- as.numeric(star25.4$coef[3])
 rows <- tribble(~term, ~ m1, ~ m2, ~ m3 , ~ m4,
                 'Bandwidth', "0.25", "0.175", "0.175", "0.125")
 attr(rows, 'position')  <- 7
+          
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+import statsmodels.formula.api as smf
+
+# Start from ga_ma_4star DataFrame
+ma_rd1 = ma_25star.copy()
+
+ma_rd1["score"] = ma_rd1["raw_rating"] - 2.25
+ma_rd1["treat"] = (ma_rd1["score"] >= 0).astype(int)
+ma_rd1["window1"] = (ma_rd1["score"].between(-0.175, 0.175))
+ma_rd1["window2"] = (ma_rd1["score"].between(-0.125, 0.125))
+ma_rd1["score_treat"] = ma_rd1["score"] * ma_rd1["treat"]
+
+# Regressions
+star25_1 = smf.ols("mkt_share ~ score + treat", data=ma_rd1).fit()
+star25_2 = smf.ols("mkt_share ~ score + treat",
+                  data=ma_rd1[ma_rd1["window1"]]).fit()
+star25_3 = smf.ols("mkt_share ~ score + treat + score_treat",
+                  data=ma_rd1[ma_rd1["window1"]]).fit()
+star25_4 = smf.ols("mkt_share ~ score + treat + score_treat",
+                  data=ma_rd1[ma_rd1["window2"]]).fit()
+
+# Extract treatment effect (coefficient on treat)
+est1 = float(star25_1.params["treat"])
+est2 = float(star25_2.params["treat"])
+est3 = float(star25_3.params["treat"])
+est4 = float(star25_4.params["treat"])
+
+# Bandwidth row (analogous to tribble + attribute)
+rows = pd.DataFrame(
+    {
+        "term": ["Bandwidth"],
+        "m1": ["0.25"],
+        "m2": ["0.175"],
+        "m3": ["0.175"],
+        "m4": ["0.125"],
+    }
+)
+rows.attrs["position"] = 7
+
+
+```
+
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: true
 
 modelsummary(list(star25.1, star25.2, star25.3, star25.4),
           keep=c("score", "treatTRUE", "score_treat"),
@@ -179,213 +395,543 @@ modelsummary(list(star25.1, star25.2, star25.3, star25.4),
                     "score_treat"="Score x Treat"),
           gof_map=c("nobs", "r.squared"),
           add_rows=rows)
-          
+
 ```
 
+:::
 
----
 
 ## Interpretation
 
-- OLS on full sample: `r round(est1,3)*100`% increase in market shares among 2.5-star plans versus 2-star plan
+- OLS on full sample: `r round(est1,3)*100`% increase in market shares among 4-star plans versus 3.5-star plan
 - RD on 0.175 bandwidth: `r round(est2,3)*100`% increase when imposing constant slopes, `r round(est3,3)*100`% increase when allowing for differential slopes
 - RD on 0.125 bandwidth: `r round(est4,3)*100`% increase (again allowing for differential slopes)
 
 
----
-
 ## Built-in RD packages
 
+
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: "hide"
 
-library(rdrobust)
-rdplot(y=ma.rd1$mkt_share, x=ma.rd1$score, binselect="es",
-       title="RD Plot: Market Share", x.label="Summary Score",
-       y.label="Market Share", masspoints="off")
-```
-
----
-
-## Estimates from RD package
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
+## fixed bandwidth
 est1 <- rdrobust(y=ma.rd1$mkt_share, x=ma.rd1$score, c=0,
-                 h=0.125, p=1, kernel="uniform", vce="hc0",
-                 masspoints="off")
-summary(est1)
-```
+                 h=0.125, p=1, kernel="uniform", vce="hc0")
 
-
----
-
-## Optimal bandwidth
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
+## optimal bandwidth
 estopt <- rdrobust(y=ma.rd1$mkt_share, x=ma.rd1$score, c=0,
-                 p=1, kernel="uniform", vce="hc0",
-                 masspoints="off")
-summary(estopt)                 
+                 p=1, kernel="uniform", vce="hc0")
+
 ```
 
 
----
+### Python
 
-## Estimates for other rating thresholds (2.25)
+```{python}
+#| eval: false
+
+from rdrobust import rdrobust
+
+# Fixed bandwidth
+est1 = rdrobust(
+    y=ma_rd1["mkt_share"].values,
+    x=ma_rd1["score"].values,
+    c=0,
+    h=0.125,
+    p=1,
+    kernel="uniform",
+    vce="hc0",
+    masspoints="off",
+)
+
+# Optimal bandwidth (letting rdrobust choose h)
+estopt = rdrobust(
+    y=ma_rd1["mkt_share"].values,
+    x=ma_rd1["score"].values,
+    c=0,
+    p=1,
+    kernel="uniform",
+    vce="hc0",
+    masspoints="off",
+)
+
+
+```
+
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| echo: false
 
-ma.rd225 <- ma.data.clean %>%
+summary(est1)
+summary(estopt)
+
+```
+
+:::
+
+
+# Manipulation and Balance Checks
+
+
+## Manipulation of the running variable
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| echo: true
+#| results: 'hide'
+
+dens1 <- rddensity(ma.rd1$score, c=0)
+densplot <- rdplotdensity(dens1, ma.rd1$score)
+
+```
+
+
+### Python
+
+```{python}
+#| eval: false
+
+from rdrobust import rddensity, rdplotdensity
+import matplotlib.pyplot as plt
+
+# Run McCrary-style density test at cutoff 0
+dens1 = rddensity(x=ma_rd1["score"].values, c=0)
+
+# Create the density plot object (rdplotdensity returns a matplotlib figure/axes)
+densplot = rdplotdensity(dens1, x=ma_rd1["score"].values)
+
+# If you want to explicitly show or tweak:
+fig = densplot["fig"]
+ax = densplot["ax"]
+
+ax.set_title("Density test around cutoff")
+ax.set_xlabel("Score")
+ax.set_ylabel("Estimated density")
+
+plt.show()
+
+
+```
+
+
+### Output
+
+```{r}
+#| echo: false
+summary(dens1)
+```
+
+
+:::
+
+
+## Covariate balance
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+match.dat <- matchit(treat~premium_partc + ma_rate, 
+                     data=ma.rd1 %>% 
+                       filter(window2==TRUE, 
+                              !is.na(treat), 
+                              !is.na(premium_partc), 
+                              !is.na(ma_rate)),
+                     method=NULL, distance="mahalanobis")
+               
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+import matplotlib.pyplot as plt
+
+# 1. Subset data as in your R code
+sub = (
+    ma_rd1
+    .loc[
+        (ma_rd1["window2"]) &
+        ma_rd1["treat"].notna() &
+        ma_rd1["premium_partc"].notna() &
+        ma_rd1["ma_rate"].notna()
+    ]
+    .copy()
+)
+
+covariates = ["premium_partc", "ma_rate"]
+
+X = sub[covariates].to_numpy()
+t = sub["treat"].astype(int).to_numpy()
+
+# 2. Mahalanobis nearest-neighbor matching (1:1)
+#    Estimate covariance matrix of covariates and its inverse
+V = np.cov(X, rowvar=False)
+V_inv = np.linalg.inv(V)
+
+# Fit NN on controls only
+nn = NearestNeighbors(
+    n_neighbors=1,
+    metric="mahalanobis",
+    metric_params={"V": V}
+)
+nn.fit(X[t == 0])
+
+# For each treated unit, find nearest control
+dist, idx = nn.kneighbors(X[t == 1])
+control_matches = sub.loc[t == 0].iloc[idx[:, 0]].copy()
+treated_matched = sub.loc[t == 1].copy()
+
+# Build matched sample
+matched = pd.concat(
+    [
+        treated_matched.reset_index(drop=True),
+        control_matches.reset_index(drop=True)
+    ],
+    axis=0
+).reset_index(drop=True)
+matched["treat"] = np.r_[np.ones(len(treated_matched)), np.zeros(len(control_matches))]
+
+# 3. Function for standardized mean differences (SMD)
+def smd(df, var, treat_col="treat"):
+    g1 = df[df[treat_col] == 1][var]
+    g0 = df[df[treat_col] == 0][var]
+    m1, m0 = g1.mean(), g0.mean()
+    s = np.sqrt(0.5 * (g1.var(ddof=1) + g0.var(ddof=1)))
+    return (m1 - m0) / s
+
+# SMDs before and after matching
+smd_before = [smd(sub, v) for v in covariates]
+smd_after  = [smd(matched, v) for v in covariates]
+
+# 4. “Love plot” (absolute SMDs)
+fig, ax = plt.subplots()
+
+y_pos = np.arange(len(covariates))
+
+ax.scatter(np.abs(smd_before), y_pos, marker="o", label="Unmatched")
+ax.scatter(np.abs(smd_after),  y_pos, marker="s", label="Matched")
+
+ax.set_yticks(y_pos)
+ax.set_yticklabels(covariates)
+ax.set_xlabel("Absolute standardized mean difference")
+ax.axvline(0.1, linestyle="--")  # common reference line
+ax.legend()
+ax.invert_yaxis()  # to mimic cobalt’s ordering
+plt.tight_layout()
+plt.show()
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+love.plot(match.dat, abs=TRUE)
+```
+:::
+
+
+
+# Effects across Rating Thresholds
+
+## Effects for 2.5 versus 2.0 Stars
+
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+ma.rd225 <- ma_2009 %>%
   filter(Star_Rating==2 | Star_Rating==2.5) %>%
   mutate(score = raw_rating - 2.25,
          treat = (score>=0),
          window1 = (score>=-.175 & score<=.175),
          window2 = (score>=-.125 & score<=.125),
-         mkt_share = avg_enrollment/avg_eligibles,
-         ln_share = log(mkt_share),
          score_treat=score*treat)
 
 est225 <- rdrobust(y=ma.rd225$mkt_share, x=ma.rd225$score, c=0,
                  h=0.125, p=1, kernel="uniform", vce="hc0",
                  masspoints="off")
-summary(est225)
 ```
 
----
+### Python
 
-## Estimates for other rating thresholds (2.75)
+```{python}
+#| eval: false
+
+import pandas as pd
+from py_rdpackages import rdrobust   # wrapper around rdrobust in R
+
+# starting from ma_2009 as a pandas DataFrame
+ma_rd225 = (
+    ma_2009
+    .loc[ma_2009["Star_Rating"].isin([2, 2.5])]
+    .assign(
+        score=lambda d: d["raw_rating"] - 2.25,
+        treat=lambda d: (d["score"] >= 0).astype(int),
+        window1=lambda d: d["score"].between(-0.175, 0.175),
+        window2=lambda d: d["score"].between(-0.125, 0.125),
+        score_treat=lambda d: d["score"] * d["treat"],
+    )
+)
+
+est225 = rdrobust(
+    y=ma_rd225["mkt_share"].to_numpy(),
+    x=ma_rd225["score"].to_numpy(),
+    c=0,
+    h=0.125,
+    p=1,
+    kernel="uniform",   # if this errors, try kernel="uni"
+    vce="hc0",
+    masspoints="off"
+)
+
+```
+
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-ma.rd275 <- ma.data.clean %>%
+summary(est225)
+
+```
+
+:::
+
+
+## Effects for 3.0 versus 2.5 Stars
+
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+ma.rd275 <- ma_2009 %>%
   filter(Star_Rating==2.5 | Star_Rating==3) %>%
   mutate(score = raw_rating - 2.75,
          treat = (score>=0),
          window1 = (score>=-.175 & score<=.175),
          window2 = (score>=-.125 & score<=.125),
-         mkt_share = avg_enrollment/avg_eligibles,
-         ln_share = log(mkt_share),
          score_treat=score*treat)
 
 est275 <- rdrobust(y=ma.rd275$mkt_share, x=ma.rd275$score, c=0,
                  h=0.125, p=1, kernel="uniform", vce="hc0",
                  masspoints="off")
 
-summary(est275)
 ```
 
----
+### Python
 
-## Estimates for other rating thresholds (3.25)
+```{python}
+#| eval: false
+
+# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
+
+ma_rd275 = (
+    ma_2009
+    .loc[ma_2009["Star_Rating"].isin([2.5, 3])]
+    .assign(
+        score=lambda d: d["raw_rating"] - 2.75,
+        treat=lambda d: (d["score"] >= 0).astype(int),
+        window1=lambda d: d["score"].between(-0.175, 0.175),
+        window2=lambda d: d["score"].between(-0.125, 0.125),
+        score_treat=lambda d: d["score"] * d["treat"],
+    )
+)
+
+est275 = rdrobust(
+    y=ma_rd275["mkt_share"].to_numpy(),
+    x=ma_rd275["score"].to_numpy(),
+    c=0,
+    h=0.125,
+    p=1,
+    kernel="uniform",   # or "uni" if required by your wrapper
+    vce="hc0",
+    masspoints="off"
+)
+
+
+```
+
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-ma.rd325 <- ma.data.clean %>%
+summary(est275)
+
+```
+
+:::
+
+
+## Effects for 3.5 versus 3.0 Stars
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+ma.rd325 <- ma_2009 %>%
   filter(Star_Rating==3 | Star_Rating==3.5) %>%
   mutate(score = raw_rating - 3.25,
          treat = (score>=0),
          window1 = (score>=-.175 & score<=.175),
          window2 = (score>=-.125 & score<=.125),
-         mkt_share = avg_enrollment/avg_eligibles,
-         ln_share = log(mkt_share),
          score_treat=score*treat)
 
 est325 <- rdrobust(y=ma.rd325$mkt_share, x=ma.rd325$score, c=0,
                  h=0.125, p=1, kernel="uniform", vce="hc0",
                  masspoints="off")
-summary(est325)
 ```
 
----
+### Python
 
-## Estimates for other rating thresholds (3.75)
+```{python}
+#| eval: false
+
+# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
+
+ma_rd325 = (
+    ma_2009
+    .loc[ma_2009["Star_Rating"].isin([3, 3.5])]
+    .assign(
+        score=lambda d: d["raw_rating"] - 3.25,
+        treat=lambda d: (d["score"] >= 0).astype(int),
+        window1=lambda d: d["score"].between(-0.175, 0.175),
+        window2=lambda d: d["score"].between(-0.125, 0.125),
+        score_treat=lambda d: d["score"] * d["treat"],
+    )
+)
+
+est325 = rdrobust(
+    y=ma_rd325["mkt_share"].to_numpy(),
+    x=ma_rd325["score"].to_numpy(),
+    c=0,
+    h=0.125,
+    p=1,
+    kernel="uniform",   # or "uni" depending on the Python wrapper
+    vce="hc0",
+    masspoints="off"
+)
+
+```
+
+### Output
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| echo: false
 
-ma.rd375 <- ma.data.clean %>%
+summary(est325)
+
+```
+
+:::
+
+
+## Effects for 4 versus 3.5 Stars
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+ma.rd375 <- ma_2009 %>%
   filter(Star_Rating==3.5 | Star_Rating==4) %>%
   mutate(score = raw_rating - 3.75,
          treat = (score>=0),
          window1 = (score>=-.175 & score<=.175),
          window2 = (score>=-.125 & score<=.125),
-         mkt_share = avg_enrollment/avg_eligibles,
-         ln_share = log(mkt_share),
          score_treat=score*treat)
 
 est375 <- rdrobust(y=ma.rd375$mkt_share, x=ma.rd375$score, c=0,
                  h=0.125, p=1, kernel="uniform", vce="hc0",
                  masspoints="off")
+
+```
+
+### Python
+
+```{python}
+#| eval: false
+
+# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
+
+ma_rd375 = (
+    ma_2009
+    .loc[ma_2009["Star_Rating"].isin([3.5, 4])]
+    .assign(
+        score=lambda d: d["raw_rating"] - 3.75,
+        treat=lambda d: (d["score"] >= 0).astype(int),
+        window1=lambda d: d["score"].between(-0.175, 0.175),
+        window2=lambda d: d["score"].between(-0.125, 0.125),
+        score_treat=lambda d: d["score"] * d["treat"],
+    )
+)
+
+est375 = rdrobust(
+    y=ma_rd375["mkt_share"].to_numpy(),
+    x=ma_rd375["score"].to_numpy(),
+    c=0,
+    h=0.125,
+    p=1,
+    kernel="uniform",   # or "uni" if that's the accepted alias
+    vce="hc0",
+    masspoints="off"
+)
+
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
 summary(est375)
 
 ```
 
----
+:::
 
-## Manipulation of the running variable
-
-
-![](https://media.giphy.com/media/5669bWEI7TS3S/giphy.gif)
-
-
----
-
-## Manipulation of the running variable
-
-```{r}
-#| echo: false
-#| results: 'hide'
-#| code-fold: true
-#| code-summary: "R Code"
-
-dens225 <- rddensity(ma.rd225$score, c=0)
-densplot <- rdplotdensity(dens225, ma.rd225$score)
-
-```
-
----
-
-## Manipulation of the running variable
-
-```{r}
-#| echo: false
-summary(dens225)
-```
-
-
----
-
-## Covariate balance
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
-match.dat <- matchit(treat~premium_partc + ma_rate, 
-                     data=ma.rd225 %>% 
-                       filter(window2==TRUE, 
-                              !is.na(treat), 
-                              !is.na(premium_partc), 
-                              !is.na(ma_rate)),
-                     method=NULL, distance="mahalanobis")
-love.plot(match.dat, abs=TRUE)                     
-```
-
-
----
 
 ## RD with discrete variables
 

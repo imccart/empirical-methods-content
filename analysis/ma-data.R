@@ -472,10 +472,30 @@ write_csv(ratings.2022, "data/output/ma-snippets/ga-ratings-2022.csv")
 # Final GA data ------------------------------------------------------------
 
 ma.data.2022 <- read_tsv("data/input/processed/ma/ma_data_2022.txt") %>%
-  filter(state=="GA", planid < 800 | planid > 899, snp=="No",
-         !is.na(avg_enrollment)) %>%
+  filter(state=="GA", planid < 800 | planid > 899, snp=="No") %>%
   select(contractid, planid, fips, plan_type, partd, avg_enrollment,
          avg_eligibles, avg_enrolled, premium, premium_partc, premium_partd=premium_partd_total,
          rebate_partc, ma_rate, bid, avg_ffscost, partc_score)
 
 write_csv(ma.data.2022, "data/output/ma-snippets/ga-ma-data-2022.csv")
+
+
+ma.data.2009 <- read_tsv("data/input/processed/ma/ma_data_2009.txt") %>%
+  mutate(raw_rating=rowMeans(
+    cbind(breastcancer_screen,rectalcancer_screen,cv_cholscreen,diabetes_cholscreen,
+          glaucoma_test,monitoring,flu_vaccine,pn_vaccine,physical_health,
+          mental_health,osteo_test,physical_monitor,primaryaccess,
+          hospital_followup,depression_followup,nodelays,carequickly,
+          overallrating_care,overallrating_plan,calltime,
+          doctor_communicate,customer_service,osteo_manage,
+          diabetes_eye,diabetes_kidney,diabetes_bloodsugar,
+          diabetes_chol,antidepressant,bloodpressure,ra_manage,
+          copd_test,betablocker,bladder,falling,appeals_timely,
+          appeals_review),
+    na.rm=T)) %>%
+  filter(planid < 800 | planid > 899, snp=="No", year==2009, !is.na(partc_score), !is.na(avg_enrollment)) %>%
+  select(contractid, planid, fips, plan_type, partd, avg_enrollment,
+         avg_eligibles, avg_enrolled, premium, premium_partc, premium_partd=premium_partd_total,
+         rebate_partc, ma_rate, bid, avg_ffscost, Star_Rating, raw_rating, partc_score)
+
+write_csv(ma.data.2009, "data/output/ma-snippets/ma-data-2009.csv")
