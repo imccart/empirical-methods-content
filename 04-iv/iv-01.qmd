@@ -1,5 +1,5 @@
 ---
-title: "Basics of Hospital Pricing"
+title: "Hospital Pricing and Pay for Performance"
 author: "Ian McCarthy | Emory University"
 format: 
   revealjs:
@@ -23,12 +23,15 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
                hrbrthemes, gganimate, OECD, here)
 ```
 
+## Outline for Today
 
+1. Understanding Hospital Pricing
+2. Recent Pay-for-Performance Programs
+3. P4P and Prices
 
 
 # Hospital Prices
 
----
 
 ## What is a hospital price?
 
@@ -38,8 +41,6 @@ Defining characteristic of hospital services: *it's complicated!*
 ![](../images/BillExample.jpg)
 :::
 
-
----
 
 ## What is a hospital price?
 
@@ -54,7 +55,6 @@ Lots of different payers paying lots of different prices:
 Price $\neq$ charge $\neq$ cost $\neq$ patient out-of-pocket spending
 :::
 
----
 
 ## What is a hospital price?
 
@@ -64,7 +64,6 @@ Price $\neq$ charge $\neq$ cost $\neq$ patient out-of-pocket spending
 Source: [Health Care Pricing Project](https://healthcarepricingproject.org/)
 :::
 
----
 
 ## What is a hospital price?
 Not clear what exactly is negotiated...
@@ -90,7 +89,9 @@ Not clear what exactly is negotiated...
 
 ::::
 
----
+## What is a hospital price?
+
+In most economic discussions, a hospital's "price" refers to the **allowed payment negotiated with insurers**. That's typically the definition I'll use as well.
 
 ## Hospital prices in real life
 
@@ -100,7 +101,6 @@ A few empirical facts:
 2. Prices vary dramatically across different areas
 3. Lack of competition is a major reason for high prices
 
----
 
 ## Hospital prices in real life
 
@@ -122,137 +122,106 @@ Source: [Health Care Pricing Project](https://healthcarepricingproject.org/)
 
 
 
-# Demand Estimation
+# Hospital Pay for Performance (P4P)
 
----
+## Basic Idea
 
-## Basics of Demand Estimation
+- FFS payments create an incentive to overtreat
+- Capitated payments create an incentive to undertreat
+- Neither is necessarily a problem unless patient care is adversely affected
 
-In its simplest form, demand estimation is about estimating the relationship between price and quantity demanded:
+## Current P4P Programs
 
-$$q_{it} = \alpha + \beta p_{it} + \epsilon_{it}$$
+There are three main hospital-based P4P programs in Medicare right now, details available [here](https://www.cms.gov/medicare/quality/value-based-programs):
 
-where $q_{it}$ is quantity sold, $p_{it}$ is price, and $\epsilon_{it}$ is an error term.
+1. Hospital Readmissions Reduction Program
+2. Hospital Value-based Purchasing Program
+3. Hospital-Acquired Condition Reduction Program 
 
----
+::: {.aside}
+Other programs exist for other care settings/services, such as the [Quality Payment Program](https://qpp.cms.gov/about/qpp-overview) for physicians, which includes the Merit-based Incentive Payment System (MIPS) and Advanced Alternative Payment Models (APMs)
+:::
 
-## Problems
+## HRRP
 
-But there are some problems when running this simple regression...namely, that price is endogenous. To see this, let's look at both demand and supply.
+- Reduces Medicare IPPS payments to hospitals with excess 30-day readmission rates for selected conditions (e.g., AMI, HF, pneumonia)
+- Penalties are based on risk-adjusted excess readmission ratios relative to national benchmarks and are capped at 3% of base operating DRG payments
+- Purely punitive (no bonuses, only penalties)
+- Significant debate surrounding risk adjustment and potential unintended consequences
+- [HRRP Tracker](https://kffhealthnews.org/news/hospital-penalties/readmissions/)
 
-$$\begin{align}
-q &= D(x, p, \epsilon) \\
-p &= C(z, q, \eta)
-\end{align}$$
+## VBP Program
 
-- quantity demanded is a function of price, some "demand shifters" $x$, and an error term $\epsilon$
-- price is a function of quantity supplied, some "cost shifters" $z$, and an error term $\eta$
+- Redistributes Medicare payments across hospitals based on a composite performance score covering clinical outcomes, patient experience (HCAHPS), safety, and efficiency
+- Funding is budget-neutral: CMS withholds a fixed percentage of payments from all hospitals and redistributes it based on relative performance, creating both winners and losers
+- [VBP Tracker](https://qualitynet.cms.gov/inpatient/hvbp)
 
----
+## HAC Reduction Program
 
-## Endogeneity I
-
-$$\begin{align}
-q &= D(x, p, \epsilon) \\
-p &= C(z, q, \eta)
-\end{align}$$
-
-- Standard econometric endogeneity problem stems from relationship between $\epsilon$ and $\eta$
-- If such a relationship exists, then OLS regression of $q$ against $x$ and $p$ will yield a biased and inconsistent price elasticity estimate
-
----
-
-## Endogeneity II
-
-$$\begin{align}
-q_{i} &= D(x_{i}, p_{1}, ... , p_{N}, \epsilon_{1}, ... \epsilon_{N}) \\
-p_{i} &= C(z_{i}, q_{1}, ... , p_{N}, \eta_{1}, ... \eta_{N})
-\end{align}$$
-
-Even if $\epsilon$ and $\eta$ are uncorrelated for a given product, observed prices and quantities for a given product are affected by all other products.
-
----
-
-## Our approach?
-
-- We'll largely ignore the interrelationships across products and focus on the traditional endogeneity problem
-- Inuitively, this problem arises because price is determined by supply and demand, and we're only observing the demand side of the market
-- We need to isolate movements along the demand curve
-
----
-
-## Example with simulated data
-
-- Let's simulate some data and see what happens when we run a simple OLS regression
-- We'll generate data where both supply and demand are affected by an external variable (e.g., cost factors for supply and income levels for demand), but we'll only observe the equilibrium price and quantity
-- This setup mirrors common real-world scenarios where the observed price and quantity are outcomes of both supply and demand curves intersecting.
-
----
-
-## Example with simulated data
-
-We will assume linear relationships for simplicity:
-
-- Demand curve: $Q_d = \alpha_d + \beta_d P + \gamma_d Y + \epsilon_d$
-- Supply curve: $Q_s = \alpha_s + \beta_s P + \gamma_s C + \epsilon_s$
-
-where
-
-- $Q_d$ and $Q_s$ are the quantity demanded and supplied, respectively.
-- $P$ is the price.
-- $Y$ is the income level affecting demand.
-- $C$ is the cost factor affecting supply.
-- $\alpha$, $\beta$, and $\gamma$ are parameters ($\beta$ is the price elasticity of demand).
-- $\epsilon_d$ and $\epsilon_s$ are error terms.
-
----
-
-## Example with simulated data
-
-- Demand curve: $Q_d = \alpha_d + \beta_d P + \gamma_d Y + \epsilon_d$
-- Supply curve: $Q_s = \alpha_s + \beta_s P + \gamma_s C + \epsilon_s$
+- Penalizes hospitals in the worst-performing quartile on patient safety metrics (e.g., infection rates, PSI measures)
+- Hospitals in the worst-performing quartile receive a flat 1% reduction in total IPPS payments; there are no bonuses
+- Blunt, threshold-based incentive focused squarely on inpatient safety and has raised concerns about measurement noise and weak differentiation among hospitals
+- [HAC Tracker](https://kffhealthnews.org/news/hospital-penalties/?penalty=hac)
 
 
-Equilibrium occurs when $Q_d = Q_s$. We'll simulate this scenario in R and perform an OLS regression of quantity on price, neglecting the effects of $Y$ and $C$, to show the bias in estimating price elasticity.
+# P4P and Pricing
 
+## How?
 
----
+There are several mechanisms by which P4P programs can influence a hospital's negotiated price with insurers:
+- increasing costs
+- differentiation (e.g., quality improvement or changes in services)
+- service mix
+- bargaining
 
-## Results from OLS
+## Costs
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+- P4P may increase **real operating costs**
+  - care coordination
+  - discharge planning
+  - post-acute management
+- If these investments raise costs across all patients, hospitals may seek higher prices from private insurers
 
-set.seed(123) # For reproducibility
+## Differentiation
 
-# Simulate external factors (income and cost)
-n = 1000
-Y = rnorm(n, mean = 50000, sd = 10000)
-C = rnorm(n, mean = 20, sd = 5)
+- Efforts to reduce readmissions may reflect **genuine quality improvements**
+- Hospitals may position themselves as:
+  - lower readmission
+  - better coordinated
+  - higher value
+- Insurers and employers may be willing to pay higher prices for perceived improvements in quality
 
-# Parameters for demand and supply curves
-alpha_d = 100
-beta_d = -2
-gamma_d = 0.15
-alpha_s = 50
-beta_s = 1.5
-gamma_s = -0.5
+## Service mix
 
-# Equilibrium price P such that Q_d = Q_s, solving for P here requires numerical methods
-# For simplification, let's assume we observe an equilibrium P directly influenced by Y and C
-P = 100 + gamma_d * Y - gamma_s * C + rnorm(n)
+- Hospitals may adjust:
+  - admissions policies
+  - intensity of care
+  - types of services emphasized
+- These responses can change the **average price observed** even if per-service negotiations are unchanged
 
-# Simulate demand and supply
-epsilon_d = rnorm(n)
-epsilon_s = rnorm(n)
-Q_d = alpha_d + beta_d * P + gamma_d * Y + epsilon_d
-Q_s = alpha_s + beta_s * P + gamma_s * C + epsilon_s
+## Bargaining
 
-# Assuming equilibrium, we can set Q = Q_d = Q_s
-Q = alpha_d + beta_d * P + gamma_d * Y + epsilon_d # Using the demand equation for simplicity
+- Lowering Medicare margins may change hospitals’ incentives in negotiations:
+  - greater urgency to secure favorable commercial contracts
+  - less willingness to accept low-price agreements
+- Effects depend on relative bargaining power and market structure
+- This is a form of "cost-shifting" (although not a mechanical pass-through)
 
-# OLS regression of Q on P
-model = lm(Q ~ P, data = data.frame(Q, P))
-modelsummary(model, gof_map=NA)
-```
+## What is Cost-shifting?
+
+- Some concern that when Medicare lowers payment rates, hospitals may respond with higher prices for private-insurance patients
+- Is this possible?
+  - No: If hospitals can unilaterally set prices, they would lower prices to get the marginaly lower WTP patients (not relevant in a bargaining context)
+  - No: Hospitals must negotiate with insurance companies, and if they could have negotiated a higher rate, they would have done so earlier
+  - Yes: If profits enter into a hospital's objective function nonlinearly, then reductions in profit could provide upward pricing pressure
+- Policy-makers and hospitals say yes (but for simpler reasons)
+- Economists often say no under standard bargaining models, though this depends on assumptions about objectives, constraints, and market structure
+
+## Where we're headed
+
+- Empirical question: do P4P programs affect hospital prices?
+- Why might we have an endogeneity problem here?
+- What we need to answer this question:
+  - Hospital prices
+  - Penalty status
+  - Some "exogenous" source of variation in penalty status...

@@ -20,13 +20,21 @@ execute:
 #| include: false
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here)
+               hrbrthemes, gganimate, OECD, here, patchwork)
 ```
 
 
-# Understanding HCRIS Data
+## Outline for Today
 
----
+Let's work with HCRIS using our [HCRIS GitHub repository](https://github.com/imccart/HCRIS).
+
+1. Data Overview
+2. Measuring Prices
+3. Measuring Penalties
+4. Other key variables
+
+
+# Understanding HCRIS Data
 
 ## What is HCRIS?
 
@@ -37,39 +45,162 @@ Healthcare Cost Report Information System ('cost reports')
 - Home Health Agencies
 - Hospitals 
 
----
+These reports contain a TON of information about hospital investments, cost structure, etc.
 
-## Hospital Cost Reports
+## The Raw Data
+
+- Two versions (1996 and 2010)
+- Structure (alphanumeric, numeric, report info)
+- Extracting variables requires first locating in the report templates
 
 ![](../images/HCRIS.png)
 
 
----
+## The Raw Data
 
-## The Data
+- Just opening the raw data won't tell you much
+- Need to identify location of cell of interest and merge with report "_RPT" on report record number
+- Let's spend some time reviewing things in the [HCRIS GitHub repository](https://github.com/imccart/HCRIS).
 
-Let's work with the [HCRIS GitHub repository](https://github.com/imccart/HCRIS).
+## Some Key Considerations
 
-- Database structure (alphanumeric, numeric, report info)
-- Understanding where to find variables of interest
-- Quirks in versions and duplicate reports
+- Reports submitted by fiscal year, which may not align with other datasets
+- Some hospitals submit multiple reports for the same fiscal year
+  - Repo code tries to deal with this in a few ways
+  - Goal is to end with a single report per hospital (i.e., Medicare provider number) per fiscal year
 
----
+## HCRIS for Emory Hospital
 
-## The Data
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| include: false
 #| eval: true
-hcris.data <- read_rds(here("data/HCRIS_Data.rds"))
+#| results: 'hide'
+hcris.emory <- read_csv("../data/output/hcris-snippets/hcris-emory.csv")
 ```
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-#| fig-align: center
+### Python
+```{python}
+#| eval: false
 
-hcris.data %>% 
+import pandas as pd
+
+hcris_emory = pd.read_csv("../data/output/hcris-snippets/hcris-emory.csv")
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+head(hcris.emory)
+```
+
+:::
+
+## Emory Net Patient Revenue and Medicare Discharges
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+plot.dat <- hcris.emory %>% 
+  group_by(year) %>% 
+  summarize(net_rev=mean(net_pat_rev, na.rm=TRUE)/1000000, 
+            mcare=mean(mcare_discharges,  na.rm=TRUE)) %>%
+  ungroup()
+
+rev.plot <- plot.dat %>%
+  ggplot(aes(x=as.factor(year), y=net_rev)) + 
+  geom_line(linewidth = 1) +
+  labs(
+    x = "Year",
+    y = "$ in millions",
+    title = "Mean Patient Revenue Over Time"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  
+  
+mcare.plot <- plot.dat %>%
+  ggplot(aes(x=as.factor(year), y=mcare)) + 
+  geom_line(linewidth = 1) +
+  labs(
+    x = "Year",
+    y = "Discharges",
+    title = "Mean Medicare Discharges Over Time"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  
+```
+
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Aggregate to year means
+plot_dat = (
+    hcris_emory
+    .groupby("year", as_index=False)
+    .agg(
+        net_rev=("net_pat_rev", lambda x: x.mean(skipna=True) / 1_000_000),
+        mcare=("mcare_discharges", "mean")
+    )
+)
+
+plt.figure()
+plt.plot(plot_dat["year"], plot_dat["net_rev"], linewidth=1)
+plt.xlabel("Year")
+plt.ylabel("$ in millions")
+plt.title("Mean Patient Revenue Over Time")
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+
+plt.figure()
+plt.plot(plot_dat["year"], plot_dat["mcare"], linewidth=1)
+plt.xlabel("Year")
+plt.ylabel("Discharges")
+plt.title("Mean Medicare Discharges Over Time")
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+
+```
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+rev.plot + mcare.plot
+```
+
+
+:::
+
+
+## HCRIS for All Hospitals
+
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+hcris.data <- read_csv("../data/output/hcris-snippets/hcris-data.csv")
+hosp.count.plot <- hcris.data %>% 
   ggplot(aes(x=as.factor(year))) + 
   geom_bar() +
   labs(
@@ -80,35 +211,151 @@ hcris.data %>%
   theme(axis.text.x = element_text(angle = 90, hjust=1))
 ```
 
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+hcris_data = pd.read_csv("../data/output/hcris-snippets/hcris-data.csv")
+
+fig, ax = plt.subplots()
+
+ax.hist(hcris_data["year"], bins=len(hcris_data["year"].unique()))
+ax.set_xlabel("Year")
+ax.set_ylabel("Number of Hospitals")
+ax.set_title("Number of Hospitals per Year")
+ax.tick_params(axis="x", rotation=90)
+
+plt.tight_layout()
+plt.show()
+
+```
 
 
----
+### Output
+```{r}
+#| eval: true
+#| echo: false
+hosp.count.plot
+```
+
+:::
+
+# Measuring Prices
 
 ## Estimating hospital prices
 
+- Negotiated payment rates not easily accessible in public data (if at all)
+- Must *estimate* prices from revenue and costs in HCRIS 
+
+$$ \text{Price} = \frac{\text{Charges}*(\text{Discount Factor}) - (\text{Medicare Payments})}{(\text{Total Discharges}) - (\text{Medicare Discharges})}$$
+
+- Approximates average payment from commercial insurers (except for Medicaid)
+
+## Emory Prices in HCRIS
+
+::: {.panel-tabset}
+
+### R
 ```{r}
-#| include: true
 #| eval: true
-hcris.data <- hcris.data %>%
+#| results: 'hide'
+
+emory.price <- hcris.emory %>%
   mutate( discount_factor = 1-tot_discounts/tot_charges,
           price_num = (ip_charges + icu_charges + ancillary_charges)*discount_factor - tot_mcare_payment,
           price_denom = tot_discharges - mcare_discharges,
-          price = price_num/price_denom)
+          price = price_num/price_denom) %>%
+  select(provider_number, year, price)
+
+emory.price.plot <- emory.price %>%
+  group_by(year) %>%
+  summarize(mean_price=mean(price, na.rm=TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(x=as.factor(year), y=mean_price)) + 
+  geom_line(linewidth = 1) +
+  labs(
+    x = "Year",
+    y = "Dollars",
+    title = "Mean Price for Emory Hospitals (EUH and Midtown)"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  
+
 ```
 
----
 
-## Estimating hospital prices
+### Python
+```{python}
+#| eval: false
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+emory_price = (
+    hcris_emory
+    .assign(
+        discount_factor = 1 - hcris_emory["tot_discounts"] / hcris_emory["tot_charges"],
+        price_num = (
+            hcris_emory["ip_charges"]
+            + hcris_emory["icu_charges"]
+            + hcris_emory["ancillary_charges"]
+        ) * (1 - hcris_emory["tot_discounts"] / hcris_emory["tot_charges"])
+        - hcris_emory["tot_mcare_payment"],
+        price_denom = hcris_emory["tot_discharges"] - hcris_emory["mcare_discharges"]
+    )
+    .assign(
+        price = lambda d: d["price_num"] / d["price_denom"]
+    )
+    .loc[:, ["provider_number", "year", "price"]]
+)
+
+price_year = (
+    emory_price
+    .replace([np.inf, -np.inf], np.nan)
+    .groupby("year", as_index=False)
+    .agg(mean_price=("price", "mean"))
+)
+
+fig, ax = plt.subplots()
+
+ax.plot(price_year["year"], price_year["mean_price"], linewidth=1)
+ax.set_xlabel("Year")
+ax.set_ylabel("Dollars")
+ax.set_title("Mean Price for Emory Hospitals (EUH and Midtown)")
+ax.tick_params(axis="x", rotation=90)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
+### Output
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-#| fig-align: center
+#| eval: true
+#| echo: false
+emory.price.plot
+```
 
-hcris.data %>% group_by(year) %>% 
-  filter(price_denom>10, !is.na(price_denom), 
-         price_num>0, !is.na(price_num)) %>%  
-  select(price, year) %>% 
+
+:::
+
+
+## Prices in the Full HRIS Data
+
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+price.plot <- hcris.data %>% group_by(year) %>% 
   summarize(mean_price=mean(price, na.rm=TRUE)) %>%
   ggplot(aes(x=as.factor(year), y=mean_price)) + 
   geom_line(aes(group=1)) +
@@ -121,20 +368,66 @@ hcris.data %>% group_by(year) %>%
 ```
 
 
----
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import numpy as np
+
+price_year = (
+    hcris_data
+    .groupby("year", as_index=False)
+    .agg(mean_price=("price", "mean"))
+)
+
+comma_fmt = FuncFormatter(lambda x, pos: f"{int(x):,}")
+
+fig, ax = plt.subplots()
+
+ax.plot(price_year["year"], price_year["mean_price"], linewidth=1)
+ax.set_xlabel("Year")
+ax.set_ylabel("Average Hospital Price")
+ax.set_title("Hospital Prices per Year")
+
+ax.yaxis.set_major_formatter(comma_fmt)
+ax.tick_params(axis="x", rotation=90)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+price.plot
+```
+
+:::
+
 
 ## Removing very high prices
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-#| fig-align: center
+::: {.panel-tabset}
 
-hcris.data %>% group_by(year) %>% 
-  filter(price_denom>100, !is.na(price_denom), 
-         price_num>0, !is.na(price_num),
-         price<100000) %>%   #<<
-  select(price, year) %>% 
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+price.plot2 <- hcris.data %>% 
+  filter(price>0) %>%
+  group_by(year) %>% 
+  mutate(
+    p95 = quantile(price, 0.95, na.rm = TRUE),
+    p05 = quantile(price, 0.05, na.rm = TRUE),
+    price = pmin(pmax(price, p05), p95)
+  ) %>% 
   summarize(mean_price=mean(price, na.rm=TRUE)) %>%
   ggplot(aes(x=as.factor(year), y=mean_price)) + 
   geom_line(aes(group=1)) +
@@ -147,168 +440,281 @@ hcris.data %>% group_by(year) %>%
 ```
 
 
+### Python
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
+# comma formatter (ggplot::comma analogue)
+comma_fmt = FuncFormatter(lambda x, pos: f"{int(x):,}")
+
+# filter, winsorize within-year, then average within-year
+df2 = hcris_data.loc[hcris_data["price"] > 0, ["year", "price"]].copy()
+
+def winsorize_group(g):
+    p95 = g["price"].quantile(0.95)
+    p05 = g["price"].quantile(0.05)
+    g["price"] = g["price"].clip(lower=p05, upper=p95)
+    return g
+
+price_year2 = (
+    df2.groupby("year", group_keys=False)
+       .apply(winsorize_group)
+       .groupby("year", as_index=False)
+       .agg(mean_price=("price", "mean"))
+)
+
+# plot
+fig, ax = plt.subplots()
+ax.plot(price_year2["year"].astype(str), price_year2["mean_price"], linewidth=1)  # factor(year) analogue
+ax.set_xlabel("Year")
+ax.set_ylabel("Average Hospital Price")
+ax.set_title("Hospital Prices per Year")
+ax.yaxis.set_major_formatter(comma_fmt)
+ax.tick_params(axis="x", rotation=90)
+
+plt.tight_layout()
+plt.show()
+
+```
 
 
-# Introduction to Instrumental Variables
 
----
+### Output
 
-## What is instrumental variables
+```{r}
+#| eval: true
+#| echo: false
+price.plot2
+```
 
-Instrumental Variables (IV) is a way to identify causal effects using variation in treatment particpation that is due to an *exogenous* variable that is only related to the outcome through treatment.
-
-
----
-
-## Why bother with IV?
-
-Two reasons to consider IV:
-
-1. Selection on unobservables
-2. Reverse causation
-
-::: {.fragment}
-Either problem is sometimes loosely referred to as *endogeneity*
-:::
-
----
-
-## Simple example
-
-Consider simple regression equation: $$y = \beta x + \varepsilon (x),$$
-where $\varepsilon(x)$ reflects the dependence between our observed variable and the error term.<br>
-
-::: {.fragment}
-Simple OLS will yield
-$$\frac{dy}{dx} = \beta + \frac{d\varepsilon}{dx} \neq \beta$$
-:::
-
----
-
-## What does IV do?
-
-- The regression we want to do, $$y_{i} = \alpha + \delta D_{i} + \gamma A_{i} + \epsilon_{i},$$
-where $D_{i}$ is treatment (think of schooling for now) and $A_{i}$ is something like ability.
-
-- $A_{i}$ is unobserved, so instead we run $$y_{i} = \alpha + \beta D_{i} + \epsilon_{i}$$
-
-- From this "short" regression, we don't actually estimate $\delta$. Instead, we get an estimate of $$\beta = \delta + \lambda_{ds}\gamma \neq \delta,$$
-where $\lambda_{ds}$ is the coefficient of a regression of $A_{i}$ on $D_{i}$. 
-
----
-
-## Intuition
-
-IV will recover the "long" regression without observing underlying ability<br>
-
-::: {.fragment}
-*IF* our IV satisfies all of the necessary assumptions.
-:::
-
----
-
-## More formally
-
-- We want to estimate $$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0]$$
-
-- With instrument $Z_{i}$ that satisfies relevant assumptions, we can estimate this as
-$$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0] = \frac{E[Y_{i} | Z_{i}=1] - E[Y_{i} | Z_{i}=0]}{E[D_{i} | Z_{i}=1] - E[D_{i} | Z_{i}=0]}$$
-
-- In words, this is effect of the instrument on the outcome ("reduced form") divided by the effect of the instrument on treatment ("first stage")
-
----
-
-## Derivation
-
-Recall "long" regression: $Y=\alpha + \delta S + \gamma A + \epsilon$.
-
-$$\begin{align}
-COV(Y,Z) & = E[YZ] - E[Y] E[Z] \\
-         & = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon)]E[Z] \\
-         & = \alpha E[Z] + \delta E[SZ] + \gamma E[AZ] + E[\epsilon Z] \\
-         & \hspace{.2in} - \alpha E[Z] - \delta E[S]E[Z] - \gamma E[A] E[Z] - E[\epsilon]E[Z] \\
-         & = \delta (E[SZ] - E[S] E[Z]) + \gamma (E[AZ] - E[A] E[Z]) \\
-         & \hspace{.2in} + E[\epsilon Z] - E[\epsilon] E[Z] \\
-         & = \delta C(S,Z) + \gamma C(A,Z) + C(\epsilon, Z)
-\end{align}$$
-
----
-
-## Derivation
-
-Working from $COV(Y,Z) = \delta COV(S,Z) + \gamma COV(A,Z) + COV(\epsilon,Z)$, we find
-
-$$\delta = \frac{COV(Y,Z)}{COV(S,Z)}$$
-
-if $COV(A,Z)=COV(\epsilon, Z)=0$
-
----
-
-## IVs in practice
-
-Easy to think of in terms of randomized controlled trial...
-
-::: {.fragment}
- Measure    | Offered Seat | Not Offered Seat | Difference 
- ---------- | ------------ | ---------------- | ---------- 
- Score      | -0.003       | -0.358           | 0.355      
- % Enrolled | 0.787        | 0.046            | 0.741   
- Effect     |              |                  | 0.48
-
-
-Angrist *et al.*, 2012. "Who Benefits from KIPP?" *Journal of Policy Analysis and Management*.
 
 :::
 
 
----
+# HRRP Penalties
 
-## What is IV *really* doing
+## HRRP in HCRIS
 
-Think of IV as two-steps:
+- Variable recorded in our data as `hrrp_payment`
+- Recall HRRP is entirely punitive, so `hrrp_payment` should always be the same sign
 
-1. Isolate variation due to the instrument only (not due to endogenous stuff)
-2. Estimate effect on outcome using only this source of variation
+## Share of Penalized Hospitals
 
----
+::: {.panel-tabset}
 
-## In regression terms
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
 
-Interested in estimating $\delta$ from $y_{i} = \alpha + \beta x_{i} + \delta D_{i} + \varepsilon_{i}$, but $D_{i}$ is endogenous (no pure "selection on observables").
+share.hrrp <- hcris.data %>% 
+  mutate(penalized=if_else(hrrp_payment>0 & !is.na(hrrp_payment), 1, 0)) %>%
+  group_by(year) %>% 
+  summarize(share_hrrp=mean(penalized, na.rm=TRUE)) %>%
+  ggplot(aes(x=as.factor(year), y=share_hrrp)) + 
+  geom_line(aes(group=1)) +
+  labs(
+    x="Year",
+    y="Share of Hospitals",
+    title="Penalized Hospitals by Year"
+  ) + scale_y_continuous(labels=comma) +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust=1))
+```
 
-::: {.fragment}
-- **Step 1:** With instrument $Z_{i}$, we can regress $D_{i}$ on $Z_{i}$ and $x_{i}$: $$D_{i} = \lambda + \theta Z_{i} + \kappa x_{i} + \nu,$$
-and form prediction $\hat{D}_{i}$.
 
-- **Step 2:** Regress $y_{i}$ on $x_{i}$ and $\hat{D}_{i}$: $$y_{i} = \alpha + \beta x_{i} + \delta \hat{D}_{i} + \xi_{i}$$
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
+share_year = (
+    hcris_data
+    .assign(
+        penalized = np.where(
+            (hcris_data["hrrp_payment"] > 0) & (~hcris_data["hrrp_payment"].isna()),
+            1, 0
+        )
+    )
+    .groupby("year", as_index=False)
+    .agg(share_hrrp=("penalized", "mean"))
+)
+
+fig, ax = plt.subplots()
+
+ax.plot(share_year["year"].astype(str), share_year["share_hrrp"], linewidth=1)
+ax.set_xlabel("Year")
+ax.set_ylabel("Share of Hospitals")
+ax.set_title("Penalized Hospitals by Year")
+
+# keep comma formatter to mirror ggplot call (though shares typically don't need it)
+comma_fmt = FuncFormatter(lambda x, pos: f"{x:,.2f}")
+ax.yaxis.set_major_formatter(comma_fmt)
+
+ax.tick_params(axis="x", rotation=90)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+share.hrrp
+```
+
+
 :::
 
----
+## Amount of Penalty
 
-## Derivation
+::: {.panel-tabset}
 
-Recall our first-stage, $S=\theta Z + \varepsilon$, where $\hat{\theta}=\frac{C(Z,S)}{V(Z)}$, or $\hat{\theta}V(Z) = C(Z,S)$. Then:
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+hrrp.stats <- hcris.data %>% filter(!is.na(hrrp_payment), hrrp_payment!=0) %>%
+  mutate(hrrp_percent=hrrp_payment/tot_mcare_payment) %>%
+  group_by(year) %>% 
+  summarize(mean=mean(hrrp_payment), 
+            max=max(hrrp_payment),
+            mean_percent=mean(hrrp_percent, na.rm=TRUE),
+            max_percent=max(hrrp_percent, na.rm=TRUE))
+```
 
-$$\begin{align}
-\hat{\delta}  & = \frac{COV(Y,Z)}{COV(S,Z)} \\
-        & = \frac{\hat{\theta}C(Y,Z)}{\hat{\theta}C(S,Z)} = \frac{\hat{\theta}C(Y,Z)}{\hat{\theta}^{2}V(Z)} \\
-        & = \frac{C(\hat{\theta}Z,Y)}{V(\hat{\theta}Z)} = \frac{C(\hat{S},Y)}{V(\hat{S})}
-\end{align}$$
+### Python
+```{python}
+#| eval: false
+import pandas as pd
+import numpy as np
 
 
----
+hrrp_stats = (
+    hcris_data
+    .loc[
+        (~hcris_data["hrrp_payment"].isna()) &
+        (hcris_data["hrrp_payment"] != 0)
+    ]
+    .assign(
+        hrrp_percent=lambda d: d["hrrp_payment"] / d["tot_mcare_payment"]
+    )
+    .groupby("year", as_index=False)
+    .agg(
+        mean=("hrrp_payment", "mean"),
+        max=("hrrp_payment", "max"),
+        mean_percent=("hrrp_percent", "mean"),
+        max_percent=("hrrp_percent", "max")
+    )
+)
 
-## In regression terms
+```
 
-But in practice, *DON'T* do this in two steps. Why?
 
-::: {.fragment}
-Because standard errors are wrong...not accounting for noise in prediction, $\hat{D}_{i}$. The appropriate fix is built into most modern stats programs.
+### Output
+```{r}
+#| eval: true
+#| echo: false
+hrrp.stats
+```
+
 :::
 
+# Other Key Variables
 
----
+## HRRP Details
 
-## How to do IV in practice
+- Hospitals penalized as a percentage of base Medicare DRG payments
+- More Medicare patients implies more "exposure" to the program
+- Two hospitals with different amounts of Medicare patients (but otherwise identical) will have different penalties
 
-We'll talk about this next class!
+## Medicare Patients
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+mcare.hrrp <- hcris.data %>% 
+  filter(year %in% c(2011, 2013)) %>%
+  group_by(provider_number) %>%
+  summarize(
+    mcare_2011    = mcare_discharges[year == 2011][1]/1000,
+    hrrp_pay_2013 = hrrp_payment[year == 2013][1]/1000000,
+    .groups = "drop"
+  ) %>%
+  drop_na(mcare_2011, hrrp_pay_2013)  
+
+mcare.hrrp.plot <- ggplot(mcare.hrrp, aes(x = mcare_2011, y = hrrp_pay_2013)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    x = "Medicare Discharges (2011) in thousands",
+    y = "HRRP Penalty (2013) in millions $",
+    title = "HRRP Penalties vs Pre-Period Medicare Volume"
+  ) +
+  theme_bw()
+```
+
+
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+mcare_hrrp = (
+    hcris_data
+    .loc[hcris_data["year"].isin([2011, 2013])]
+    .groupby("provider_number", as_index=False)
+    .agg(
+        mcare_2011=("mcare_discharges",
+                    lambda x: x[hcris_data.loc[x.index, "year"] == 2011].iloc[0] / 1_000),
+        hrrp_pay_2013=("hrrp_payment",
+                       lambda x: x[hcris_data.loc[x.index, "year"] == 2013].iloc[0] / 1_000_000)
+    )
+    .dropna(subset=["mcare_2011", "hrrp_pay_2013"])
+)
+
+fig, ax = plt.subplots()
+
+ax.scatter(
+    mcare_hrrp["mcare_2011"],
+    mcare_hrrp["hrrp_pay_2013"],
+    alpha=0.6
+)
+
+ax.set_xlabel("Medicare Discharges (2011) in thousands")
+ax.set_ylabel("HRRP Penalty (2013) in millions $")
+ax.set_title("HRRP Penalties vs Pre-Period Medicare Volume")
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+mcare.hrrp.plot
+```
+
+
+:::
