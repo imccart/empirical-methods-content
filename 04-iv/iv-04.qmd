@@ -25,154 +25,401 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes,
                kableExtra, tinytable)
 ```
 
+## Outline for Today
 
-## Naive estimate
+1. HRRP Penalties and Pricing
+2. IV in Practice
 
-Clearly a strong relationship between prices and sales. For example, just from OLS:
+
+## Organize Data
+
+First we need to organize the data into something we can analyze with IV in this setting
+
+- Reduce to cross-sectional data (we'll deal with panel data in the next module)
+- Focus on price changes, not levels
+- Maintain Medicare discharges as our key instrument
+
+::: {.panel-tabset}
+
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-cig.data <- read_rds(here("data/TaxBurden_Data.rds"))
-cig.data <- cig.data %>% mutate(ln_sales=log(sales_per_capita),
-                                ln_price_cpi=log(price_cpi),
-                                ln_price=log(cost_per_pack),
-                                tax_cpi=tax_state*(218/index),
-                                total_tax_cpi=tax_dollar*(218/index),
-                                ln_total_tax=log(total_tax_cpi),                             
-                                ln_state_tax=log(tax_cpi))
-ols <- lm(ln_sales ~ ln_price, data=cig.data)
-summary(ols)
+hcris.data <- read_csv("../data/output/hcris-snippets/hcris-data.csv")
+
+hcris.price <- hcris.data %>%
+  filter(year %in% c(2011, 2014)) %>%
+  select(provider_number, price, year) %>%
+  pivot_wider(names_from=year, values_from=price, names_prefix="price_")
+
+hcris.hrrp <- hcris.data %>%
+  filter(year==2012) %>%
+  mutate(hrrp_penalty=if_else(hrrp_payment>0 & !is.na(hrrp_payment), hrrp_payment/1000, 0)) %>%
+  select(provider_number, hrrp_penalty) %>%
+  mutate(any_penalty=(hrrp_penalty>0))
+
+hcris.mcare <- hcris.data %>%
+  filter(year<2012) %>%
+  group_by(provider_number) %>%
+  summarize(avg_mcare=mean(mcare_discharges, na.rm=TRUE)/100) %>%
+  ungroup()
+
+hcris.final <- hcris.price %>%
+  left_join(hcris.hrrp, by="provider_number") %>%
+  left_join(hcris.mcare, by="provider_number") %>%
+  filter(!is.na(price_2011), !is.na(price_2014)) %>%
+  mutate(price_change=price_2014-price_2011)
+
 ```
 
----
+### Python
+```{python}
+#| eval: false
+import pandas as pd
+import numpy as np
+
+# read
+hcris_data = pd.read_csv("../data/output/hcris-snippets/hcris-data.csv")
+
+# --- prices (wide) ---
+hcris_price = (
+    hcris_data.loc[hcris_data["year"].isin([2011, 2014]), ["provider_number", "price", "year"]]
+    .pivot(index="provider_number", columns="year", values="price")
+    .rename(columns=lambda y: f"price_{int(y)}")
+    .reset_index()
+)
+
+# --- HRRP (2012) ---
+hcris_hrrp = (
+    hcris_data.loc[hcris_data["year"].eq(2012), ["provider_number", "hrrp_payment"]]
+    .assign(
+        hrrp_penalty=lambda df: np.where(
+            (df["hrrp_payment"] > 0) & df["hrrp_payment"].notna(),
+            df["hrrp_payment"] / 1000,   # $1000s
+            0.0
+        )
+    )
+    .loc[:, ["provider_number", "hrrp_penalty"]]
+    .assign(any_penalty=lambda df: df["hrrp_penalty"] > 0)
+)
+
+# --- Medicare discharges instrument: avg pre-2012 ---
+hcris_mcare = (
+    hcris_data.loc[hcris_data["year"] < 2012, ["provider_number", "mcare_discharges"]]
+    .groupby("provider_number", as_index=False)
+    .agg(avg_mcare=("mcare_discharges", lambda x: np.nanmean(x) / 100))
+)
+
+# --- final merge + long difference outcome ---
+hcris_final = (
+    hcris_price
+    .merge(hcris_hrrp, on="provider_number", how="left")
+    .merge(hcris_mcare, on="provider_number", how="left")
+)
+
+hcris_final = (
+    hcris_final.loc[hcris_final["price_2011"].notna() & hcris_final["price_2014"].notna()]
+    .assign(price_change=lambda df: df["price_2014"] - df["price_2011"])
+)
+
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+head(hcris.final)
+```
+
+:::
+
+
+## Understanding this Dataset
+
+- Difference prices to remove time-invariant hospital characteristics
+- Can then estimate a cross-sectional IV model where cumulative HRRP penalties are instrumented using pre-period Medicare volume
+- Sometimes referred to as IV with long-differenced outcomes
+
+## Why Price Differences (instead of levels)?
+
+- Assume a simple two-period model for hospital $i$ in years $t \in \{2011, 2014\}$:
+$$p_{it} = \beta\,\text{pen}_{i,t-2} + \alpha_i + u_{it},$$
+where $\alpha_i$ is a time-invariant hospital fixed effect (e.g., hospital 1 is just different than hospital 2 in some time-invariant way).
+
+- Take the long difference (2014 minus 2011): $\Delta p_i \equiv p_{i,2014}-p_{i,2011}.$
+- Substitute the model into both terms and difference:
+$$\Delta p_i= \beta(\text{pen}_{i,2012}-\text{pen}_{i,2009}) + (\alpha_i-\alpha_i) + (u_{i,2014}-u_{i,2011}).$$
+
+- Because $\alpha_i$ does not change over time, it cancels:
+$$(\alpha_i-\alpha_i)=0 \quad \Rightarrow \quad \Delta p_i = \beta\,\Delta \text{pen}_i + \Delta u_i.$$
+
+- Differencing removes any *time-invariant* hospital-level confounder captured by $\alpha_i$.
+- Time-varying hospital shocks remain in $\Delta u_i$.
+
+
+## Naive OLS Estimate
+
+Before moving to IV, let's look first at a simple OLS estimate, ignoring any potential endogeneity problems
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+lm(price_change~hrrp_penalty, data=hcris.final)
+
+```
+
+### Python
+```{python}
+#| eval: false
+import statsmodels.formula.api as smf
+
+ols = smf.ols("price_change ~ hrrp_penalty", data=hcris_final).fit()
+print(ols.summary())
+
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+summary(lm(price_change~hrrp_penalty, data=hcris.final))
+
+```
+
+
+:::
+
 
 ## Is this causal?
 
-- But is that the true demand curve?
-- Aren't other things changing that tend to reduce cigarette sales?
+Lots of reasons some hospitals might be penalized versus others. Any ideas?
 
----
 
-## Tax as an IV
 
+# Instrumental Variables in Practice
+
+## Medicare Discharges (at baseline) as an IV
+
+::: {.panel-tabset}
+
+
+### R
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-cig.data %>% 
-  ggplot(aes(x=Year,y=total_tax_cpi)) + 
-  stat_summary(fun="mean",geom="line") +
+mcare.hrrp.plot <- ggplot(hcris.final, aes(x = avg_mcare, y = hrrp_penalty)) +
+  geom_point(alpha = 0.6) +
   labs(
-    x="Year",
-    y="Tax per Pack ($)",
-    title="Cigarette Taxes in 2010 Real Dollars"
-  ) + theme_bw() +
-  scale_x_continuous(breaks=seq(1970, 2020, 5))
+    x = "Medicare Discharges (before 2012) in 100s",
+    y = "HRRP Penalty (2012) in thousands $",
+    title = "HRRP Penalties vs Pre-Period Medicare Volume"
+  ) +
+  theme_bw()
 ```
 
 
----
+
+### Python
+```{python}
+#| eval: false
+import matplotlib.pyplot as plt
+
+plt.figure()
+plt.scatter(
+    hcris_final["avg_mcare"],
+    hcris_final["hrrp_penalty"],
+    alpha=0.6
+)
+
+plt.xlabel("Medicare Discharges (before 2012) in 100s")
+plt.ylabel("HRRP Penalty (2012) in thousands $")
+plt.title("HRRP Penalties vs Pre-Period Medicare Volume")
+
+plt.show()
+
+```
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+mcare.hrrp.plot
+
+```
+
+:::
+
+## Assessment of Instrument
+
+Before looking at IV results, Let's examine the first-stage and the reduced form:
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+first.stage <- feols(hrrp_penalty ~ avg_mcare, data=hcris.final)
+red.form <- feols(price_change ~ avg_mcare, data=hcris.final)
+
+modelsummary(list("First Stage"=first.stage, "Reduced Form"=red.form),
+          keep=c("avg_mcare"),
+          coef_map=c("avg_mcare"="Pre-HRRP Medicare Discharges"),
+          gof_map=c("nobs", "r.squared"))
+```
+
+
+### Python
+```{python}
+#| eval: false
+import statsmodels.formula.api as smf
+
+# first stage
+first_stage = smf.ols("hrrp_penalty ~ avg_mcare", data=hcris_final).fit()
+
+# reduced form
+red_form = smf.ols("price_change ~ avg_mcare", data=hcris_final).fit()
+
+print(first_stage.summary())
+print(red_form.summary())
+
+import pandas as pd
+
+table = pd.DataFrame({
+    "First Stage": [
+        first_stage.params["avg_mcare"],
+        first_stage.bse["avg_mcare"],
+        first_stage.nobs,
+        first_stage.rsquared
+    ],
+    "Reduced Form": [
+        red_form.params["avg_mcare"],
+        red_form.bse["avg_mcare"],
+        red_form.nobs,
+        red_form.rsquared
+    ]
+},
+index=[
+    "Pre-HRRP Medicare Discharges",
+    "Std. Error",
+    "N",
+    "R-squared"
+])
+
+print(table)
+
+```
+
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+modelsummary(list("First Stage"=first.stage, "Reduced Form"=red.form),
+          keep=c("avg_mcare"),
+          coef_map=c("avg_mcare"="Pre-HRRP Medicare Discharges"),
+          gof_map=c("nobs", "r.squared"))
+
+```
+
+:::
+
+- Sign of reduced form in the expected direction
+- First-stage coefficient is positive, with F-stat of nearly 290
+
 
 ## IV Results
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+- Now time to implement "official" IV estimator
+- Note...$R^2$ no longer relevant measure of model fit for IV as the standard variance decomposition no longer holds
+- Note also...I'm not worried here about statistical inference (standard errors are likely wrong and would be larger under heteroskedasticity and smaller when considering a "richer" specification)
 
-ivs <- feols(ln_sales ~ 1 | ln_price ~ ln_total_tax, 
-             data=cig.data)
-summary(ivs)
+::: {.panel-tabset}
+
+### R
+
+```{r}
+#| eval: true
+#| results: 'hide'
+
+ols <- feols(price_change ~ hrrp_penalty, data=hcris.final)
+iv <- feols(price_change ~ 1 | hrrp_penalty~avg_mcare, data=hcris.final)
+
+modelsummary(list("OLS"=ols, "IV"=iv),
+          keep=c("hrrp_penalty"),
+          coef_map=c("hrrp_penalty"="HRRP Penalty ($1000s)", "fit_hrrp_penalty"="HRRP Penalty ($1000s)"),
+          gof_map=c("nobs"))
 ```
 
----
+### Python
+```{python}
+#| eval: false
+import pandas as pd
+import statsmodels.formula.api as smf
 
-## Two-stage equivalence
+# --- OLS ---
+ols = smf.ols("price_change ~ hrrp_penalty", data=hcris_final).fit()
 
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+# --- IV / 2SLS (linearmodels is the closest analogue to fixest IV) ---
+from linearmodels.iv import IV2SLS
 
-step1 <- lm(ln_price ~ ln_total_tax, data=cig.data)
-pricehat <- predict(step1)
-step2 <- lm(ln_sales ~ pricehat, data=cig.data)
-summary(step2)
-```
+iv = IV2SLS.from_formula(
+    "price_change ~ 1 + [hrrp_penalty ~ avg_mcare]",
+    data=hcris_final
+).fit(cov_type="robust")
 
----
+print(ols.summary())
+print(iv.summary)
 
-## Different specifications
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
-ols1 <- lm(ln_sales ~ ln_price_cpi, data=cig.data)
-ols2 <- lm(ln_sales ~ ln_price_cpi + factor(state), data=cig.data)
-ols3 <- lm(ln_sales ~ ln_price_cpi + factor(state) + factor(Year), data=cig.data)
-
-ivs1 <- feols(ln_sales ~ 1 | ln_price_cpi ~ ln_total_tax, data=cig.data)
-ivs2 <- feols(ln_sales ~ 1 | state | ln_price_cpi ~ ln_total_tax, data=cig.data)
-ivs3 <- feols(ln_sales ~ 1 | state + Year | ln_price_cpi ~ ln_total_tax, data=cig.data)
-
-rows <- tribble(~term, ~ m1, ~ m2, ~ m3 , ~ m4, ~ m5, ~ m6 ,
-                'State FE', "No", "Yes", "Yes", "No", "Yes", "Yes",
-                'Year FE', "No", "No", "Yes", "No", "No", "Yes")
-attr(rows, 'position')  <- c(3,4)
-
-modelsummary(list(ols1, ols2, ols3, ivs1, ivs2, ivs3),
-          keep=c("ln_price_cpi"),
-          coef_map=c("ln_price_cpi"="Log Real Price", 
-                    "fit_ln_price_cpi"="Log Real Price"),
-          gof_map=c("nobs", "r.squared"),
-          add_rows=rows) %>%
-          group_tt(j=list(" "=1, "OLS"=2:4, "IV"=5:7))
-```
-
-
----
-
-## Test the IV
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
-first1 <- feols(ln_price_cpi ~ ln_total_tax, data=cig.data)
-first2 <- feols(ln_price_cpi ~ ln_total_tax | state, data=cig.data)
-first3 <- feols(ln_price_cpi ~ ln_total_tax | state + Year, data=cig.data)
-
-rf1 <- feols(ln_sales ~ ln_total_tax, data=cig.data)
-rf2 <- feols(ln_sales ~ ln_total_tax | state, data=cig.data)
-rf3 <- feols(ln_sales ~ ln_total_tax | state + Year, data=cig.data)
-
-panels <- list(
-  "First Stage: Price ~ Tax" = list(first1, first2, first3),
-  "Reduced Form: Quantity ~ Tax" = list(rf1, rf2, rf3)
+# --- modelsummary-like table (coef, SE, N only) ---
+out = pd.DataFrame(
+    {
+        "OLS": {
+            "HRRP Penalty ($1000s)": ols.params["hrrp_penalty"],
+            "Std. Error": ols.bse["hrrp_penalty"],
+            "N": int(ols.nobs),
+        },
+        "IV": {
+            "HRRP Penalty ($1000s)": iv.params["hrrp_penalty"],
+            "Std. Error": iv.std_errors["hrrp_penalty"],
+            "N": int(iv.nobs),
+        },
+    }
 )
 
-rows <- tribble(~term, ~ m1, ~ m2, ~ m3 ,
-                'State FE', "No", "Yes", "Yes",
-                'Year FE', "No", "No", "Yes")
+print(out)
 
-modelsummary(panels,
-          keep=c("ln_total_tax"),
-          shape="rbind",
-          coef_map=c("ln_total_tax"="Log Total Real Tax"),
-          gof_map=c("nobs", "r.squared"),
-          add_rows=rows)
 ```
 
----
 
-## Summary
+### Output
 
-1. Most elasticities of around -1
-2. Larger elasticities when including year fixed effects
-3. Perhaps not too outlandish given more recent evidence: [NBER Working Paper](https://www.nber.org/papers/w22251.pdf).
+```{r}
+#| eval: true
+#| echo: false
 
----
+modelsummary(list("OLS"=ols, "IV"=iv),
+          keep=c("hrrp_penalty"),
+          coef_map=c("hrrp_penalty"="HRRP Penalty ($1000s)", "fit_hrrp_penalty"="HRRP Penalty ($1000s)"),
+          gof_map=c("nobs"))
+
+```
+
+:::
+
 
 ## Some other IV issues
 
@@ -184,7 +431,6 @@ modelsummary(panels,
 The National Bureau of Economic Researh (NBER) has a great resource [here](https://www.nber.org/econometrics_minicourse_2018/2018si_methods.pdf) for understanding instruments in practice.
 :::
 
----
 
 ## Quick IV Review
 
