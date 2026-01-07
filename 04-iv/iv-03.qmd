@@ -23,16 +23,20 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes,
                scales, plotly, gganimate, cobalt, fixest, modelsummary, ggthemes, here)
 ```
 
-# Introduction to Instrumental Variables
+## Outline for Today
 
----
+1. Introduction to Instrumental Variables
+2. IV Assumptions
+3. IV with Simulated Data
+4. Interpreting IV Estimates
+
+
+# Introduction to Instrumental Variables
 
 ## What is instrumental variables
 
 Instrumental Variables (IV) is a way to identify causal effects using variation in treatment particpation that is due to an *exogenous* variable that is only related to the outcome through treatment.
 
-
----
 
 ## Why bother with IV?
 
@@ -45,7 +49,6 @@ Two reasons to consider IV:
 Either problem is sometimes loosely referred to as *endogeneity*
 :::
 
----
 
 ## Simple example
 
@@ -57,7 +60,6 @@ Simple OLS will yield
 $$\frac{dy}{dx} = \beta + \frac{d\varepsilon}{dx} \neq \beta$$
 :::
 
----
 
 ## What does IV do?
 
@@ -69,7 +71,6 @@ where $D_{i}$ is treatment (think of schooling for now) and $A_{i}$ is something
 - From this "short" regression, we don't actually estimate $\delta$. Instead, we get an estimate of $$\beta = \delta + \lambda_{ds}\gamma \neq \delta,$$
 where $\lambda_{ds}$ is the coefficient of a regression of $A_{i}$ on $D_{i}$. 
 
----
 
 ## Intuition
 
@@ -79,7 +80,6 @@ IV will recover the "long" regression without observing underlying ability<br>
 *IF* our IV satisfies all of the necessary assumptions.
 :::
 
----
 
 ## More formally
 
@@ -90,7 +90,6 @@ $$E[Y_{i} | D_{i}=1] - E[Y_{i} | D_{i}=0] = \frac{E[Y_{i} | Z_{i}=1] - E[Y_{i} |
 
 - In words, this is effect of the instrument on the outcome ("reduced form") divided by the effect of the instrument on treatment ("first stage")
 
----
 
 ## Derivation
 
@@ -106,7 +105,6 @@ COV(Y,Z) & = E[YZ] - E[Y] E[Z] \\
          & = \delta C(S,Z) + \gamma C(A,Z) + C(\epsilon, Z)
 \end{align}$$
 
----
 
 ## Derivation
 
@@ -116,7 +114,6 @@ $$\delta = \frac{COV(Y,Z)}{COV(S,Z)}$$
 
 if $COV(A,Z)=COV(\epsilon, Z)=0$
 
----
 
 ## IVs in practice
 
@@ -135,8 +132,6 @@ Angrist *et al.*, 2012. "Who Benefits from KIPP?" *Journal of Policy Analysis an
 :::
 
 
----
-
 ## What is IV *really* doing
 
 Think of IV as two-steps:
@@ -144,7 +139,6 @@ Think of IV as two-steps:
 1. Isolate variation due to the instrument only (not due to endogenous stuff)
 2. Estimate effect on outcome using only this source of variation
 
----
 
 ## In regression terms
 
@@ -157,7 +151,6 @@ and form prediction $\hat{D}_{i}$.
 - **Step 2:** Regress $y_{i}$ on $x_{i}$ and $\hat{D}_{i}$: $$y_{i} = \alpha + \beta x_{i} + \delta \hat{D}_{i} + \xi_{i}$$
 :::
 
----
 
 ## Derivation
 
@@ -169,150 +162,6 @@ $$\begin{align}
         & = \frac{C(\hat{\theta}Z,Y)}{V(\hat{\theta}Z)} = \frac{C(\hat{S},Y)}{V(\hat{S})}
 \end{align}$$
 
-
----
-
-## In regression terms
-
-But in practice, *DON'T* do this in two steps. Why?
-
-::: {.fragment}
-Because standard errors are wrong...not accounting for noise in prediction, $\hat{D}_{i}$. The appropriate fix is built into most modern stats programs.
-:::
-
-
----
-
-## How to do IV in practice
-
-We'll talk about this next class!
-
-
-# Formal IV Assumptions
-
----
-
-## Key assumptions
-
-1. *Exclusion:* Instrument is uncorrelated with the error term
-2. *Validity:* Instrument is correlated with the endogenous variable
-3. *Monotonicity:* Treatment more (less) likely for those with higher (lower) values of the instrument
-
-::: {.fragment}
-Assumptions 1 and 2 sometimes grouped into an *only through* condition.
-:::
-
----
-
-## Exclusion
-
-Conley et al (2010) and "plausible exogeneity", union of confidence intervals approach
-
-- Suppose extent of violation is known in $y_{i} = \beta x_{i} + \gamma z_{i} + \varepsilon_{i}$, so that $\gamma = \gamma_{0}$
-- IV/TSLS applied to $y_{i} - \gamma_{0}z_{i} = \beta x_{i} + \varepsilon_{i}$ works
-- With $\gamma_{0}$ unknown...do this a bunch of times!
-    - Pick $\gamma=\gamma^{b}$ for $b=1,...,B$
-    - Obtain $(1-\alpha)$ % confidence interval for $\beta$, denoted $CI^{b}(1-\alpha)$
-    - Compute final CI as the union of all $CI^{b}$
-
----
-
-## Exclusion
-
-Kippersluis and Rietveld (2018), "Beyond Plausibly Exogenous"
-
-- "zero-first-stage" test
-- Focus on subsample for which your instrument is not correlated with the endogenous variable of interest
-    1. Regress the outcome on all covariates and the instruments among this subsample
-    2. Coefficient on the instruments captures any potential direct effect of the instruments on the outcome (since the correlation with the endogenous variable is 0 by assumption). 
-
-
----
-
-## Validity
-
-Just says that your instrument is correlated with the endogenous variable, but what about the **strength** of the correlation?
-
-![](https://media.giphy.com/media/3oFzlXvco5Wt2gnMcg/giphy.gif)
-
----
-
-## Why we care about instrument strength
-
-Recall our schooling and wages equation, $$y = \beta S + \epsilon.$$ Bias in IV can be represented as:
-
-$$Bias_{IV} \approx \frac{Cov(S, \epsilon)}{V(S)} \frac{1}{F+1} = Bias_{OLS} \frac{1}{F+1}$$
-
-- Bias in IV may be close to OLS, depending on instrument strength
-- **Bigger problem:** Bias could be bigger than OLS if exclusion restriction not *fully* satisfied
-
-
----
-
-## Testing strength of instruments
-
-**Single endogenous variable**
-
-- Stock & Yogo (2005) test based on first-stage F-stat (homoskedasticity only)
-    - Critical values in tables, based on number of instruments
-    - Rule-of-thumb of 10 with single instrument (higher with more instruments)
-    - Lee et al (2022): With first-stage F-stat of 10, standard "95% confidence interval" for second stage is really an 85% confidence interval
-    - Over-reliance on "rules of thumb", as seen in [Anders and Kasy (2019)](https://www.aeaweb.org/articles?id=10.1257/aer.20180310)
-
-
----
-
-## Testing strength of instruments
-
-**Single endogenous variable**
-
-- Stock & Yogo (2005) test based on first-stage F-stat (homoskedasticity only)
-- Kleibergen & Paap (2007) Wald statistic
-- Effective F-statistic from Olea & Pflueger (2013)
-
-
----
-
-## Testing strength of instruments: First-stage
-
-:::: {.columns}
-
-::: {.column width="50%"}
-
-**Single endogenous variable**
-
-1. Homoskedasticity
-    - Stock & Yogo, effective F-stat
-2. Heteroskedasticity
-    - Effective F-stat
-:::
-
-::: {.column width="50%"}
-
-**Many endogenous variables**
-
-1. Homoskedasticity
-    - Stock & Yogo with Cragg & Donald statistic, Sanderson & Windmeijer (2016), effective F-stat
-2. Heteroskedasticity
-    - Kleibergen & Papp Wald is robust analog of Cragg & Donald statistic, effective F-stat
-:::
-
-::::
-
-
----
-
-## Making sense of all of this...
-
-- Test first-stage using effective F-stat (inference is harder and beyond this class)
-- Many endogenous variables problematic because strength of instruments for one variable need not imply strength of instruments for others
-
-
-
-# IV with Simulated Data
-
-
----
 
 ## Animation for IV
 
@@ -372,7 +221,131 @@ anim_save("images/iv_animate.gif", anim.iv)
 ![](../images/iv_animate.gif)
 
 
----
+
+## In regression terms
+
+But in practice, *DON'T* do this in two steps. Why?
+
+::: {.fragment}
+Because standard errors are wrong...not accounting for noise in prediction, $\hat{D}_{i}$. The appropriate fix is built into most modern stats programs.
+:::
+
+
+
+# Formal IV Assumptions
+
+
+## Key assumptions
+
+1. *Exclusion:* Instrument is uncorrelated with the error term
+2. *Relevance:* Instrument is correlated with the endogenous variable
+3. *Monotonicity:* Treatment more (less) likely for those with higher (lower) values of the instrument
+
+::: {.fragment}
+Assumptions 1 and 2 sometimes grouped into an *only through* condition or discussed as instrument *validity*
+:::
+
+## Exclusion Assumption
+
+- Not directly testable
+- Often relies on context and specific policy details
+
+
+## Failure of Exclusion
+
+Conley et al (2010) and "plausible exogeneity", union of confidence intervals approach
+
+- Suppose extent of violation is known in $y_{i} = \beta x_{i} + \gamma z_{i} + \varepsilon_{i}$, so that $\gamma = \gamma_{0}$
+- IV/TSLS applied to $y_{i} - \gamma_{0}z_{i} = \beta x_{i} + \varepsilon_{i}$ works
+- With $\gamma_{0}$ unknown...do this a bunch of times!
+    - Pick $\gamma=\gamma^{b}$ for $b=1,...,B$
+    - Obtain $(1-\alpha)$ % confidence interval for $\beta$, denoted $CI^{b}(1-\alpha)$
+    - Compute final CI as the union of all $CI^{b}$
+
+
+## Failure of Exclusion
+
+Kippersluis and Rietveld (2018), "Beyond Plausibly Exogenous"
+
+- "zero-first-stage" test
+- Focus on subsample for which your instrument is not correlated with the endogenous variable of interest
+    1. Regress the outcome on all covariates and the instruments among this subsample
+    2. Coefficient on the instruments captures any potential direct effect of the instruments on the outcome (since the correlation with the endogenous variable is 0 by assumption). 
+
+
+## Relevance
+
+Just says that your instrument is correlated with the endogenous variable, but what about the **strength** of the correlation?
+
+![](https://media.giphy.com/media/3oFzlXvco5Wt2gnMcg/giphy.gif)
+
+
+## Relevance and Instrument "Strength"
+
+Recall our schooling and wages equation, $$y = \beta S + \epsilon.$$ Bias in IV can be represented as:
+
+$$Bias_{IV} \approx \frac{Cov(S, \epsilon)}{V(S)} \frac{1}{F+1} = Bias_{OLS} \frac{1}{F+1}$$
+
+- Bias in IV may be close to OLS, depending on instrument strength
+- **Bigger problem:** Bias could be bigger than OLS if exclusion restriction not *fully* satisfied
+
+
+## Testing strength of instruments
+
+**Single endogenous variable**
+
+- Stock & Yogo (2005) test based on first-stage F-stat (homoskedasticity only)
+    - Critical values in tables, based on number of instruments
+    - Rule-of-thumb of 10 with single instrument (higher with more instruments)
+    - Lee et al (2022): With first-stage F-stat of 10, standard "95% confidence interval" for second stage is really an 85% confidence interval
+    - Over-reliance on "rules of thumb", as seen in [Anders and Kasy (2019)](https://www.aeaweb.org/articles?id=10.1257/aer.20180310)
+
+
+## Testing strength of instruments
+
+**Single endogenous variable**
+
+- Stock & Yogo (2005) test based on first-stage F-stat (homoskedasticity only)
+- Kleibergen & Paap (2007) Wald statistic
+- Effective F-statistic from Olea & Pflueger (2013)
+
+
+## Testing strength of instruments: First-stage
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Single endogenous variable**
+
+1. Homoskedasticity
+    - Stock & Yogo, effective F-stat
+2. Heteroskedasticity
+    - Effective F-stat
+:::
+
+::: {.column width="50%"}
+
+**Many endogenous variables**
+
+1. Homoskedasticity
+    - Stock & Yogo with Cragg & Donald statistic, Sanderson & Windmeijer (2016), effective F-stat
+2. Heteroskedasticity
+    - Kleibergen & Papp Wald is robust analog of Cragg & Donald statistic, effective F-stat
+:::
+
+::::
+
+
+## Summary of Instrument Strength
+
+- Test first-stage using effective F-stat (inference is harder and beyond this class)
+- Many endogenous variables problematic because strength of instruments for one variable need not imply strength of instruments for others
+
+
+
+# IV with Simulated Data
+
 
 ## Simulated data
 
@@ -400,76 +373,204 @@ iv.dat <- tibble(
 
 ::::
 
----
 
-## Results with simulated data
+## OLS and IV Estimates
 
 Recall that the *true* treatment effect is `r b.true`
 
-:::: {.columns}
+::: {.panel-tabset}
 
-::: {.column width="50%"}
+### R
 ```{r}
-#| echo: false
-summary(lm(y~d, data=iv.dat))
+#| eval: true
+#| results: 'hide'
+
+lm(y~d, data=iv.dat)
+feols(y ~ 1 | d ~ z, data=iv.dat)
 ```
-:::
 
-::: {.column width="50%"}
+### Python
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+
+# --- data ---
+n = 5000
+b_true = 5.25
+rng = np.random.default_rng(123)  # for reproducibility
+
+iv_dat = pd.DataFrame({
+    "z":   rng.normal(0, 2, n),
+    "eps": rng.normal(0, 1, n),
+})
+
+iv_dat["d"] = (
+    iv_dat["z"] + 1.5 * iv_dat["eps"] + rng.normal(0, 1, n) > 0.25
+).astype(int)
+
+iv_dat["y"] = 2.5 + b_true * iv_dat["d"] + iv_dat["eps"] + rng.normal(0, 0.5, n)
+
+# --- OLS: lm(y ~ d) ---
+import statsmodels.formula.api as smf
+
+ols = smf.ols("y ~ d", data=iv_dat).fit()
+print(ols.summary())
+
+# --- IV/2SLS: feols(y ~ 1 | d ~ z) ---
+# (y on intercept, endogenous d, instrument z)
+try:
+    from linearmodels.iv import IV2SLS
+
+    iv = IV2SLS.from_formula("y ~ 1 + [d ~ z]", data=iv_dat).fit(cov_type="robust")
+    print(iv.summary)
+except ImportError:
+    # Fallback: manual 2SLS using statsmodels
+    import statsmodels.api as sm
+
+    first = sm.OLS(iv_dat["d"], sm.add_constant(iv_dat["z"])).fit()
+    iv_dat["d_hat"] = first.fittedvalues
+    second = sm.OLS(iv_dat["y"], sm.add_constant(iv_dat["d_hat"])).fit()
+
+    print("\nFirst stage (d ~ z):")
+    print(first.summary())
+    print("\nSecond stage (y ~ d_hat):")
+    print(second.summary())
+
+```
+
+### Output
 ```{r}
+#| eval: true
 #| echo: false
+
+summary(lm(y~d, data=iv.dat))
 summary(feols(y ~ 1 | d ~ z, data=iv.dat))
 ```
+
+
 :::
 
-::::
 
----
+## Logical Diagnostic: The "Reduced Form"
 
-## Checking instrument
+- "Reduced form" means the conditional relationship between the outcome and the instrument (in practice, just replacing the endogenous variable with the instrument in a regression)
+- While not an official statistical test, empirical researchers often look to the "reduced form" as a reasonableness check of the IV design
+  - A zero (or wrong-signed) reduced form casts doubt on either relevance or exclusion, but does not tell you which
+  - A nonzero and properly signed reduced form is necessary for a meaningful IV estimand but provides no validation of exclusion or exogeneity
 
-:::: {.columns}
+::: {.panel-tabset}
 
-::: {.column width="50%"}
-
-- Check the 'first stage'
+### R
 ```{r}
+#| eval: true
+#| results: 'hide'
+
+lm(y~z, data=iv.dat)
+```
+
+### Python
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+rf = smf.ols("y ~ z", data=iv_dat).fit()
+print(rf.summary())
+
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+summary(lm(y~z, data=iv.dat))
+```
+
+:::
+
+## Instrument Relevance: First Stage
+
+
+::: {.panel-tabset}
+
+
+### R
+```{r}
+#| eval: true
+#| results: 'hide'
+
+lm(d~z, data=iv.dat)
+```
+
+
+### Python
+```{python}
+#| eval: false
+import statsmodels.formula.api as smf
+
+rf = smf.ols("d ~ z", data=iv_dat).fit()
+print(rf.summary())
+```
+
+### Output
+```{r}
+#| eval: true
 #| echo: false
 summary(lm(d~z, data=iv.dat))
 ```
+
 :::
 
-::: {.column width="50%"}
-
-- Check the 'reduced form'
-```{r}
-#| echo: false
-summary(lm(y~z, data=iv.dat))
-```
-:::
-
-::::
-
-
----
 
 ## Two-stage equivalence
+
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 step1 <- lm(d ~ z, data=iv.dat)
 d.hat <- predict(step1)
 step2 <- lm(y ~ d.hat, data=iv.dat)
-summary(step2)
 ```
 
 
+### Python
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+# first stage
+step1 = smf.ols("d ~ z", data=iv_dat).fit()
+
+# fitted values
+iv_dat["d_hat"] = step1.fittedvalues
+
+# second stage
+step2 = smf.ols("y ~ d_hat", data=iv_dat).fit()
+
+print(step1.summary())
+print(step2.summary())
+
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+summary(step2)
+```
+
+:::
 
 # Interpretation
 
-
-
----
 
 ## Heterogenous TEs
 
@@ -477,8 +578,6 @@ summary(step2)
 - Heterogeneous effects, $\delta_{i} \neq \delta$
 - With IV, what parameter did we just estimate? Need **monotonicity** assumption to answer this
 
-
----
 
 ## Monotonicity
 
@@ -488,7 +587,6 @@ Assumption: Denote the effect of our instrument on treatment by $\pi_{1i}$. Mono
 - All those affected by the instrument are affected in the same "direction"
 - With heterogeneous ATE and monotonicity assumption, IV provides a "Local Average Treatment Effect" (LATE)
 
----
 
 ## LATE and IV Interpretation
 
@@ -499,7 +597,6 @@ $$\delta_{IV} = \frac{E[Y_{i} | Z_{i}=1] - E[Y_{i} | Z_{i}=0]}{E[D_{i} | Z_{i}=1
 
 - Practically, monotonicity assumes there are no defiers and restricts us to learning only about compliers
 
----
 
 ## Is LATE meaningful?
 
@@ -509,7 +606,6 @@ $$\delta_{IV} = \frac{E[Y_{i} | Z_{i}=1] - E[Y_{i} | Z_{i}=0]}{E[D_{i} | Z_{i}=1
     - IV based on financial aid
     - Same compliers? Probably not
 
----
 
 ## LATE with defiers
 
