@@ -46,8 +46,8 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 - Very applied in nature
 - *Methods* for causal inference
   - Selection on observables (regression, re-weighting, matching, propensity scores)
-  - Instrumental variables
   - Regression discontinuity
+  - Instrumental variables
   - Difference-in-differences
 
 ## Structure
@@ -67,7 +67,7 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 ## Assignments
 
 - Homework (x5)
-- Peer Reviews (x5)
+- Peer Review
 
 
 ## Grading
@@ -75,7 +75,7 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 | Component                           | Weight |
 |:-|-:|
 | 5 × homework assignments (15% each) | 75% |
-| 5 x peer review (5% each)           | 25% |
+| 1 x peer review                     | 25% |
 
 
 # Introduction to Causal Inference
