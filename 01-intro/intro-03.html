@@ -895,6 +895,18 @@ $ log_enrollment &lt;dbl&gt; 2.397895, 3.295837, 3.850148, 3.761200, 2.639057, 2
 </section>
 <section id="merging-tables-with-keys" class="slide level2">
 <h2>Merging tables with keys</h2>
+<ul>
+<li><strong><code>left_join</code> / <code>how="left"</code></strong>: keep all rows from the “main” table, match where possible</li>
+<li>Other options (for later):
+<ul>
+<li><code>inner_join</code> / <code>how="inner"</code>: only rows with matches in both tables</li>
+<li><code>full_join</code> / <code>how="outer"</code>: keep everything; fill with missing where there’s no match</li>
+</ul></li>
+<li>Always check row counts <strong>before and after</strong> merges and be careful with duplicated keys (many-to-many joins)</li>
+</ul>
+</section>
+<section id="merging-tables-with-keys-1" class="slide level2">
+<h2>Merging tables with keys</h2>
 <div class="panel-tabset">
 <ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">R</a></li><li><a href="#tabset-9-2">Python</a></li><li><a href="#tabset-9-3">Output</a></li></ul>
 <div class="tab-content">
@@ -970,15 +982,6 @@ $ state.y            &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA",
 </div>
 </div>
 </div>
-<ul>
-<li><strong><code>left_join</code> / <code>how="left"</code></strong>: keep all rows from the “main” table, match where possible</li>
-<li>Other options (for later):
-<ul>
-<li><code>inner_join</code> / <code>how="inner"</code>: only rows with matches in both tables</li>
-<li><code>full_join</code> / <code>how="outer"</code>: keep everything; fill with missing where there’s no match</li>
-</ul></li>
-<li>Always check row counts <strong>before and after</strong> merges and be careful with duplicated keys (many-to-many joins)</li>
-</ul>
 </section>
 <section id="stacking-binding-multiple-datasets" class="slide level2">
 <h2>Stacking (binding) multiple datasets</h2>
@@ -1736,4 +1739,4 @@ $ state.y            &lt;chr&gt; "GA", "GA", "GA", "GA", "GA", "GA", "GA", "GA",
     </script>
     
 
-</body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+</body></html>

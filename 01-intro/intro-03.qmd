@@ -443,6 +443,15 @@ glimpse(ga_enrollment_checked)
 
 ## Merging tables with keys
 
+- **`left_join` / `how="left"`**: keep all rows from the “main” table, match where possible
+- Other options (for later):
+  - `inner_join` / `how="inner"`: only rows with matches in both tables
+  - `full_join` / `how="outer"`: keep everything; fill with missing where there’s no match
+- Always check row counts **before and after** merges and be careful with duplicated keys (many-to-many joins)
+
+
+## Merging tables with keys
+
 ::: {.panel-tabset}
 
 ### R
@@ -499,11 +508,6 @@ glimpse(ga_enroll_full)
 
 :::
 
-- **`left_join` / `how="left"`**: keep all rows from the “main” table, match where possible
-- Other options (for later):
-  - `inner_join` / `how="inner"`: only rows with matches in both tables
-  - `full_join` / `how="outer"`: keep everything; fill with missing where there’s no match
-- Always check row counts **before and after** merges and be careful with duplicated keys (many-to-many joins)
 
 
 ## Stacking (binding) multiple datasets
