@@ -448,6 +448,11 @@ p^*(n) = P(Q^*(n)) = \frac{a + nc}{n + 1}.\]</span></li>
 <li>Firm <span class="math inline">\(i\)</span> chooses its price <span class="math inline">\(p_i\)</span> to maximize <span class="math display">\[\max_{p_i} \ \pi_i(p_i, p_{-i}) = (p_i - c)\, q_i(p_i, p_{-i}).\]</span></li>
 <li>First-order condition: <span class="math display">\[\frac{\partial \pi_i}{\partial p_i}
   = q_i(p_i, p_{-i}) + (p_i - c)\frac{\partial q_i}{\partial p_i} = 0.\]</span></li>
+</ul>
+</section>
+<section id="differentiated-products-bertrand-more-firms-lower-price-1" class="slide level2">
+<h2>Differentiated-products Bertrand: more firms, lower price</h2>
+<ul>
 <li>Define the own-price elasticity of demand <span class="math display">\[\varepsilon_i = \frac{\partial q_i}{\partial p_i}\frac{p_i}{q_i} &lt; 0.\]</span> Rearranging the first-order condition gives the Lerner condition <span class="math display">\[\frac{p_i - c}{p_i} = -\frac{1}{\varepsilon_i}.\]</span></li>
 <li>Markup <span class="math inline">\((p_i - c)/p_i\)</span> falls with the number of firms, assuming entry increases own-price elasticity due to presence of substitutes</li>
 </ul>
@@ -555,15 +560,15 @@ p^*(n) = P(Q^*(n)) = \frac{a + nc}{n + 1}.\]</span></li>
 <li>Approved counties and contracts: service area files</li>
 <li>Denominator for market share: penetration files</li>
 <li>Premium data: landscape files (i.e., plan characteristics)</li>
+<li>Risk/rebate data: rebate files to back out bids</li>
+<li>CMS FFS costs: used for additional covariates</li>
 </ul>
 </section>
 <section id="data-not-yet-needed" class="slide level2">
 <h2>Data NOT (yet) Needed</h2>
 <ul>
 <li>Star ratings</li>
-<li>CMS payment data (rebates)</li>
 <li>Benchmark rates</li>
-<li>CMS FFS costs</li>
 </ul>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
@@ -998,4 +1003,54 @@ p^*(n) = P(Q^*(n)) = \frac{a + nc}{n + 1}.\]</span></li>
           // use id or data attribute instead here
           let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
           try { href = new URL(href).hash; } catch {}
-          con
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

@@ -102,6 +102,9 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 - First-order condition:
   $$\frac{\partial \pi_i}{\partial p_i}
     = q_i(p_i, p_{-i}) + (p_i - c)\frac{\partial q_i}{\partial p_i} = 0.$$
+
+## Differentiated-products Bertrand: more firms, lower price
+
 - Define the own-price elasticity of demand
   $$\varepsilon_i = \frac{\partial q_i}{\partial p_i}\frac{p_i}{q_i} < 0.$$
   Rearranging the first-order condition gives the Lerner condition
@@ -190,11 +193,10 @@ Definition of "product" in MA is a little complicated...
 - Approved counties and contracts: service area files
 - Denominator for market share: penetration files
 - Premium data: landscape files (i.e., plan characteristics)
+- Risk/rebate data: rebate files to back out bids
 - CMS FFS costs: used for additional covariates
 
 ## Data NOT (yet) Needed
 
 - Star ratings
-- CMS payment data (rebates)
 - Benchmark rates
-- CMS FFS costs
