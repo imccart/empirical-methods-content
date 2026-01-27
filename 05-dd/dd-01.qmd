@@ -19,9 +19,15 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
+pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, kableExtra,
                hrbrthemes, gganimate, OECD, here, modelsummary, plotly)
 ```
+
+## Outline for Today
+
+1. ACA and Medicaid Expansion
+2. Hospital Uncompensated Care
+3. Data Overview
 
 # Affordable Care Act
 
@@ -29,8 +35,6 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 
 ![](https://media.giphy.com/media/Awb1k8lX8a3Re/giphy.gif)
 
-
----
 
 ## Background
 
@@ -40,7 +44,7 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
 #| code-fold: TRUE
 #| code-summary: "R Code"
 
-ins.dat <- read_tsv("../data/acs_medicaid.txt")
+ins.dat <- read_tsv("../data/input/processed/acs_medicaid.txt")
 
 ins.dat <- ins.dat %>%
   mutate(perc_private = (ins_employer + ins_direct)/adult_pop,
@@ -62,7 +66,6 @@ ins.dat %>% group_by(year) %>% summarize(mean=mean(perc_unins)) %>%
   geom_vline(xintercept=2013.5, color="red")
 ```
 
----
 
 ## Background
 
@@ -89,7 +92,6 @@ ins.dat %>%
                                              'perc_medicaid'='Medicaid'))
 ```
 
----
 
 ## Employer provided insurance
 
@@ -99,7 +101,6 @@ The U.S. still relies heavily on private insurance provided by employers.
 Any thoughts on why?
 :::
 
----
 
 ## Employer provided insurance
 
@@ -107,7 +108,6 @@ Any thoughts on why?
 
 2. Tax exclusion for insurance expenditures (1954)
 
----
 
 ## How did the ACA change things?
 
@@ -119,7 +119,6 @@ Any thoughts on why?
     - Minimum benefits and community ratings
 - Stay on parent's plan to 26
 
----
 
 ## How did the ACA change things?
 
@@ -132,8 +131,6 @@ Any thoughts on why?
     - Hospital readmission reduction
     - Medicare Advantage quality improvement program
     - Bundled payments and ACOs (related)
-
----
 
 ## Change in Insurance Type over Time
 
@@ -170,78 +167,6 @@ plot_ly(mean.dat,
 ```
 
 
-# Data for this (final!) homework assignment
-
----
-
-## Data sources
-
-We'll use two main data sources here:
-
-1. Data on which states expanded Medicaid (and when
- - Available from *Kaiser Family Foundation*
-
-2. Data on insurance status and source of health insurance by state
- - Available from the *American Community Survey*
- - These data can be tricky to work with due to their size, but there are some handy tricks in `R`
-
----
-
-## Data sources
-
-Code and links available at the [Insurance Access GitHub repository](https://github.com/imccart-test/insurance-access)
-
----
-
-## Medicaid Expansion
-
-- Directly downloaded from KFF website
-- Just a raw .csv file
-
----
-
-## Insurance status and source
-
-- Data from the American Community Survey
-- CPS data also available but questions changed in 2014
-- Easiest way to access ACS data is through a Census API and the `acs` package...details on the *GitHub* repo
-
----
-
-## What is an API?
-
-- Stands for application programming interface
-- An official way for one computer to request information from another
-- Often requires a code for external program/server to validate the request
-
-
-
----
-
-## Describing the data
-
-First let's take a look at the final dataset
-```{r}
-head(ins.dat %>% arrange(year, State))
-```
-
----
-
-## Summary stats
-
-And now for some basic summary stats (pooling all years):
-
-```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
-
-sum.vars <- ins.dat %>% select('Uninsured'=perc_unins, 'Direct Purchase'=perc_direct, 'Medicaid'=perc_medicaid)
-
-datasummary(All(sum.vars) ~ Mean + SD + Histogram, data=sum.vars)
-```
-
----
-
 ## Uninsurance over time
 
 ```{r}
@@ -258,8 +183,6 @@ ins.dat %>% group_by(year) %>% summarize(mean=mean(perc_unins)) %>%
   geom_vline(xintercept=2013.5, color="red")
 ```
 
-
----
 
 ## Direct purchase over time
 
@@ -278,8 +201,6 @@ ins.dat %>% group_by(year) %>% summarize(mean=mean(perc_direct)) %>%
 ```
 
 
----
-
 ## Medicaid over time
 
 ```{r}
@@ -297,23 +218,151 @@ ins.dat %>% group_by(year) %>% summarize(mean=mean(perc_medicaid)) %>%
 ```
 
 
----
-
 ## Main takeaways
 
 1. Large reduction in uninsured population following ACA
 2. Biggest gains going to direct purchase (exchanges) and Medicaid (expansion)
 
-::: {.fragment}
-But what amount of extra insurance is *due to* Medicaid expansion? In other words, who got insurance through Medicaid that wouldn't have gotten it otherwise?
+
+# Hospital Uncompensated Care
+
+## Defining Uncompensated Care
+
+Uncompensated care is hospital care for which no payment is received. It includes:
+
+- **Charity care:** care provided with an expectation of nonpayment.  
+- **Bad debt:** care initially expected to be paid but ultimately unpaid.
+
+Typically measured in **charges or costs**, with accounting practices varying across hospitals
+
+## Measuring Uncompensated Care
+
+In **HCRIS**, uncompensated care is derived from **Medicare cost report accounting**, not patient-level data:
+
+- **Charity care:** reported charges for services designated as charity care, converted to costs using the hospital's cost-to-charge ratio.
+- **Bad debt:** unpaid patient obligations *after collection efforts*, net of recoveries; Medicare-reimbursable bad debt is reported separately.
+- Reflects accounting definitions and reporting incentives, which may change over time and differ across hospitals
+
+
+## Revisiting HCRIS Data
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
+
+hcris.data <- read_csv("../data/output/hcris-snippets/hcris-data.csv") %>%
+  mutate(
+    Year = year,
+    uncomp_care_m = uncomp_care / 1e6   # millions of dollars
+  )
+
+hcris.data %>%
+  group_by(Year) %>%
+  summarize(
+    Mean = mean(uncomp_care_m, na.rm = TRUE),
+    SD   = sd(uncomp_care_m,   na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  kbl(
+    caption = "Uncompensated Care ($mm)",
+    digits = 2,
+    align = "c"
+  ) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("condensed"))
+
+```
+
+
+
+# Data Overview
+
+## Data sources
+
+We'll use two main data sources here:
+
+- Uncompensated care data from HCRIS
+- Medicaid expansion dates by state from *Kaiser Family Foundation*
+  - Some background code for working with these data are available [here](https://github.com/imccart-test/insurance-access). Note that this repository covers more than what we use in this class. In our case, we're only working with the KFF Medicaid expansion data.
+  - Directly dowload from KFF website (one .csv file) and upload to Open OnDemand if using
+
+
+## Merging HCRIS and KFF data
+
+- Standard join by state, but KFF data show state name while HCRIS has state abbreviation
+- Create crosswalks as follows...
+
+::: {.panel-tabset}
+
+### R
+```{r}
+#| eval: false
+state_xwalk <- tibble(
+  state_abb  = state.abb,
+  state_name = state.name
+)
+
+hcris.mcaid <- hcris.data %>%
+  left_join(state_xwalk, by = c("state" = "state_abb")) %>%
+  left_join(kff.final, by=c("state_name"="state")) %>%
+  filter(! state %in% c("DC", "GU", "PR", "MP", "VI"))
+
+```
+
+
+### Python
+
+```{python}
+#| eval: false
+
+import pandas as pd
+from us import states
+
+# Build state crosswalk (50 states only, like R's state.abb/state.name)
+state_xwalk = pd.DataFrame({
+    "state_abb": [s.abbr for s in states.STATES],
+    "state_name": [s.name for s in states.STATES]
+})
+
+hcris_mcaid = (
+    hcris_data
+        .merge(state_xwalk, left_on="state", right_on="state_abb", how="left")
+        .merge(kff_final, left_on="state_name", right_on="state", how="left")
+        .query("state not in ['DC', 'GU', 'PR', 'MP', 'VI']")
+)
+
+```
+
 :::
 
----
+## Descriptive Statistics
 
-## What does the literature say
+```{r}
+#| code-fold: TRUE
+#| code-summary: "R Code"
 
-The *Kaiser Family Foundation* has some great info on this...
+hcris.data %>%
+  mutate(
+    Status = if_else(
+      !is.na(date_adopted) & year >= lubridate::year(date_adopted),
+      "Expanded",
+      "Not Expanded"
+    )
+  ) %>%
+  group_by(Status) %>%
+  summarize(
+    Mean = mean(uncomp_care_m, na.rm = TRUE),
+    SD   = sd(uncomp_care_m,   na.rm = TRUE),
+    N    = n(),
+    .groups = "drop"
+  ) %>% kbl(
+    caption = "Uncompensated Care ($mm)",
+    digits = 2
+  )
 
-- [KFF Medicaid Coverage](https://www.kff.org/medicaid/)
-- [KFF Report on ACA Expansion](https://www.kff.org/medicaid/issue-brief/the-effects-of-medicaid-expansion-under-the-aca-updated-findings-from-a-literature-review-august-2019/)
-- [Health Insurance and Mortality](https://www.nber.org/papers/w26533) (not what we're discussing here but still important)
+```
+
+## Takeaways
+
+- Large expansions of Medicaid from the ACA
+- Reason to expect reduction in uncompensated care for affected hospitals
+- Supported by descriptive statistics showing lower uncompensated care after expansion
