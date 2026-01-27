@@ -27,8 +27,6 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmult
 # Panel Data and Fixed Effects
 
 
----
-
 ## Basics of panel data
 
 - Repeated observations of the same units over time (balanced vs unbalanced)
@@ -43,7 +41,6 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmult
 $y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,T$ and $i=1,...,N$
 :::
 
----
 
 ## Benefits of Panel Data
 
@@ -58,14 +55,12 @@ $y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,
 - Past outcomes do not affect treatment (reverse causality)
 :::
 
----
 
 ## Some textbook settings
 
 - Unobserved "ability" when studying schooling and wages
 - Unobserved "quality" when studying physicians or hospitals
 
----
 
 ## Fixed effects and regression
 
@@ -96,7 +91,6 @@ $$y_{it} - \bar{y}_{i} = \delta (D_{it} - \bar{D}_{i}) + (\gamma_{i} - \bar{\gam
 - Requires *strict exogeneity* assumption (error is uncorrelated with $D_{it}$ for all time periods)
 :::
 
----
 
 ## First-difference
 
@@ -111,7 +105,6 @@ $$y_{it} - y_{i,t-1} = \delta(D_{it} - D_{i,t-1}) + (\gamma_{i} - \gamma_{i}) + 
 - Sometimes useful to estimate both FE and FD just as a check
 :::
 
----
 
 ## Keep in mind...
 
@@ -123,7 +116,6 @@ $$y_{it} - y_{i,t-1} = \delta(D_{it} - D_{i,t-1}) + (\gamma_{i} - \gamma_{i}) + 
 - May "absorb" a lot of the variation for variables that don't change much over time
 
 
----
 
 ## Within Estimator (Default) in practice
 
@@ -138,7 +130,6 @@ feols(lifeExp~lgdp_pc | country, data=reg.dat)
 ```
 
 
----
 
 ## Within Estimator (Default) in practice
 
@@ -159,7 +150,6 @@ modelsummary(list("Default FE"=m1),
 ```
 
 
----
 
 ## Within Estimator (Manually Demean) in practice
 
@@ -175,7 +165,6 @@ reg.dat <- causaldata::gapminder %>%
 lm(demean_lifeexp~ 0 + demean_gdp, data=reg.dat)
 ```
 
----
 
 ## Within Estimator (Manually Demean) in practice
 ```{r}
@@ -199,7 +188,6 @@ modelsummary(list("Default FE"=m1, "Manual FE"=m2),
 
 **Note:** `feols` defaults to clustering at level of FE, `lm` requires our input
 
----
 
 ## First differencing (default) in practice
 
@@ -213,7 +201,6 @@ reg.dat <- causaldata::gapminder %>%
 plm(lifeExp ~ 0 + lgdp_pc, model="fd", individual="country", index=c("country","year"), data=reg.dat)
 ```
 
----
 
 ## First differencing (manual) in practice
 
@@ -235,8 +222,6 @@ modelsummary(list("Default FE"=m1, "Manual FE"=m2, "Default FD"=m3),
 
 
 
----
-
 ## First differencing (manual) in practice
 
 ```{r}
@@ -253,7 +238,6 @@ reg.dat <- causaldata::gapminder %>%
 lm(fd_lifeexp~ 0 + lgdp_pc , data=reg.dat)
 ```
 
----
 
 ## First differencing (manual) in practice
 
@@ -277,8 +261,6 @@ modelsummary(list("Default FE"=m1, "Manual FE"=m2, "Default FD"=m3, "Manual FD"=
 ```
 
 
----
-
 ## FE and FD with same time period
 
 ```{r}
@@ -299,5 +281,3 @@ Don't want to read too much into this, but...
 
 - Likely strong serial correlation in this case (almost certainly)
 - Mispecified model
-
-
