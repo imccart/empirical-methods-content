@@ -23,11 +23,14 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmult
                hrbrthemes, gganimate, OECD, causaldata, fixest, modelsummary, plm)
 ```
 
+## Outline for Today
+
+1. Introduction to Difference-in-Differences
+2. Estimators (mean differences and regression)
+3. Simulations
+
 
 # Difference-in-Differences
-
-
----
 
 ## Basic 2x2 Setup
 
@@ -44,7 +47,6 @@ Want to estimate $ATT = E[Y_{1}(1)- Y_{0}(1) | D=1]$
 **Problem:** We don't see $E[Y_{0}(1)|D=1]$
 :::
 
----
 
 ## Basic 2x2 Setup
 
@@ -62,18 +64,6 @@ Want to estimate $ATT = E[Y_{1}(1)- Y_{0}(1) | D=1]$
 :::
 
 
-
----
-
-## Basic 2x2 Setup
-
-Want to estimate $ATT = E[Y_{1}(1)- Y_{0}(1) | D=1]$
-
-|           | Pre-Period         | Post-Period       |
-|-----------|:-------------------|:------------------|
-| Treatment | $E(Y_{0}(0)|D=1)$  | $E(Y_{1}(1)|D=1)$ |
-| Control   | $E(Y_{0}(0)|D=0)$  | $E(Y_{0}(1)|D=0)$ |
-
 ::: {.fragment}
 <br>
 
@@ -82,51 +72,31 @@ Want to estimate $ATT = E[Y_{1}(1)- Y_{0}(1) | D=1]$
 
 
 
----
-
-## Basic 2x2 Setup
-
-Want to estimate $ATT = E[Y_{1}(1)- Y_{0}(1) | D=1]$
-
-|           | Pre-Period         | Post-Period       |
-|-----------|:-------------------|:------------------|
-| Treatment | $E(Y_{0}(0)|D=1)$  | $E(Y_{1}(1)|D=1)$ |
-| Control   | $E(Y_{0}(0)|D=0)$  | $E(Y_{0}(1)|D=0)$ |
-
 ::: {.fragment}
 <br>
 
-**Strategy 3: DD**
-
-<br>
-
-Estimate $E[Y_{1}(1)|D=1] - E[Y_{0}(1)|D=1]$ using $E[Y_{0}(1)|D=0] - E[Y_{0}(0)|D=0]$ (pre-post difference in control group used to predict difference for treatment group)
+**Strategy 3:** Estimate $E[Y_{1}(1)|D=1] - E[Y_{0}(1)|D=1]$ using $E[Y_{0}(1)|D=0] - E[Y_{0}(0)|D=0]$ (pre-post difference in control group used to predict difference for treatment group). *This is DD!*
 :::
 
-
----
 
 ## Graphically
 
 ![Basic DD Graph](../images/standard-dd.png)
 
 
----
-
 ## Animations
 
 ![Basic DD Graph, Animated](../images/dd_animate.gif)
 
----
 
-## ATE Estimates with DD
+# DD "Estimators"
+
+## Key Assumption
 
 Key identifying assumption is that of *parallel trends*
 
 $$E[Y_{0}(1) - Y_{0}(0)|D=1] = E[Y_{0}(1) - Y_{0}(0)|D=0]$$
 
-
----
 
 ## Estimation: Sample Means
 
@@ -135,8 +105,6 @@ E[Y_{1}(1) - Y_{0}(1)|D=1] &=& \left( E[Y(1)|D=1] - E[Y(1)|D=0] \right) \\
  & & - \left( E[Y(0)|D=1] - E[Y(0)|D=0]\right)
 \end{align}$$
 
-
----
 
 ## Estimation: Regression
 
@@ -152,39 +120,126 @@ $$y_{it} = \alpha + \beta D_{i} + \lambda \times Post_{t} + \delta \times D_{i} 
 
 :::
 
+# Simulations
 
----
+## The data
 
-## Simulated data
+::: {.panel-tabset}
+
+### R
 
 ```{r}
+#| eval: true
+#| results: 'hide'
+
+set.seed(123)
 N <- 5000
+
 dd.dat <- tibble(
-  d = (runif(N, 0, 1)>0.5),
+  d = (runif(N, 0, 1) > 0.5),
   time_pre = "pre",
   time_post = "post"
 )
 
-dd.dat <- pivot_longer(dd.dat, c("time_pre","time_post"), values_to="time") %>%
+dd.dat <- pivot_longer(dd.dat, c("time_pre", "time_post"), values_to = "time") %>%
   select(d, time) %>%
-  mutate(t=(time=="post"),
-         y.out=1.5+3*d + 1.5*t + 6*d*t + rnorm(N*2,0,1))
+  mutate(
+    t = (time == "post"),
+    y.out = 1.5 + 3 * d + 1.5 * t + 6 * d * t + rnorm(N * 2, 0, 1)
+  )
 ```
 
----
+### Python
+```{python}
+#| eval: false
+
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(123)
+N = 5000
+
+base = pd.DataFrame({
+    "d": rng.uniform(0, 1, N) > 0.5,
+    "time_pre": "pre",
+    "time_post": "post"
+})
+
+dd_dat = (
+    base
+    .melt(value_vars=["time_pre", "time_post"], value_name="time")
+    .loc[:, ["d", "time"]]
+)
+
+dd_dat["t"] = dd_dat["time"] == "post"
+
+dd_dat["y_out"] = (
+    1.5
+    + 3 * dd_dat["d"].astype(int)
+    + 1.5 * dd_dat["t"].astype(int)
+    + 6 * dd_dat["d"].astype(int) * dd_dat["t"].astype(int)
+    + rng.normal(0, 1, N * 2)
+)
+```
+
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+head(dd.dat)
+```
+
+:::
+
 
 ## Mean differences
 
+::: {.panel-tabset}
+
+### R
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-dd.means <- dd.dat %>% group_by(d, t) %>% summarize(mean_y = mean(y.out)) %>% mutate(d=ifelse(d==TRUE, "Treated", "Control"), t=ifelse(t==TRUE, "Post", "Pre"))
-
-knitr::kable(dd.means, col.names=c("Treated","Period","Mean"), format="html")
+dd.means <- dd.dat %>%
+  group_by(d, t) %>%
+  summarize(mean_y = mean(y.out), .groups = "drop") %>%
+  mutate(
+    d = ifelse(d == TRUE, "Treated", "Control"),
+    t = ifelse(t == TRUE, "Post", "Pre")
+  )
 ```
 
----
+### Python
+```{python}
+#| eval: false
+
+import pandas as pd
+
+dd_means = (
+    dd_dat
+    .groupby(["d", "t"], as_index=False)
+    .agg(mean_y=("y_out", "mean"))
+)
+
+dd_means["d"] = dd_means["d"].map({True: "Treated", False: "Control"})
+dd_means["t"] = dd_means["t"].map({True: "Post", False: "Pre"})
+
+print(dd_means)
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+knitr::kable(dd.means, col.names = c("Treated", "Period", "Mean"), format = "html")
+```
+
+:::
+
 
 ## Mean differences
 
@@ -198,16 +253,40 @@ So the ATT is `r dd.means[4,3]-dd.means[2,3] - (dd.means[3,3]-dd.means[1,3])`
 :::
 
 
----
-
 ## Regression estimator
 
+::: {.panel-tabset}
+
+### R
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
 library(modelsummary)
-dd.est <- lm(y.out ~ d + t + d*t, data=dd.dat)
-modelsummary(dd.est, gof_map=NA, coef_omit='Intercept')
+dd.est <- lm(y.out ~ d + t + d * t, data = dd.dat)
 ```
 
+### Python
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+dd_dat_for_reg = dd_dat.copy()
+
+dd_dat_for_reg["d"] = dd_dat_for_reg["d"].astype(int)
+dd_dat_for_reg["t"] = dd_dat_for_reg["t"].astype(int)
+
+dd_est = smf.ols("y_out ~ d + t + d:t", data=dd_dat_for_reg).fit()
+print(dd_est.summary())
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+modelsummary(dd.est, gof_map = NA, coef_omit = "Intercept")
+```
+
+:::

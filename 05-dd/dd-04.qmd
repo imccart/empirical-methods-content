@@ -19,63 +19,116 @@ execute:
 ```{r}
 #| include: false
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales,
-               hrbrthemes, gganimate, OECD, here, modelsummary, plotly)
-```
-```{r}
-#| include: false
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmultiplegt,
-               hrbrthemes, gganimate, OECD, causaldata, fixest, modelsummary, plm)
+pacman::p_load(tidyverse, ggplot2, lubridate, scales,
+               hrbrthemes, gganimate, OECD, here, modelsummary,
+               lmtest, DIDmultiplegt, causaldata, fixest, plm)
 ```
 
 
-# DD IRL
+## Outline for Today
+
+1. Simple DD
+2. TWFE
+3. Event Studies
+4. "Modern" Considerations
+
+# Simple DD in Practice
 
 - Try out some real data on Medicaid expansion following the ACA
 - Data is small part of DD empirical assignment
-- **Question:** Did Medicaid expansion reduce uninsurance?
+- **Question:** Did Medicaid expansion reduce hospital uncompensated care?
 
----
 
 ## Step 1: Look at the data
 
+::: {.panel-tabset}
+
+### R
+
 ```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-library(tidyverse)  
-mcaid.data <- read_tsv("../data/acs_medicaid.txt")
-ins.plot.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
-  mutate(perc_unins=uninsured/adult_pop) %>%
-  group_by(expand_ever, year) %>% summarize(mean=mean(perc_unins))
+hcris.data <- read_csv("../data/output/hcris-snippets/hcris-data.csv") %>%
+  mutate(
+    expand_year = lubridate::year(date_adopted),
+    expand_ever = expanded,
+    status = if_else(!is.na(expand_year) & year >= expand_year, "Expanded", "Not Expanded"),
+    uncomp_care_m = uncomp_care / 1e6
+  ) %>%
+  filter(!is.na(expand_ever))
 
-ins.plot <- ggplot(data=ins.plot.dat, aes(x=year,y=mean,group=expand_ever,linetype=expand_ever)) + 
+uc.plot.dat <- hcris.data %>%
+  group_by(expand_ever, year) %>%
+  summarize(mean = mean(uncomp_care_m, na.rm = TRUE), .groups = "drop")
+
+uc.plot <- ggplot(data = uc.plot.dat, aes(x = year, y = mean, group = expand_ever, linetype = expand_ever)) + 
   geom_line() + geom_point() + theme_bw() +
-  geom_vline(xintercept=2013.5, color="red") +
-  geom_text(data = ins.plot.dat %>% filter(year == 2016), 
-            aes(label = c("Non-expansion","Expansion"),
+  geom_vline(xintercept = 2013.5, color = "red") +
+  geom_text(data = uc.plot.dat %>% filter(year == 2015), 
+            aes(label = c("Non-expansion", "Expansion"),
                 x = year + 1,
                 y = mean)) +
-  guides(linetype="none") +
+  guides(linetype = "none") +
   labs(
-    x="Year",
-    y="Fraction Uninsured",
-    title="Share of Uninsured over Time"
+    x = "Year",
+    y = "Uncompensated Care ($mm)",
+    title = "Hospital Uncompensated Care Over Time"
   )
 ```
 
----
+### Python
+```{python}
+#| eval: false
 
-## Step 1: Look at the data
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
-```{r}
-#| echo=FALSE
+hcris_data = pd.read_csv("../data/output/hcris-snippets/hcris-data.csv")
 
-ins.plot
+hcris_data["expand_year"] = pd.to_datetime(hcris_data["date_adopted"]).dt.year
+hcris_data["expand_ever"] = hcris_data["expanded"]
+
+hcris_data["status"] = np.where(
+    (~hcris_data["expand_year"].isna()) & (hcris_data["year"] >= hcris_data["expand_year"]),
+    "Expanded",
+    "Not Expanded"
+)
+
+hcris_data["uncomp_care_m"] = hcris_data["uncomp_care"] / 1_000_000
+
+hcris_data = hcris_data.loc[~hcris_data["expand_ever"].isna()].copy()
+
+uc_plot_dat = (
+    hcris_data
+    .groupby(["expand_ever", "year"], as_index=False)
+    .agg(mean=("uncomp_care_m", "mean"))
+)
+
+# Example plot in Python (kept minimal since output is shown from R)
+for key, grp in uc_plot_dat.groupby("expand_ever"):
+    plt.plot(grp["year"], grp["mean"], marker="o", label=str(key))
+
+plt.axvline(2013.5, color="red")
+plt.xlabel("Year")
+plt.ylabel("Uncompensated Care ($mm)")
+plt.title("Hospital Uncompensated Care Over Time")
+plt.legend()
+plt.show()
 ```
 
----
+### Output
+
+```{r}
+#| eval: true
+#| echo: false
+
+uc.plot
+```
+
+:::
+
 
 ## Step 2: Estimate effects
 
@@ -83,38 +136,61 @@ Interested in $\delta$ from:
 
 $$y_{it} = \alpha + \beta \times Post_{t} + \lambda \times Expand_{i} + \delta \times Post_{t} \times Expand_{i} + \varepsilon_{it}$$
 
-```{r}
-#| code-fold: TRUE
-#| code-summary: "R Code"
+::: {.panel-tabset}
 
-library(tidyverse)
-library(modelsummary)
-mcaid.data <- read_tsv("../data/acs_medicaid.txt")
-reg.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
-  mutate(perc_unins=uninsured/adult_pop,
-         post = (year>=2014), 
-         treat=post*expand_ever)
-
-dd.ins.reg <- lm(perc_unins ~ post + expand_ever + post*expand_ever, data=reg.dat)
-```
-
----
-
-## Step 2: Estimate effects
+### R
 
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-modelsummary(list("DD (2014)"=dd.ins.reg),
-             shape=term + statistic ~ model, 
-             gof_map=NA,
-             coef_omit='Intercept',
-             vcov=~State
-         )
+reg.dat <- hcris.data %>%
+  filter(expand_year == 2014 | is.na(expand_year)) %>%
+  mutate(
+    post = (year >= 2014),
+    treat = post * expand_ever
+  )
+
+dd.uc.reg <- lm(uncomp_care_m ~ post + expand_ever + post * expand_ever, data = reg.dat)
 ```
 
----
+### Python
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+reg_dat = hcris_data.loc[
+    (hcris_data["expand_year"].eq(2014)) | (hcris_data["expand_year"].isna())
+].copy()
+
+reg_dat["post"] = reg_dat["year"] >= 2014
+reg_dat["treat"] = reg_dat["post"] & reg_dat["expand_ever"]
+
+reg_dat["post"] = reg_dat["post"].astype(int)
+reg_dat["expand_ever"] = reg_dat["expand_ever"].astype(int)
+reg_dat["treat"] = reg_dat["treat"].astype(int)
+
+reg_dat["uncomp_care_m"] = reg_dat["uncomp_care"] / 1_000_000
+
+dd_uc_reg = smf.ols("uncomp_care_m ~ post + expand_ever + post:expand_ever", data=reg_dat).fit()
+print(dd_uc_reg.summary())
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+modelsummary(list("DD (2014)" = dd.uc.reg),
+             shape = term + statistic ~ model, 
+             gof_map = NA,
+             coef_omit = "Intercept",
+             vcov = ~ state)
+```
+
+:::
+
 
 ## Final DD thoughts
 
@@ -126,7 +202,7 @@ modelsummary(list("DD (2014)"=dd.ins.reg),
 - "Extra" things like propensity score weighting and doubly robust estimation
 
 
----
+# Two-way fixed effects (TWFE)
 
 ## DD and TWFE?
 
@@ -134,7 +210,6 @@ modelsummary(list("DD (2014)"=dd.ins.reg),
 - Fixed effects for each unit and each time period, $\gamma_{i}$ and $\gamma_{t}$
 - More general than 2x2 DD but same result
 
----
 
 ## What is TWFE?
 
@@ -144,68 +219,63 @@ $$y_{it} = \alpha + \delta D_{it} + \gamma_{i} + \gamma_{t} + \varepsilon_{it},$
 
 where $\gamma_{i}$ and $\gamma_{t}$ denote a set of unit $i$ and time period $t$ dummy variables (or fixed effects).
 
----
 
 ## TWFE in Practice
 
-:::: {.columns}
+::: {.panel-tabset}
 
-::: {.column width="50%"}
-**2x2 DD**
+### R
 ```{r}
-#| results: hide
-#| echo: TRUE
+#| eval: true
+#| results: 'hide'
 
-library(tidyverse)
-library(modelsummary)
-mcaid.data <- read_tsv("../data/acs_medicaid.txt")
-reg.dat <- mcaid.data %>% filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
-  mutate(perc_unins=uninsured/adult_pop,
-         post = (year>=2014), 
-         treat=post*expand_ever)
-m.dd <- lm(perc_unins ~ post + expand_ever + treat, data=reg.dat)
+m.dd <- lm(uncomp_care_m ~ post + expand_ever + treat, data = reg.dat)
+
+m.twfe <- feols(uncomp_care_m ~ treat | provider_number + year,
+                data = reg.dat,
+                cluster = ~ state)
 ```
+
+### Python
+```{python}
+#| eval: false
+
+import statsmodels.formula.api as smf
+
+# 2x2 DD (OLS)
+m_dd = smf.ols("uncomp_care_m ~ post + expand_ever + treat", data=reg_dat).fit()
+
+# TWFE using unit and year dummies
+m_twfe = smf.ols("uncomp_care_m ~ treat + C(provider_number) + C(year)", data=reg_dat).fit()
+
+print(m_dd.summary())
+print(m_twfe.summary())
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+modelsummary(list("DD" = m.dd, "TWFE" = m.twfe),
+             shape = term + statistic ~ model, 
+             gof_map = NA,
+             coef_omit = "Intercept",
+             vcov = ~ state)
+```
+
 :::
 
-::: {.column width="50%"}
-**TWFE**
-```{r}
-#| results: hide
-#| echo: TRUE
 
-library(fixest)
-m.twfe <- feols(perc_unins ~ treat | State + year, data=reg.dat)
-```
-:::
+# Event Studies
 
-::::
-
----
-
-## TWFE in Practice
-
-```{r}
-#| code-fold: true
-#| code-summary: "R Code"
-
-msummary(list("DD"=m.dd, "TWFE"=m.twfe),
-         shape=term + statistic ~ model, 
-         gof_map=NA,
-         coef_omit='Intercept',
-         vcov=~State
-         )
-```
-
----
-
-## Event study
+## Basic idea
 
 Event study is poorly named:
 
 - In finance, even study is just an *interrupted time series*
 - In econ and other areas, we usually have a treatment/control group *and* a break in time
 
----
 
 ## Why show an event study?
 
@@ -214,8 +284,6 @@ Event study is poorly named:
 - Offers easy evidence against or consistent with parallel trends assumption
 
 
----
-
 ## How to do an event study?
 
 Estimate something akin to...
@@ -223,7 +291,6 @@ $$y_{it} = \gamma_{i} + \gamma_{t} + \sum_{\tau = -q}^{-2}\delta_{\tau} D_{i \ta
 
 where $q$ captures the number of periods before the treatment occurs and $m$ captures periods after treatment occurs.
 
----
 
 ## How to do an event study?
 
@@ -232,16 +299,12 @@ where $q$ captures the number of periods before the treatment occurs and $m$ cap
 3. Plot coefficients and standard errors
 
 
----
-
 ## Things to address
 
 1. "Event time" vs calendar time
 2. Define baseline period
 3. Choose number of pre-treatment and post-treatment coefficients
 
-
----
 
 ## Event time vs calendar time
 
@@ -250,7 +313,6 @@ Essentially two "flavors" of event studies
 1. Common treatment timing
 2. Differential treatment timing
 
----
 
 ## Define baseline period
 
@@ -259,7 +321,6 @@ Essentially two "flavors" of event studies
 - Easy to understand with calendar time
 - For event time...manually set time to $t=-1$ for all untreated units
 
----
 
 ## Number of pre-treatment and post-treatment periods
 
@@ -268,36 +329,47 @@ Essentially two "flavors" of event studies
 - Norm is to group final lead/lag periods together
 
 
----
 
 ## Common treatment timing
 
+::: {.panel-tabset}
+
+### R
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-library(tidyverse)
-library(modelsummary)
-library(fixest)
-mcaid.data <- read_tsv("../data/acs_medicaid.txt")
-reg.dat <- mcaid.data %>% 
-  filter(expand_year==2014 | is.na(expand_year), !is.na(expand_ever)) %>%
-  mutate(perc_unins=uninsured/adult_pop,
-         post = (year>=2014), 
-         treat=post*expand_ever)
+mod.twfe <- feols(uncomp_care_m ~ i(year, expand_ever, ref = 2013) | provider_number + year,
+                  cluster = ~ state,
+                  data = reg.dat)
+```
 
-mod.twfe <- feols(perc_unins~i(year, expand_ever, ref=2013) | State + year,
-                  cluster=~State,
-                  data=reg.dat)
+### Python
+```{python}
+#| eval: false
+
+# Event-study style with common timing (reference year = 2013)
+mod_twfe = smf.ols(
+    "uncomp_care_m ~ C(year)*expand_ever + C(provider_number)",
+    data=reg_dat
+).fit()
+
+print(mod_twfe.summary())
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
 
 iplot(mod.twfe, 
       xlab = 'Time to treatment',
       main = 'Event study')
 ```
 
+:::
 
 
----
 
 ## Differential treatment timing
 
@@ -305,37 +377,64 @@ iplot(mod.twfe,
 - Includes late adopters
 - Requires putting observations on "event time"
 
----
 
 ## Differential treatment timing
 
+::: {.panel-tabset}
+
+### R
 ```{r}
-#| code-fold: true
-#| code-summary: "R Code"
+#| eval: true
+#| results: 'hide'
 
-library(tidyverse)
-library(modelsummary)
-library(fixest)
-mcaid.data <- read_tsv("../data/acs_medicaid.txt")
-reg.dat <- mcaid.data %>% 
+reg.dat.full <- hcris.data %>% 
   filter(!is.na(expand_ever)) %>%
-  mutate(perc_unins=uninsured/adult_pop,
-         post = (year>=2014), 
-         treat=post*expand_ever,
-         time_to_treat = ifelse(expand_ever==FALSE, 0, year-expand_year),
-         time_to_treat = ifelse(time_to_treat < -3, -3, time_to_treat))
+  mutate(
+    time_to_treat = if_else(expand_ever == FALSE, 0, year - expand_year),
+    time_to_treat = if_else(time_to_treat < -3, -3, time_to_treat)
+  )
 
-mod.twfe <- feols(perc_unins~i(time_to_treat, expand_ever, ref=-1) | State + year,
-                  cluster=~State,
-                  data=reg.dat)
+mod.twfe.full <- feols(uncomp_care_m ~ i(time_to_treat, expand_ever, ref = -1) | provider_number + year,
+                       cluster = ~ state,
+                       data = reg.dat.full)
+```
 
-iplot(mod.twfe, 
+### Python
+```{python}
+#| eval: false
+
+reg_dat_full = hcris_data.loc[~hcris_data["expand_ever"].isna()].copy()
+
+reg_dat_full["time_to_treat"] = np.where(
+    reg_dat_full["expand_ever"].astype(bool),
+    reg_dat_full["year"] - reg_dat_full["expand_year"],
+    0
+)
+
+reg_dat_full["time_to_treat"] = reg_dat_full["time_to_treat"].clip(lower=-3)
+
+mod_twfe_full = smf.ols(
+    "uncomp_care_m ~ C(time_to_treat)*expand_ever + C(provider_number) + C(year)",
+    data=reg_dat_full
+).fit()
+
+print(mod_twfe_full.summary())
+```
+
+### Output
+```{r}
+#| eval: true
+#| echo: false
+
+iplot(mod.twfe.full, 
       xlab = 'Time to treatment',
       main = 'Event study')
 ```
 
+:::
 
----
+
+# "Modern" Considerations
 
 ## Problems with TWFE
 
@@ -351,7 +450,6 @@ $$\hat{\delta}_{twfe} = \text{VW} ATT + \text{VW} PT - \Delta ATT$$
 2. Violation of parallel trends
 3. Heterogeneous effects over time
 
----
 
 ## Intuition
 
@@ -365,10 +463,52 @@ $$\hat{\delta}_{twfe} = \text{VW} ATT + \text{VW} PT - \Delta ATT$$
 - Heterogeneity and differential timing introduces "contamination" via negative weights assigned to some underlying 2x2 DDs
 
 
----
-
 ## Does it really matter?
 
 - Definitely! But how much?
 - Large treatment effects for early treated units could reverse the sign of final estimate
-- Let's explore this nice Shiny app from Kyle Butts: [Bacon-Decomposition Shiny App](https://hhsievertsen.shinyapps.io/kylebutts_did_eventstudy/).
+- Several "modern" approaches to address these issues
+
+
+## New DD: Callaway & Sant'Anna (Group-Time ATT)
+
+- Estimates group-by-time ATT, then aggregates into overall effects
+- Handles staggered adoption with flexible aggregation and clear identification targets
+- Separates identification from weighting choices explicitly
+
+::: {.aside}
+Where to get: `did` package (`att_gt`, `aggte`), [link to package](https://bcallaway11.github.io/did/)
+:::
+
+
+## New DD: Sun & Abraham (Interaction-Weighted Event Study)
+
+- Corrects TWFE event-study bias under staggered adoption
+- Uses cohort-by-time interactions and aggregates appropriately
+- Clean interpretation for dynamic effects relative to treatment timing
+
+::: {.aside}
+Where to get: `fixest::sunab()` [link to package](https://lrberge.github.io/fixest/)
+:::
+
+
+## New DD: Borusyak, Jaravel, Spiess (Imputation Estimator)
+
+- Imputes untreated potential outcomes using pre-treatment trends
+- Estimates treatment effects by comparing observed outcomes to imputed counterfactuals
+- Transparent decomposition and robust to staggered timing
+
+::: {.aside}
+Where to get: `didimputation::did_imputation()` [link to package](https://github.com/brousse/didimputation)
+:::
+
+
+## New DD: Gardner (Two-Stage DID)
+
+- Stage 1 removes unit and time effects using untreated data
+- Stage 2 estimates treatment effects on residualized outcomes
+- Useful when treatment timing is staggered and effects are heterogeneous
+
+::: {.aside}
+Where to get: `did2s::did2s()` [link to package](https://github.com/kylebutts/did2s)
+:::

@@ -24,7 +24,14 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, lmtest, DIDmult
 ```
 
 
-# Panel Data and Fixed Effects
+## Outline for Today
+
+1. Introduction to Panel Data
+2. Within and First-Difference Estimators
+3. Simulations
+
+
+# Panel Data
 
 
 ## Basics of panel data
@@ -75,7 +82,7 @@ $y_{it} = \delta D_{it} + \gamma_{i} + \gamma_{t} + \epsilon_{it}$ for $t=1,...,
   - first-difference estimator
 :::
 
----
+# Within and First-Difference Estimators
 
 ## Within Estimator
 
@@ -115,7 +122,7 @@ $$y_{it} - y_{i,t-1} = \delta(D_{it} - D_{i,t-1}) + (\gamma_{i} - \gamma_{i}) + 
 - Can't estimate effects on time-invariant variables
 - May "absorb" a lot of the variation for variables that don't change much over time
 
-
+# Simulations
 
 ## Within Estimator (Default) in practice
 
