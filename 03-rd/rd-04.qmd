@@ -96,7 +96,10 @@ print(rating_ols.summary())
 #| eval: true
 #| echo: false
 
-summary(rating.ols)
+modelsummary(rating.ols,
+  coef_rename = function(x) gsub("factor\\(Star_Rating\\)", "Star Rating = ", x),
+  gof_map = c("nobs", "r.squared"),
+  title = "Market Share by Star Rating (OLS)")
 
 ```
 
@@ -125,7 +128,12 @@ CMS does more than just an average...
 
 ## Data Cleanup
 
-- Focus on ratings around the 4-star cutoffs (running value of 3.75)
+We need contracts where the raw rating maps cleanly to the displayed star rating. CMS rounds raw scores to the nearest half-star, so a raw rating of 2.25 is the threshold between 2.0 and 2.5 stars.
+
+- Keep contracts with Star Rating of 2.0 or 2.5
+- Drop contracts where raw_rating doesn't match the assigned star (likely due to CMS adjustments we can't replicate)
+
+## Data Cleanup (code)
 
 ::: {.panel-tabset}
 
@@ -185,10 +193,10 @@ match_mask = (
          (ma_25star_candidates["raw_rating"] <= 2.25))
     )
 )
-ma_4star = ma_4star_candidates.loc[match_mask].copy()
+ma_25star = ma_25star_candidates.loc[match_mask].copy()
 
-n_4star_total = len(ma_25star)
-n_4star_by_score = ma_25star["Star_Rating"].value_counts()
+n_25star_total = len(ma_25star)
+n_25star_by_score = ma_25star["Star_Rating"].value_counts()
 
 print("Obs with partc_score 2 or 2.5:", n_candidates_total)
 print(n_candidates_by_score)
@@ -231,22 +239,22 @@ rd.result <- rdplot(ma_25star$mkt_share, ma_25star$raw_rating,
                     y.label="Outcome",
                     hide = TRUE)
 bin.avg <- as_tibble(rd.result$vars_bins)
-plot.bin <- bin.avg %>% ggplot(aes(x=rdplot_mean_x,y=rdplot_mean_y)) + 
+plot.bin <- bin.avg %>% ggplot(aes(x=rdplot_mean_x,y=rdplot_mean_y)) +
   geom_point() + theme_bw() +
   geom_vline(aes(xintercept=2.25),linetype='dashed') +
   scale_x_continuous(
-    breaks = c(2, 2.5),
-    label = c("Untreated", "Treated")
+    breaks = c(2, 2.125, 2.25, 2.375, 2.5),
+    label = c("2.0", "2.125", "2.25", "2.375", "2.5")
   ) +
-  xlab("Running Variable") + ylab("Outcome")
+  xlab("Raw Rating") + ylab("Market Share") +
+  annotate("text", x=2.25, y=Inf, label="2.5-star\ncutoff",
+           vjust=1.5, hjust=-0.1, size=3.5, color="grey40")
 ```
 
 
 ### Python
 
 ```{python}
-#| eval: false
-
 #| eval: false
 
 import pandas as pd
@@ -275,14 +283,16 @@ ax.scatter(
     bin_avg["rdplot_mean_y"]
 )
 
-ax.axvline(x=2.25, linestyle="--")
+ax.axvline(x=2.25, linestyle="--", color="grey")
 
-ax.set_xticks([2.0, 2.5])
-ax.set_xticklabels(["Untreated", "Treated"])
+ax.set_xticks([2.0, 2.125, 2.25, 2.375, 2.5])
+ax.set_xticklabels(["2.0", "2.125", "2.25", "2.375", "2.5"])
 
-ax.set_xlabel("Running Variable")
-ax.set_ylabel("Outcome")
+ax.set_xlabel("Raw Rating")
+ax.set_ylabel("Market Share")
 ax.set_title("RD Plot with Binned Average")
+ax.annotate("2.5-star\ncutoff", xy=(2.25, ax.get_ylim()[1]),
+            xytext=(2.27, ax.get_ylim()[1]*0.95), fontsize=9, color="grey")
 
 plt.tight_layout()
 plt.show()
@@ -386,11 +396,11 @@ rows.attrs["position"] = 7
 
 ```{r}
 #| eval: true
-#| echo: true
+#| echo: false
 
-modelsummary(list(star25.1, star25.2, star25.3, star25.4),
+modelsummary(list("(1)"=star25.1, "(2)"=star25.2, "(3)"=star25.3, "(4)"=star25.4),
           keep=c("score", "treatTRUE", "score_treat"),
-          coef_map=c("score"="Raw Score", 
+          coef_map=c("score"="Raw Score",
                     "treatTRUE"="Treatment",
                     "score_treat"="Score x Treat"),
           gof_map=c("nobs", "r.squared"),
@@ -403,7 +413,7 @@ modelsummary(list(star25.1, star25.2, star25.3, star25.4),
 
 ## Interpretation
 
-- OLS on full sample: `r round(est1,3)*100`% increase in market shares among 4-star plans versus 3.5-star plan
+- OLS on full sample: `r round(est1,3)*100`% increase in market share for 2.5-star versus 2.0-star plans
 - RD on 0.175 bandwidth: `r round(est2,3)*100`% increase when imposing constant slopes, `r round(est3,3)*100`% increase when allowing for differential slopes
 - RD on 0.125 bandwidth: `r round(est4,3)*100`% increase (again allowing for differential slopes)
 
@@ -468,8 +478,21 @@ estopt = rdrobust(
 ```{r}
 #| echo: false
 
-summary(est1)
-summary(estopt)
+rdrobust_tidy <- function(est, label) {
+  tibble(
+    Spec = label,
+    Estimate = round(est$coef[1], 4),
+    `Robust CI` = paste0("[", round(est$ci[3,1], 4), ", ", round(est$ci[3,2], 4), "]"),
+    BW = round(est$bws[1,1], 3),
+    N = est$N[1] + est$N[2]
+  )
+}
+
+bind_rows(
+  rdrobust_tidy(est1, "Fixed (h=0.125)"),
+  rdrobust_tidy(estopt, "Optimal")
+) %>%
+  knitr::kable()
 
 ```
 
@@ -527,9 +550,16 @@ plt.show()
 
 ```{r}
 #| echo: false
-summary(dens1)
+
+tibble(
+  ` ` = c("T-statistic", "P-value"),
+  Value = c(round(dens1$test$t_jk, 3), round(dens1$test$p_jk, 4))
+) %>%
+  knitr::kable()
+
 ```
 
+**Interpretation**: A large p-value means we cannot reject equal density on both sides of the cutoff, which is what we want. No evidence of manipulation.
 
 :::
 
@@ -718,15 +748,17 @@ est225 = rdrobust(
 #| eval: true
 #| echo: false
 
-summary(est225)
+rdrobust_tidy(est225, "2.5 vs 2.0 (h=0.125)") %>%
+  knitr::kable()
 
 ```
 
 :::
 
 
-## Effects for 3.0 versus 2.5 Stars
+## Effects across all thresholds
 
+Same approach, applied to every half-star cutoff. The code below loops over each threshold and collects the `rdrobust` estimates into a single data frame.
 
 ::: {.panel-tabset}
 
@@ -736,18 +768,30 @@ summary(est225)
 #| eval: true
 #| results: 'hide'
 
-ma.rd275 <- ma_2009 %>%
-  filter(Star_Rating==2.5 | Star_Rating==3) %>%
-  mutate(score = raw_rating - 2.75,
-         treat = (score>=0),
-         window1 = (score>=-.175 & score<=.175),
-         window2 = (score>=-.125 & score<=.125),
-         score_treat=score*treat)
+cutoffs <- tibble(
+  lower = c(2, 2.5, 3, 3.5),
+  upper = c(2.5, 3, 3.5, 4),
+  cutoff = c(2.25, 2.75, 3.25, 3.75)
+)
 
-est275 <- rdrobust(y=ma.rd275$mkt_share, x=ma.rd275$score, c=0,
-                 h=0.125, p=1, kernel="uniform", vce="hc0",
-                 masspoints="off")
+rd_results <- cutoffs %>%
+  pmap_dfr(function(lower, upper, cutoff) {
+    dat <- ma_2009 %>%
+      filter(Star_Rating == lower | Star_Rating == upper) %>%
+      mutate(score = raw_rating - cutoff)
 
+    est <- rdrobust(y=dat$mkt_share, x=dat$score, c=0,
+                    h=0.125, p=1, kernel="uniform", vce="hc0",
+                    masspoints="off")
+
+    tibble(
+      threshold = paste0(upper, " vs ", lower),
+      estimate = est$coef[2],
+      ci_lower = est$ci[3,1],
+      ci_upper = est$ci[3,2],
+      n = est$N[1] + est$N[2]
+    )
+  })
 ```
 
 ### Python
@@ -755,186 +799,71 @@ est275 <- rdrobust(y=ma.rd275$mkt_share, x=ma.rd275$score, c=0,
 ```{python}
 #| eval: false
 
-# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
+from rdrobust import rdrobust
+import pandas as pd
 
-ma_rd275 = (
-    ma_2009
-    .loc[ma_2009["Star_Rating"].isin([2.5, 3])]
-    .assign(
-        score=lambda d: d["raw_rating"] - 2.75,
-        treat=lambda d: (d["score"] >= 0).astype(int),
-        window1=lambda d: d["score"].between(-0.175, 0.175),
-        window2=lambda d: d["score"].between(-0.125, 0.125),
-        score_treat=lambda d: d["score"] * d["treat"],
+cutoffs = [
+    (2, 2.5, 2.25),
+    (2.5, 3, 2.75),
+    (3, 3.5, 3.25),
+    (3.5, 4, 3.75),
+]
+
+results = []
+for lower, upper, cutoff in cutoffs:
+    dat = ma_2009[ma_2009["Star_Rating"].isin([lower, upper])].copy()
+    dat["score"] = dat["raw_rating"] - cutoff
+
+    est = rdrobust(
+        y=dat["mkt_share"].values,
+        x=dat["score"].values,
+        c=0, h=0.125, p=1,
+        kernel="uniform", vce="hc0",
+        masspoints="off"
     )
-)
 
-est275 = rdrobust(
-    y=ma_rd275["mkt_share"].to_numpy(),
-    x=ma_rd275["score"].to_numpy(),
-    c=0,
-    h=0.125,
-    p=1,
-    kernel="uniform",   # or "uni" if required by your wrapper
-    vce="hc0",
-    masspoints="off"
-)
+    results.append({
+        "threshold": f"{upper} vs {lower}",
+        "estimate": est.coef.iloc[1, 0],  # bias-corrected
+        "ci_lower": est.ci.iloc[2, 0],    # robust CI
+        "ci_upper": est.ci.iloc[2, 1],
+    })
 
-
+rd_results = pd.DataFrame(results)
 ```
 
 ### Output
 
 ```{r}
-#| eval: true
 #| echo: false
 
-summary(est275)
-
+rd_results %>%
+  ggplot(aes(x=threshold, y=estimate)) +
+  geom_hline(yintercept=0, linetype="dashed", color="grey60") +
+  geom_pointrange(aes(ymin=ci_lower, ymax=ci_upper),
+                  color="#012169", size=0.8, linewidth=0.8) +
+  coord_flip() +
+  theme_bw() +
+  labs(x=NULL, y="RD Estimate (Market Share)",
+       title="Effect of higher star rating on market share",
+       subtitle="Bias-corrected estimates with robust 95% CIs, h = 0.125")
 ```
 
 :::
 
+## What do we see?
 
-## Effects for 3.5 versus 3.0 Stars
-
-::: {.panel-tabset}
-
-### R
-
-```{r}
-#| eval: true
-#| results: 'hide'
-
-ma.rd325 <- ma_2009 %>%
-  filter(Star_Rating==3 | Star_Rating==3.5) %>%
-  mutate(score = raw_rating - 3.25,
-         treat = (score>=0),
-         window1 = (score>=-.175 & score<=.175),
-         window2 = (score>=-.125 & score<=.125),
-         score_treat=score*treat)
-
-est325 <- rdrobust(y=ma.rd325$mkt_share, x=ma.rd325$score, c=0,
-                 h=0.125, p=1, kernel="uniform", vce="hc0",
-                 masspoints="off")
-```
-
-### Python
-
-```{python}
-#| eval: false
-
-# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
-
-ma_rd325 = (
-    ma_2009
-    .loc[ma_2009["Star_Rating"].isin([3, 3.5])]
-    .assign(
-        score=lambda d: d["raw_rating"] - 3.25,
-        treat=lambda d: (d["score"] >= 0).astype(int),
-        window1=lambda d: d["score"].between(-0.175, 0.175),
-        window2=lambda d: d["score"].between(-0.125, 0.125),
-        score_treat=lambda d: d["score"] * d["treat"],
-    )
-)
-
-est325 = rdrobust(
-    y=ma_rd325["mkt_share"].to_numpy(),
-    x=ma_rd325["score"].to_numpy(),
-    c=0,
-    h=0.125,
-    p=1,
-    kernel="uniform",   # or "uni" depending on the Python wrapper
-    vce="hc0",
-    masspoints="off"
-)
-
-```
-
-### Output
-
-```{r}
-#| eval: true
-#| echo: false
-
-summary(est325)
-
-```
-
-:::
+- Largest effects at the **lower end** of the star rating distribution (2.5 vs 2.0)
+- Effects shrink and become noisier at higher thresholds
+- Consistent with consumers responding more to quality signals when baseline quality is low
 
 
-## Effects for 4 versus 3.5 Stars
+## A note on discrete running variables
 
-::: {.panel-tabset}
+Star ratings are discrete (only a few unique values of the running variable). Standard RD asymptotics assume a continuous running variable, so we need adjustments.
 
-### R
+- **Fewer mass points** means less variation near the cutoff. `rdrobust` has a `masspoints` option to handle this.
+- **Local randomization**: if we believe assignment is as-good-as-random between adjacent mass points, we can use randomization inference instead of large-sample asymptotics.
+- **Fisher's exact test**: test the sharp null of no treatment effect by permuting treatment labels among units near the cutoff.
 
-```{r}
-#| eval: true
-#| results: 'hide'
-
-ma.rd375 <- ma_2009 %>%
-  filter(Star_Rating==3.5 | Star_Rating==4) %>%
-  mutate(score = raw_rating - 3.75,
-         treat = (score>=0),
-         window1 = (score>=-.175 & score<=.175),
-         window2 = (score>=-.125 & score<=.125),
-         score_treat=score*treat)
-
-est375 <- rdrobust(y=ma.rd375$mkt_share, x=ma.rd375$score, c=0,
-                 h=0.125, p=1, kernel="uniform", vce="hc0",
-                 masspoints="off")
-
-```
-
-### Python
-
-```{python}
-#| eval: false
-
-# assuming ma_2009 is a pandas DataFrame and rdrobust is already imported
-
-ma_rd375 = (
-    ma_2009
-    .loc[ma_2009["Star_Rating"].isin([3.5, 4])]
-    .assign(
-        score=lambda d: d["raw_rating"] - 3.75,
-        treat=lambda d: (d["score"] >= 0).astype(int),
-        window1=lambda d: d["score"].between(-0.175, 0.175),
-        window2=lambda d: d["score"].between(-0.125, 0.125),
-        score_treat=lambda d: d["score"] * d["treat"],
-    )
-)
-
-est375 = rdrobust(
-    y=ma_rd375["mkt_share"].to_numpy(),
-    x=ma_rd375["score"].to_numpy(),
-    c=0,
-    h=0.125,
-    p=1,
-    kernel="uniform",   # or "uni" if that's the accepted alias
-    vce="hc0",
-    masspoints="off"
-)
-
-```
-
-### Output
-
-```{r}
-#| eval: true
-#| echo: false
-
-summary(est375)
-
-```
-
-:::
-
-
-## RD with discrete variables
-
-- Allow for fewer mass points
-- Assume random assignment between mass points
-- Inference using Fisher's exact test
+See Cattaneo, Idrobo, and Titiunik (2020), Chapter 4 for details.

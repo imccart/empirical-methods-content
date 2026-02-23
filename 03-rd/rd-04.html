@@ -460,30 +460,128 @@ Ian McCarthy | Emory University
 </div>
 <div id="tabset-2-3">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = mkt_share ~ factor(Star_Rating), data = ma_2009)
+<div class="cell-output-display">
+<!-- preamble start -->
 
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.09571 -0.05403 -0.03040  0.01543  0.93279 
+    <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
 
-Coefficients:
-                       Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)            0.025641   0.002587   9.913  &lt; 2e-16 ***
-factor(Star_Rating)2   0.024580   0.002992   8.216  &lt; 2e-16 ***
-factor(Star_Rating)2.5 0.070140   0.002836  24.728  &lt; 2e-16 ***
-factor(Star_Rating)3   0.043291   0.003027  14.301  &lt; 2e-16 ***
-factor(Star_Rating)3.5 0.029684   0.003274   9.067  &lt; 2e-16 ***
-factor(Star_Rating)4   0.029959   0.003575   8.381  &lt; 2e-16 ***
-factor(Star_Rating)4.5 0.029195   0.005283   5.526 3.31e-08 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_nmvuhm4puqmric7283wb = TinyTable.createTableFunctions("tinytable_nmvuhm4puqmric7283wb");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '15', j: 2 } ], css_id: 'tinytable_css_qug39jid7b288sc90nvz',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '15', j: 1 } ], css_id: 'tinytable_css_mube6cf30f2tpmkku85c',}, 
+          { positions: [ { i: '16', j: 2 } ], css_id: 'tinytable_css_dq0bt2oa6s4zgnxigdnd',}, 
+          { positions: [ { i: '16', j: 1 } ], css_id: 'tinytable_css_h9p0oeh9uqwp6n9ms4hl',}, 
+          { positions: [ { i: '14', j: 2 } ], css_id: 'tinytable_css_ozbulgnn3blyrzyau40o',}, 
+          { positions: [ { i: '14', j: 1 } ], css_id: 'tinytable_css_sdw6l8m30p8ydwbk2h2q',}, 
+          { positions: [ { i: '0', j: 2 } ], css_id: 'tinytable_css_j6sn1nblwho8wj2hnoj5',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_655mdb3l2zzht8o1l1va',}, 
+          ];
 
-Residual standard error: 0.1013 on 22530 degrees of freedom
-Multiple R-squared:  0.04458,   Adjusted R-squared:  0.04432 
-F-statistic: 175.2 on 6 and 22530 DF,  p-value: &lt; 2.2e-16</code></pre>
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_nmvuhm4puqmric7283wb.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_qug39jid7b288sc90nvz, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_qug39jid7b288sc90nvz { text-align: center }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_mube6cf30f2tpmkku85c, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_mube6cf30f2tpmkku85c { text-align: left }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_dq0bt2oa6s4zgnxigdnd, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_dq0bt2oa6s4zgnxigdnd {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_h9p0oeh9uqwp6n9ms4hl, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_h9p0oeh9uqwp6n9ms4hl {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_ozbulgnn3blyrzyau40o, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_ozbulgnn3blyrzyau40o {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_sdw6l8m30p8ydwbk2h2q, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_sdw6l8m30p8ydwbk2h2q {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_j6sn1nblwho8wj2hnoj5, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_j6sn1nblwho8wj2hnoj5 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_nmvuhm4puqmric7283wb td.tinytable_css_655mdb3l2zzht8o1l1va, #tinytable_nmvuhm4puqmric7283wb th.tinytable_css_655mdb3l2zzht8o1l1va {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_nmvuhm4puqmric7283wb" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Market Share by Star Rating (OLS)</caption>
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">(1)</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">(Intercept)</td>
+                  <td data-row="1" data-col="2">0.026</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.003)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Star Rating = 2</td>
+                  <td data-row="3" data-col="2">0.025</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.003)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Star Rating = 2.5</td>
+                  <td data-row="5" data-col="2">0.070</td>
+                </tr>
+                <tr>
+                  <td data-row="6" data-col="1"></td>
+                  <td data-row="6" data-col="2">(0.003)</td>
+                </tr>
+                <tr>
+                  <td data-row="7" data-col="1">Star Rating = 3</td>
+                  <td data-row="7" data-col="2">0.043</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2">(0.003)</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1">Star Rating = 3.5</td>
+                  <td data-row="9" data-col="2">0.030</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1"></td>
+                  <td data-row="10" data-col="2">(0.003)</td>
+                </tr>
+                <tr>
+                  <td data-row="11" data-col="1">Star Rating = 4</td>
+                  <td data-row="11" data-col="2">0.030</td>
+                </tr>
+                <tr>
+                  <td data-row="12" data-col="1"></td>
+                  <td data-row="12" data-col="2">(0.004)</td>
+                </tr>
+                <tr>
+                  <td data-row="13" data-col="1">Star Rating = 4.5</td>
+                  <td data-row="13" data-col="2">0.029</td>
+                </tr>
+                <tr>
+                  <td data-row="14" data-col="1"></td>
+                  <td data-row="14" data-col="2">(0.005)</td>
+                </tr>
+                <tr>
+                  <td data-row="15" data-col="1">Num.Obs.</td>
+                  <td data-row="15" data-col="2">22537</td>
+                </tr>
+                <tr>
+                  <td data-row="16" data-col="1">R2</td>
+                  <td data-row="16" data-col="2">0.045</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
 </div>
@@ -519,70 +617,75 @@ F-statistic: 175.2 on 6 and 22530 DF,  p-value: &lt; 2.2e-16</code></pre>
 </section>
 <section id="data-cleanup" class="slide level2">
 <h2>Data Cleanup</h2>
+<p>We need contracts where the raw rating maps cleanly to the displayed star rating. CMS rounds raw scores to the nearest half-star, so a raw rating of 2.25 is the threshold between 2.0 and 2.5 stars.</p>
 <ul>
-<li>Focus on ratings around the 4-star cutoffs (running value of 3.75)</li>
+<li>Keep contracts with Star Rating of 2.0 or 2.5</li>
+<li>Drop contracts where raw_rating doesn’t match the assigned star (likely due to CMS adjustments we can’t replicate)</li>
 </ul>
+</section>
+<section id="data-cleanup-code" class="slide level2">
+<h2>Data Cleanup (code)</h2>
 <div class="panel-tabset">
 <ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">R</a></li><li><a href="#tabset-3-2">Python</a></li><li><a href="#tabset-3-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="co"># Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score</span></span>
-<span id="cb6-2"><a href=""></a>ma_25star_candidates <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href=""></a>  <span class="fu">filter</span>(</span>
-<span id="cb6-4"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(raw_rating),</span>
-<span id="cb6-5"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(partc_score),</span>
-<span id="cb6-6"><a href=""></a>    Star_Rating <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fl">2.0</span>, <span class="fl">2.5</span>)</span>
-<span id="cb6-7"><a href=""></a>  )</span>
-<span id="cb6-8"><a href=""></a></span>
-<span id="cb6-9"><a href=""></a>n_candidates_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ma_25star_candidates)</span>
-<span id="cb6-10"><a href=""></a>n_candidates_by_score <span class="ot">&lt;-</span> ma_25star_candidates <span class="sc">%&gt;%</span> <span class="fu">count</span>(partc_score)</span>
-<span id="cb6-11"><a href=""></a></span>
-<span id="cb6-12"><a href=""></a><span class="co"># Final sample: raw_rating in the range consistent with the star score</span></span>
-<span id="cb6-13"><a href=""></a>ma_25star <span class="ot">&lt;-</span> ma_25star_candidates <span class="sc">%&gt;%</span></span>
-<span id="cb6-14"><a href=""></a>  <span class="fu">filter</span>(</span>
-<span id="cb6-15"><a href=""></a>    raw_rating <span class="sc">&gt;=</span> <span class="dv">2</span>,</span>
-<span id="cb6-16"><a href=""></a>    raw_rating <span class="sc">&lt;=</span> <span class="fl">2.5</span>,</span>
-<span id="cb6-17"><a href=""></a>    (raw_rating <span class="sc">&gt;=</span> <span class="fl">2.25</span> <span class="sc">&amp;</span> Star_Rating <span class="sc">==</span> <span class="fl">2.5</span>) <span class="sc">|</span> (raw_rating <span class="sc">&lt;</span> <span class="fl">2.25</span> <span class="sc">&amp;</span> Star_Rating <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb6-18"><a href=""></a>  )</span>
-<span id="cb6-19"><a href=""></a></span>
-<span id="cb6-20"><a href=""></a>n_25star_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ma_25star)</span>
-<span id="cb6-21"><a href=""></a>n_25star_by_score <span class="ot">&lt;-</span> ma_25star <span class="sc">%&gt;%</span> <span class="fu">count</span>(partc_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score</span></span>
+<span id="cb5-2"><a href=""></a>ma_25star_candidates <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href=""></a>  <span class="fu">filter</span>(</span>
+<span id="cb5-4"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(raw_rating),</span>
+<span id="cb5-5"><a href=""></a>    <span class="sc">!</span><span class="fu">is.na</span>(partc_score),</span>
+<span id="cb5-6"><a href=""></a>    Star_Rating <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fl">2.0</span>, <span class="fl">2.5</span>)</span>
+<span id="cb5-7"><a href=""></a>  )</span>
+<span id="cb5-8"><a href=""></a></span>
+<span id="cb5-9"><a href=""></a>n_candidates_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ma_25star_candidates)</span>
+<span id="cb5-10"><a href=""></a>n_candidates_by_score <span class="ot">&lt;-</span> ma_25star_candidates <span class="sc">%&gt;%</span> <span class="fu">count</span>(partc_score)</span>
+<span id="cb5-11"><a href=""></a></span>
+<span id="cb5-12"><a href=""></a><span class="co"># Final sample: raw_rating in the range consistent with the star score</span></span>
+<span id="cb5-13"><a href=""></a>ma_25star <span class="ot">&lt;-</span> ma_25star_candidates <span class="sc">%&gt;%</span></span>
+<span id="cb5-14"><a href=""></a>  <span class="fu">filter</span>(</span>
+<span id="cb5-15"><a href=""></a>    raw_rating <span class="sc">&gt;=</span> <span class="dv">2</span>,</span>
+<span id="cb5-16"><a href=""></a>    raw_rating <span class="sc">&lt;=</span> <span class="fl">2.5</span>,</span>
+<span id="cb5-17"><a href=""></a>    (raw_rating <span class="sc">&gt;=</span> <span class="fl">2.25</span> <span class="sc">&amp;</span> Star_Rating <span class="sc">==</span> <span class="fl">2.5</span>) <span class="sc">|</span> (raw_rating <span class="sc">&lt;</span> <span class="fl">2.25</span> <span class="sc">&amp;</span> Star_Rating <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb5-18"><a href=""></a>  )</span>
+<span id="cb5-19"><a href=""></a></span>
+<span id="cb5-20"><a href=""></a>n_25star_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ma_25star)</span>
+<span id="cb5-21"><a href=""></a>n_25star_by_score <span class="ot">&lt;-</span> ma_25star <span class="sc">%&gt;%</span> <span class="fu">count</span>(partc_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-3-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href=""></a><span class="co"># Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score</span></span>
-<span id="cb7-2"><a href=""></a>candidates_mask <span class="op">=</span> (</span>
-<span id="cb7-3"><a href=""></a>    ma_2009[<span class="st">"raw_rating"</span>].notna()</span>
-<span id="cb7-4"><a href=""></a>    <span class="op">&amp;</span> ma_2009[<span class="st">"Star_Rating"</span>].notna()</span>
-<span id="cb7-5"><a href=""></a>    <span class="op">&amp;</span> ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="fl">2.0</span>, <span class="fl">2.5</span>])</span>
-<span id="cb7-6"><a href=""></a>)</span>
-<span id="cb7-7"><a href=""></a>ma_25star_candidates <span class="op">=</span> ma_2009.loc[candidates_mask].copy()</span>
-<span id="cb7-8"><a href=""></a></span>
-<span id="cb7-9"><a href=""></a>n_candidates_total <span class="op">=</span> <span class="bu">len</span>(ma_25star_candidates)</span>
-<span id="cb7-10"><a href=""></a>n_candidates_by_score <span class="op">=</span> ma_25star_candidates[<span class="st">"Star_Rating"</span>].value_counts()</span>
-<span id="cb7-11"><a href=""></a></span>
-<span id="cb7-12"><a href=""></a><span class="co"># Final sample: raw_rating in the range consistent with the star score</span></span>
-<span id="cb7-13"><a href=""></a>match_mask <span class="op">=</span> (</span>
-<span id="cb7-14"><a href=""></a>    ma_25star_candidates[<span class="st">"raw_rating"</span>].between(<span class="dv">2</span>, <span class="fl">2.5</span>)</span>
-<span id="cb7-15"><a href=""></a>    <span class="op">&amp;</span> (</span>
-<span id="cb7-16"><a href=""></a>        ((ma_25star_candidates[<span class="st">"Star_Rating"</span>] <span class="op">==</span> <span class="fl">2.5</span>) <span class="op">&amp;</span></span>
-<span id="cb7-17"><a href=""></a>         (ma_25star_candidates[<span class="st">"raw_rating"</span>] <span class="op">&gt;=</span> <span class="fl">2.25</span>))</span>
-<span id="cb7-18"><a href=""></a>        <span class="op">|</span></span>
-<span id="cb7-19"><a href=""></a>        ((ma_25star_candidates[<span class="st">"Star_Rating"</span>] <span class="op">==</span> <span class="dv">2</span>) <span class="op">&amp;</span></span>
-<span id="cb7-20"><a href=""></a>         (ma_25star_candidates[<span class="st">"raw_rating"</span>] <span class="op">&lt;=</span> <span class="fl">2.25</span>))</span>
-<span id="cb7-21"><a href=""></a>    )</span>
-<span id="cb7-22"><a href=""></a>)</span>
-<span id="cb7-23"><a href=""></a>ma_4star <span class="op">=</span> ma_4star_candidates.loc[match_mask].copy()</span>
-<span id="cb7-24"><a href=""></a></span>
-<span id="cb7-25"><a href=""></a>n_4star_total <span class="op">=</span> <span class="bu">len</span>(ma_25star)</span>
-<span id="cb7-26"><a href=""></a>n_4star_by_score <span class="op">=</span> ma_25star[<span class="st">"Star_Rating"</span>].value_counts()</span>
-<span id="cb7-27"><a href=""></a></span>
-<span id="cb7-28"><a href=""></a><span class="bu">print</span>(<span class="st">"Obs with partc_score 2 or 2.5:"</span>, n_candidates_total)</span>
-<span id="cb7-29"><a href=""></a><span class="bu">print</span>(n_candidates_by_score)</span>
-<span id="cb7-30"><a href=""></a><span class="bu">print</span>(<span class="st">"Obs with raw_rating in the matching range:"</span>, n_25star_total)</span>
-<span id="cb7-31"><a href=""></a><span class="bu">print</span>(n_4star_by_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a><span class="co"># Candidates: partc_score 2 or 2.5 with non-missing raw_rating and partc_score</span></span>
+<span id="cb6-2"><a href=""></a>candidates_mask <span class="op">=</span> (</span>
+<span id="cb6-3"><a href=""></a>    ma_2009[<span class="st">"raw_rating"</span>].notna()</span>
+<span id="cb6-4"><a href=""></a>    <span class="op">&amp;</span> ma_2009[<span class="st">"Star_Rating"</span>].notna()</span>
+<span id="cb6-5"><a href=""></a>    <span class="op">&amp;</span> ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="fl">2.0</span>, <span class="fl">2.5</span>])</span>
+<span id="cb6-6"><a href=""></a>)</span>
+<span id="cb6-7"><a href=""></a>ma_25star_candidates <span class="op">=</span> ma_2009.loc[candidates_mask].copy()</span>
+<span id="cb6-8"><a href=""></a></span>
+<span id="cb6-9"><a href=""></a>n_candidates_total <span class="op">=</span> <span class="bu">len</span>(ma_25star_candidates)</span>
+<span id="cb6-10"><a href=""></a>n_candidates_by_score <span class="op">=</span> ma_25star_candidates[<span class="st">"Star_Rating"</span>].value_counts()</span>
+<span id="cb6-11"><a href=""></a></span>
+<span id="cb6-12"><a href=""></a><span class="co"># Final sample: raw_rating in the range consistent with the star score</span></span>
+<span id="cb6-13"><a href=""></a>match_mask <span class="op">=</span> (</span>
+<span id="cb6-14"><a href=""></a>    ma_25star_candidates[<span class="st">"raw_rating"</span>].between(<span class="dv">2</span>, <span class="fl">2.5</span>)</span>
+<span id="cb6-15"><a href=""></a>    <span class="op">&amp;</span> (</span>
+<span id="cb6-16"><a href=""></a>        ((ma_25star_candidates[<span class="st">"Star_Rating"</span>] <span class="op">==</span> <span class="fl">2.5</span>) <span class="op">&amp;</span></span>
+<span id="cb6-17"><a href=""></a>         (ma_25star_candidates[<span class="st">"raw_rating"</span>] <span class="op">&gt;=</span> <span class="fl">2.25</span>))</span>
+<span id="cb6-18"><a href=""></a>        <span class="op">|</span></span>
+<span id="cb6-19"><a href=""></a>        ((ma_25star_candidates[<span class="st">"Star_Rating"</span>] <span class="op">==</span> <span class="dv">2</span>) <span class="op">&amp;</span></span>
+<span id="cb6-20"><a href=""></a>         (ma_25star_candidates[<span class="st">"raw_rating"</span>] <span class="op">&lt;=</span> <span class="fl">2.25</span>))</span>
+<span id="cb6-21"><a href=""></a>    )</span>
+<span id="cb6-22"><a href=""></a>)</span>
+<span id="cb6-23"><a href=""></a>ma_25star <span class="op">=</span> ma_25star_candidates.loc[match_mask].copy()</span>
+<span id="cb6-24"><a href=""></a></span>
+<span id="cb6-25"><a href=""></a>n_25star_total <span class="op">=</span> <span class="bu">len</span>(ma_25star)</span>
+<span id="cb6-26"><a href=""></a>n_25star_by_score <span class="op">=</span> ma_25star[<span class="st">"Star_Rating"</span>].value_counts()</span>
+<span id="cb6-27"><a href=""></a></span>
+<span id="cb6-28"><a href=""></a><span class="bu">print</span>(<span class="st">"Obs with partc_score 2 or 2.5:"</span>, n_candidates_total)</span>
+<span id="cb6-29"><a href=""></a><span class="bu">print</span>(n_candidates_by_score)</span>
+<span id="cb6-30"><a href=""></a><span class="bu">print</span>(<span class="st">"Obs with raw_rating in the matching range:"</span>, n_25star_total)</span>
+<span id="cb6-31"><a href=""></a><span class="bu">print</span>(n_4star_by_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-3-3">
@@ -619,64 +722,66 @@ F-statistic: 175.2 on 6 and 22530 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="tab-content">
 <div id="tabset-4-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a>rd.result <span class="ot">&lt;-</span> <span class="fu">rdplot</span>(ma_25star<span class="sc">$</span>mkt_share, ma_25star<span class="sc">$</span>raw_rating, </span>
-<span id="cb12-2"><a href=""></a>                    <span class="at">c=</span><span class="fl">2.25</span>, <span class="at">p=</span><span class="dv">2</span>,</span>
-<span id="cb12-3"><a href=""></a>                    <span class="at">title=</span><span class="st">"RD Plot with Binned Average"</span>, </span>
-<span id="cb12-4"><a href=""></a>                    <span class="at">x.label=</span><span class="st">"Running Variable"</span>, </span>
-<span id="cb12-5"><a href=""></a>                    <span class="at">y.label=</span><span class="st">"Outcome"</span>,</span>
-<span id="cb12-6"><a href=""></a>                    <span class="at">hide =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-7"><a href=""></a>bin.avg <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(rd.result<span class="sc">$</span>vars_bins)</span>
-<span id="cb12-8"><a href=""></a>plot.bin <span class="ot">&lt;-</span> bin.avg <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>rdplot_mean_x,<span class="at">y=</span>rdplot_mean_y)) <span class="sc">+</span> </span>
-<span id="cb12-9"><a href=""></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb12-10"><a href=""></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fl">2.25</span>),<span class="at">linetype=</span><span class="st">'dashed'</span>) <span class="sc">+</span></span>
-<span id="cb12-11"><a href=""></a>  <span class="fu">scale_x_continuous</span>(</span>
-<span id="cb12-12"><a href=""></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">2.5</span>),</span>
-<span id="cb12-13"><a href=""></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Untreated"</span>, <span class="st">"Treated"</span>)</span>
-<span id="cb12-14"><a href=""></a>  ) <span class="sc">+</span></span>
-<span id="cb12-15"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Running Variable"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Outcome"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>rd.result <span class="ot">&lt;-</span> <span class="fu">rdplot</span>(ma_25star<span class="sc">$</span>mkt_share, ma_25star<span class="sc">$</span>raw_rating, </span>
+<span id="cb11-2"><a href=""></a>                    <span class="at">c=</span><span class="fl">2.25</span>, <span class="at">p=</span><span class="dv">2</span>,</span>
+<span id="cb11-3"><a href=""></a>                    <span class="at">title=</span><span class="st">"RD Plot with Binned Average"</span>, </span>
+<span id="cb11-4"><a href=""></a>                    <span class="at">x.label=</span><span class="st">"Running Variable"</span>, </span>
+<span id="cb11-5"><a href=""></a>                    <span class="at">y.label=</span><span class="st">"Outcome"</span>,</span>
+<span id="cb11-6"><a href=""></a>                    <span class="at">hide =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-7"><a href=""></a>bin.avg <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(rd.result<span class="sc">$</span>vars_bins)</span>
+<span id="cb11-8"><a href=""></a>plot.bin <span class="ot">&lt;-</span> bin.avg <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>rdplot_mean_x,<span class="at">y=</span>rdplot_mean_y)) <span class="sc">+</span></span>
+<span id="cb11-9"><a href=""></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb11-10"><a href=""></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fl">2.25</span>),<span class="at">linetype=</span><span class="st">'dashed'</span>) <span class="sc">+</span></span>
+<span id="cb11-11"><a href=""></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb11-12"><a href=""></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">2.125</span>, <span class="fl">2.25</span>, <span class="fl">2.375</span>, <span class="fl">2.5</span>),</span>
+<span id="cb11-13"><a href=""></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"2.0"</span>, <span class="st">"2.125"</span>, <span class="st">"2.25"</span>, <span class="st">"2.375"</span>, <span class="st">"2.5"</span>)</span>
+<span id="cb11-14"><a href=""></a>  ) <span class="sc">+</span></span>
+<span id="cb11-15"><a href=""></a>  <span class="fu">xlab</span>(<span class="st">"Raw Rating"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Market Share"</span>) <span class="sc">+</span></span>
+<span id="cb11-16"><a href=""></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">2.25</span>, <span class="at">y=</span><span class="cn">Inf</span>, <span class="at">label=</span><span class="st">"2.5-star</span><span class="sc">\n</span><span class="st">cutoff"</span>,</span>
+<span id="cb11-17"><a href=""></a>           <span class="at">vjust=</span><span class="fl">1.5</span>, <span class="at">hjust=</span><span class="sc">-</span><span class="fl">0.1</span>, <span class="at">size=</span><span class="fl">3.5</span>, <span class="at">color=</span><span class="st">"grey40"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-4-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href=""></a><span class="co">#| eval: false</span></span>
-<span id="cb13-2"><a href=""></a></span>
-<span id="cb13-3"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb13-4"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb13-5"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rdplot</span>
-<span id="cb13-6"><a href=""></a></span>
-<span id="cb13-7"><a href=""></a><span class="co"># RD plot using mkt_share as outcome and raw_rating as running variable</span></span>
-<span id="cb13-8"><a href=""></a>rd_result <span class="op">=</span> rdplot(</span>
-<span id="cb13-9"><a href=""></a>    y<span class="op">=</span>ma_25star[<span class="st">"mkt_share"</span>].values,</span>
-<span id="cb13-10"><a href=""></a>    x<span class="op">=</span>ma_25star[<span class="st">"raw_rating"</span>].values,</span>
-<span id="cb13-11"><a href=""></a>    c<span class="op">=</span><span class="fl">2.25</span>,</span>
-<span id="cb13-12"><a href=""></a>    title<span class="op">=</span><span class="st">"RD Plot with Binned Average"</span>,</span>
-<span id="cb13-13"><a href=""></a>    x_label<span class="op">=</span><span class="st">"Running Variable"</span>,</span>
-<span id="cb13-14"><a href=""></a>    y_label<span class="op">=</span><span class="st">"Outcome"</span>,</span>
-<span id="cb13-15"><a href=""></a>    hide<span class="op">=</span><span class="va">True</span>  <span class="co"># don't show the built-in plot</span></span>
-<span id="cb13-16"><a href=""></a>)</span>
-<span id="cb13-17"><a href=""></a></span>
-<span id="cb13-18"><a href=""></a><span class="co"># vars_bins is already a pandas DataFrame in the Python implementation</span></span>
-<span id="cb13-19"><a href=""></a>bin_avg <span class="op">=</span> rd_result.vars_bins</span>
-<span id="cb13-20"><a href=""></a></span>
-<span id="cb13-21"><a href=""></a><span class="co"># Recreate the custom plot</span></span>
-<span id="cb13-22"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb13-23"><a href=""></a></span>
-<span id="cb13-24"><a href=""></a>ax.scatter(</span>
-<span id="cb13-25"><a href=""></a>    bin_avg[<span class="st">"rdplot_mean_x"</span>],</span>
-<span id="cb13-26"><a href=""></a>    bin_avg[<span class="st">"rdplot_mean_y"</span>]</span>
-<span id="cb13-27"><a href=""></a>)</span>
-<span id="cb13-28"><a href=""></a></span>
-<span id="cb13-29"><a href=""></a>ax.axvline(x<span class="op">=</span><span class="fl">2.25</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb13-30"><a href=""></a></span>
-<span id="cb13-31"><a href=""></a>ax.set_xticks([<span class="fl">2.0</span>, <span class="fl">2.5</span>])</span>
-<span id="cb13-32"><a href=""></a>ax.set_xticklabels([<span class="st">"Untreated"</span>, <span class="st">"Treated"</span>])</span>
-<span id="cb13-33"><a href=""></a></span>
-<span id="cb13-34"><a href=""></a>ax.set_xlabel(<span class="st">"Running Variable"</span>)</span>
-<span id="cb13-35"><a href=""></a>ax.set_ylabel(<span class="st">"Outcome"</span>)</span>
-<span id="cb13-36"><a href=""></a>ax.set_title(<span class="st">"RD Plot with Binned Average"</span>)</span>
-<span id="cb13-37"><a href=""></a></span>
-<span id="cb13-38"><a href=""></a>plt.tight_layout()</span>
-<span id="cb13-39"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-3"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rdplot</span>
+<span id="cb12-4"><a href=""></a></span>
+<span id="cb12-5"><a href=""></a><span class="co"># RD plot using mkt_share as outcome and raw_rating as running variable</span></span>
+<span id="cb12-6"><a href=""></a>rd_result <span class="op">=</span> rdplot(</span>
+<span id="cb12-7"><a href=""></a>    y<span class="op">=</span>ma_25star[<span class="st">"mkt_share"</span>].values,</span>
+<span id="cb12-8"><a href=""></a>    x<span class="op">=</span>ma_25star[<span class="st">"raw_rating"</span>].values,</span>
+<span id="cb12-9"><a href=""></a>    c<span class="op">=</span><span class="fl">2.25</span>,</span>
+<span id="cb12-10"><a href=""></a>    title<span class="op">=</span><span class="st">"RD Plot with Binned Average"</span>,</span>
+<span id="cb12-11"><a href=""></a>    x_label<span class="op">=</span><span class="st">"Running Variable"</span>,</span>
+<span id="cb12-12"><a href=""></a>    y_label<span class="op">=</span><span class="st">"Outcome"</span>,</span>
+<span id="cb12-13"><a href=""></a>    hide<span class="op">=</span><span class="va">True</span>  <span class="co"># don't show the built-in plot</span></span>
+<span id="cb12-14"><a href=""></a>)</span>
+<span id="cb12-15"><a href=""></a></span>
+<span id="cb12-16"><a href=""></a><span class="co"># vars_bins is already a pandas DataFrame in the Python implementation</span></span>
+<span id="cb12-17"><a href=""></a>bin_avg <span class="op">=</span> rd_result.vars_bins</span>
+<span id="cb12-18"><a href=""></a></span>
+<span id="cb12-19"><a href=""></a><span class="co"># Recreate the custom plot</span></span>
+<span id="cb12-20"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb12-21"><a href=""></a></span>
+<span id="cb12-22"><a href=""></a>ax.scatter(</span>
+<span id="cb12-23"><a href=""></a>    bin_avg[<span class="st">"rdplot_mean_x"</span>],</span>
+<span id="cb12-24"><a href=""></a>    bin_avg[<span class="st">"rdplot_mean_y"</span>]</span>
+<span id="cb12-25"><a href=""></a>)</span>
+<span id="cb12-26"><a href=""></a></span>
+<span id="cb12-27"><a href=""></a>ax.axvline(x<span class="op">=</span><span class="fl">2.25</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, color<span class="op">=</span><span class="st">"grey"</span>)</span>
+<span id="cb12-28"><a href=""></a></span>
+<span id="cb12-29"><a href=""></a>ax.set_xticks([<span class="fl">2.0</span>, <span class="fl">2.125</span>, <span class="fl">2.25</span>, <span class="fl">2.375</span>, <span class="fl">2.5</span>])</span>
+<span id="cb12-30"><a href=""></a>ax.set_xticklabels([<span class="st">"2.0"</span>, <span class="st">"2.125"</span>, <span class="st">"2.25"</span>, <span class="st">"2.375"</span>, <span class="st">"2.5"</span>])</span>
+<span id="cb12-31"><a href=""></a></span>
+<span id="cb12-32"><a href=""></a>ax.set_xlabel(<span class="st">"Raw Rating"</span>)</span>
+<span id="cb12-33"><a href=""></a>ax.set_ylabel(<span class="st">"Market Share"</span>)</span>
+<span id="cb12-34"><a href=""></a>ax.set_title(<span class="st">"RD Plot with Binned Average"</span>)</span>
+<span id="cb12-35"><a href=""></a>ax.annotate(<span class="st">"2.5-star</span><span class="ch">\n</span><span class="st">cutoff"</span>, xy<span class="op">=</span>(<span class="fl">2.25</span>, ax.get_ylim()[<span class="dv">1</span>]),</span>
+<span id="cb12-36"><a href=""></a>            xytext<span class="op">=</span>(<span class="fl">2.27</span>, ax.get_ylim()[<span class="dv">1</span>]<span class="op">*</span><span class="fl">0.95</span>), fontsize<span class="op">=</span><span class="dv">9</span>, color<span class="op">=</span><span class="st">"grey"</span>)</span>
+<span id="cb12-37"><a href=""></a></span>
+<span id="cb12-38"><a href=""></a>plt.tight_layout()</span>
+<span id="cb12-39"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-4-3">
@@ -700,257 +805,189 @@ F-statistic: 175.2 on 6 and 22530 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="tab-content">
 <div id="tabset-5-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>ma.rd1 <span class="ot">&lt;-</span> ma_25star <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">2.25</span>,</span>
-<span id="cb14-3"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
-<span id="cb14-4"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
-<span id="cb14-5"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
-<span id="cb14-6"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
-<span id="cb14-7"><a href=""></a>star25<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat, <span class="at">data=</span>ma.rd1)</span>
-<span id="cb14-8"><a href=""></a>star25<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window1<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
-<span id="cb14-9"><a href=""></a>star25<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat <span class="sc">+</span> score_treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window1<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
-<span id="cb14-10"><a href=""></a>star25<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat <span class="sc">+</span> score_treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window2<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
-<span id="cb14-11"><a href=""></a>est1 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.1</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
-<span id="cb14-12"><a href=""></a>est2 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.2</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
-<span id="cb14-13"><a href=""></a>est3 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.3</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
-<span id="cb14-14"><a href=""></a>est4 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.4</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
-<span id="cb14-15"><a href=""></a></span>
-<span id="cb14-16"><a href=""></a>rows <span class="ot">&lt;-</span> <span class="fu">tribble</span>(<span class="sc">~</span>term, <span class="sc">~</span> m1, <span class="sc">~</span> m2, <span class="sc">~</span> m3 , <span class="sc">~</span> m4,</span>
-<span id="cb14-17"><a href=""></a>                <span class="st">'Bandwidth'</span>, <span class="st">"0.25"</span>, <span class="st">"0.175"</span>, <span class="st">"0.175"</span>, <span class="st">"0.125"</span>)</span>
-<span id="cb14-18"><a href=""></a><span class="fu">attr</span>(rows, <span class="st">'position'</span>)  <span class="ot">&lt;-</span> <span class="dv">7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>ma.rd1 <span class="ot">&lt;-</span> ma_25star <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">2.25</span>,</span>
+<span id="cb13-3"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
+<span id="cb13-4"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
+<span id="cb13-5"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
+<span id="cb13-6"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
+<span id="cb13-7"><a href=""></a>star25<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat, <span class="at">data=</span>ma.rd1)</span>
+<span id="cb13-8"><a href=""></a>star25<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window1<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
+<span id="cb13-9"><a href=""></a>star25<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat <span class="sc">+</span> score_treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window1<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
+<span id="cb13-10"><a href=""></a>star25<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(mkt_share <span class="sc">~</span> score <span class="sc">+</span> treat <span class="sc">+</span> score_treat, <span class="at">data=</span> (ma.rd1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(window2<span class="sc">==</span><span class="cn">TRUE</span>)))</span>
+<span id="cb13-11"><a href=""></a>est1 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.1</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
+<span id="cb13-12"><a href=""></a>est2 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.2</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
+<span id="cb13-13"><a href=""></a>est3 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.3</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
+<span id="cb13-14"><a href=""></a>est4 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(star25<span class="fl">.4</span><span class="sc">$</span>coef[<span class="dv">3</span>])</span>
+<span id="cb13-15"><a href=""></a></span>
+<span id="cb13-16"><a href=""></a>rows <span class="ot">&lt;-</span> <span class="fu">tribble</span>(<span class="sc">~</span>term, <span class="sc">~</span> m1, <span class="sc">~</span> m2, <span class="sc">~</span> m3 , <span class="sc">~</span> m4,</span>
+<span id="cb13-17"><a href=""></a>                <span class="st">'Bandwidth'</span>, <span class="st">"0.25"</span>, <span class="st">"0.175"</span>, <span class="st">"0.175"</span>, <span class="st">"0.125"</span>)</span>
+<span id="cb13-18"><a href=""></a><span class="fu">attr</span>(rows, <span class="st">'position'</span>)  <span class="ot">&lt;-</span> <span class="dv">7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-5-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb15-2"><a href=""></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb15-3"><a href=""></a></span>
-<span id="cb15-4"><a href=""></a><span class="co"># Start from ga_ma_4star DataFrame</span></span>
-<span id="cb15-5"><a href=""></a>ma_rd1 <span class="op">=</span> ma_25star.copy()</span>
-<span id="cb15-6"><a href=""></a></span>
-<span id="cb15-7"><a href=""></a>ma_rd1[<span class="st">"score"</span>] <span class="op">=</span> ma_rd1[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">2.25</span></span>
-<span id="cb15-8"><a href=""></a>ma_rd1[<span class="st">"treat"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb15-9"><a href=""></a>ma_rd1[<span class="st">"window1"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>))</span>
-<span id="cb15-10"><a href=""></a>ma_rd1[<span class="st">"window2"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>))</span>
-<span id="cb15-11"><a href=""></a>ma_rd1[<span class="st">"score_treat"</span>] <span class="op">=</span> ma_rd1[<span class="st">"score"</span>] <span class="op">*</span> ma_rd1[<span class="st">"treat"</span>]</span>
-<span id="cb15-12"><a href=""></a></span>
-<span id="cb15-13"><a href=""></a><span class="co"># Regressions</span></span>
-<span id="cb15-14"><a href=""></a>star25_1 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat"</span>, data<span class="op">=</span>ma_rd1).fit()</span>
-<span id="cb15-15"><a href=""></a>star25_2 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat"</span>,</span>
-<span id="cb15-16"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window1"</span>]]).fit()</span>
-<span id="cb15-17"><a href=""></a>star25_3 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat + score_treat"</span>,</span>
-<span id="cb15-18"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window1"</span>]]).fit()</span>
-<span id="cb15-19"><a href=""></a>star25_4 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat + score_treat"</span>,</span>
-<span id="cb15-20"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window2"</span>]]).fit()</span>
-<span id="cb15-21"><a href=""></a></span>
-<span id="cb15-22"><a href=""></a><span class="co"># Extract treatment effect (coefficient on treat)</span></span>
-<span id="cb15-23"><a href=""></a>est1 <span class="op">=</span> <span class="bu">float</span>(star25_1.params[<span class="st">"treat"</span>])</span>
-<span id="cb15-24"><a href=""></a>est2 <span class="op">=</span> <span class="bu">float</span>(star25_2.params[<span class="st">"treat"</span>])</span>
-<span id="cb15-25"><a href=""></a>est3 <span class="op">=</span> <span class="bu">float</span>(star25_3.params[<span class="st">"treat"</span>])</span>
-<span id="cb15-26"><a href=""></a>est4 <span class="op">=</span> <span class="bu">float</span>(star25_4.params[<span class="st">"treat"</span>])</span>
-<span id="cb15-27"><a href=""></a></span>
-<span id="cb15-28"><a href=""></a><span class="co"># Bandwidth row (analogous to tribble + attribute)</span></span>
-<span id="cb15-29"><a href=""></a>rows <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb15-30"><a href=""></a>    {</span>
-<span id="cb15-31"><a href=""></a>        <span class="st">"term"</span>: [<span class="st">"Bandwidth"</span>],</span>
-<span id="cb15-32"><a href=""></a>        <span class="st">"m1"</span>: [<span class="st">"0.25"</span>],</span>
-<span id="cb15-33"><a href=""></a>        <span class="st">"m2"</span>: [<span class="st">"0.175"</span>],</span>
-<span id="cb15-34"><a href=""></a>        <span class="st">"m3"</span>: [<span class="st">"0.175"</span>],</span>
-<span id="cb15-35"><a href=""></a>        <span class="st">"m4"</span>: [<span class="st">"0.125"</span>],</span>
-<span id="cb15-36"><a href=""></a>    }</span>
-<span id="cb15-37"><a href=""></a>)</span>
-<span id="cb15-38"><a href=""></a>rows.attrs[<span class="st">"position"</span>] <span class="op">=</span> <span class="dv">7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb14-2"><a href=""></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb14-3"><a href=""></a></span>
+<span id="cb14-4"><a href=""></a><span class="co"># Start from ga_ma_4star DataFrame</span></span>
+<span id="cb14-5"><a href=""></a>ma_rd1 <span class="op">=</span> ma_25star.copy()</span>
+<span id="cb14-6"><a href=""></a></span>
+<span id="cb14-7"><a href=""></a>ma_rd1[<span class="st">"score"</span>] <span class="op">=</span> ma_rd1[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">2.25</span></span>
+<span id="cb14-8"><a href=""></a>ma_rd1[<span class="st">"treat"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb14-9"><a href=""></a>ma_rd1[<span class="st">"window1"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>))</span>
+<span id="cb14-10"><a href=""></a>ma_rd1[<span class="st">"window2"</span>] <span class="op">=</span> (ma_rd1[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>))</span>
+<span id="cb14-11"><a href=""></a>ma_rd1[<span class="st">"score_treat"</span>] <span class="op">=</span> ma_rd1[<span class="st">"score"</span>] <span class="op">*</span> ma_rd1[<span class="st">"treat"</span>]</span>
+<span id="cb14-12"><a href=""></a></span>
+<span id="cb14-13"><a href=""></a><span class="co"># Regressions</span></span>
+<span id="cb14-14"><a href=""></a>star25_1 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat"</span>, data<span class="op">=</span>ma_rd1).fit()</span>
+<span id="cb14-15"><a href=""></a>star25_2 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat"</span>,</span>
+<span id="cb14-16"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window1"</span>]]).fit()</span>
+<span id="cb14-17"><a href=""></a>star25_3 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat + score_treat"</span>,</span>
+<span id="cb14-18"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window1"</span>]]).fit()</span>
+<span id="cb14-19"><a href=""></a>star25_4 <span class="op">=</span> smf.ols(<span class="st">"mkt_share ~ score + treat + score_treat"</span>,</span>
+<span id="cb14-20"><a href=""></a>                  data<span class="op">=</span>ma_rd1[ma_rd1[<span class="st">"window2"</span>]]).fit()</span>
+<span id="cb14-21"><a href=""></a></span>
+<span id="cb14-22"><a href=""></a><span class="co"># Extract treatment effect (coefficient on treat)</span></span>
+<span id="cb14-23"><a href=""></a>est1 <span class="op">=</span> <span class="bu">float</span>(star25_1.params[<span class="st">"treat"</span>])</span>
+<span id="cb14-24"><a href=""></a>est2 <span class="op">=</span> <span class="bu">float</span>(star25_2.params[<span class="st">"treat"</span>])</span>
+<span id="cb14-25"><a href=""></a>est3 <span class="op">=</span> <span class="bu">float</span>(star25_3.params[<span class="st">"treat"</span>])</span>
+<span id="cb14-26"><a href=""></a>est4 <span class="op">=</span> <span class="bu">float</span>(star25_4.params[<span class="st">"treat"</span>])</span>
+<span id="cb14-27"><a href=""></a></span>
+<span id="cb14-28"><a href=""></a><span class="co"># Bandwidth row (analogous to tribble + attribute)</span></span>
+<span id="cb14-29"><a href=""></a>rows <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb14-30"><a href=""></a>    {</span>
+<span id="cb14-31"><a href=""></a>        <span class="st">"term"</span>: [<span class="st">"Bandwidth"</span>],</span>
+<span id="cb14-32"><a href=""></a>        <span class="st">"m1"</span>: [<span class="st">"0.25"</span>],</span>
+<span id="cb14-33"><a href=""></a>        <span class="st">"m2"</span>: [<span class="st">"0.175"</span>],</span>
+<span id="cb14-34"><a href=""></a>        <span class="st">"m3"</span>: [<span class="st">"0.175"</span>],</span>
+<span id="cb14-35"><a href=""></a>        <span class="st">"m4"</span>: [<span class="st">"0.125"</span>],</span>
+<span id="cb14-36"><a href=""></a>    }</span>
+<span id="cb14-37"><a href=""></a>)</span>
+<span id="cb14-38"><a href=""></a>rows.attrs[<span class="st">"position"</span>] <span class="op">=</span> <span class="dv">7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-5-3">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a><span class="fu">modelsummary</span>(<span class="fu">list</span>(star25<span class="fl">.1</span>, star25<span class="fl">.2</span>, star25<span class="fl">.3</span>, star25<span class="fl">.4</span>),</span>
-<span id="cb16-2"><a href=""></a>          <span class="at">keep=</span><span class="fu">c</span>(<span class="st">"score"</span>, <span class="st">"treatTRUE"</span>, <span class="st">"score_treat"</span>),</span>
-<span id="cb16-3"><a href=""></a>          <span class="at">coef_map=</span><span class="fu">c</span>(<span class="st">"score"</span><span class="ot">=</span><span class="st">"Raw Score"</span>, </span>
-<span id="cb16-4"><a href=""></a>                    <span class="st">"treatTRUE"</span><span class="ot">=</span><span class="st">"Treatment"</span>,</span>
-<span id="cb16-5"><a href=""></a>                    <span class="st">"score_treat"</span><span class="ot">=</span><span class="st">"Score x Treat"</span>),</span>
-<span id="cb16-6"><a href=""></a>          <span class="at">gof_map=</span><span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>),</span>
-<span id="cb16-7"><a href=""></a>          <span class="at">add_rows=</span>rows)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <!-- preamble start -->
 
+    <script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
     <script>
-      function styleCell_urt4szq7nsl3m4p09vcm(i, j, css_id) {
-        var table = document.getElementById("tinytable_urt4szq7nsl3m4p09vcm");
-        table.rows[i].cells[j].classList.add(css_id);
-      }
-      function insertSpanRow(i, colspan, content) {
-        var table = document.getElementById('tinytable_urt4szq7nsl3m4p09vcm');
-        var newRow = table.insertRow(i);
-        var newCell = newRow.insertCell(0);
-        newCell.setAttribute("colspan", colspan);
-        // newCell.innerText = content;
-        // this may be unsafe, but innerText does not interpret <br>
-        newCell.innerHTML = content;
-      }
-      function spanCell_urt4szq7nsl3m4p09vcm(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_urt4szq7nsl3m4p09vcm");
-        const targetRow = table.rows[i];
-        const targetCell = targetRow.cells[j];
-        for (let r = 0; r < rowspan; r++) {
-          // Only start deleting cells to the right for the first row (r == 0)
-          if (r === 0) {
-            // Delete cells to the right of the target cell in the first row
-            for (let c = colspan - 1; c > 0; c--) {
-              if (table.rows[i + r].cells[j + c]) {
-                table.rows[i + r].deleteCell(j + c);
-              }
-            }
-          }
-          // For rows below the first, delete starting from the target column
-          if (r > 0) {
-            for (let c = colspan - 1; c >= 0; c--) {
-              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
-                table.rows[i + r].deleteCell(j);
-              }
-            }
-          }
-        }
-        // Set rowspan and colspan of the target cell
-        targetCell.rowSpan = rowspan;
-        targetCell.colSpan = colspan;
-      }
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(0, 0, 'tinytable_css_idlg1r5wd3n9otchb1stqh') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(0, 1, 'tinytable_css_idr7r310tr4sncrxm4fu6o') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(0, 2, 'tinytable_css_idr7r310tr4sncrxm4fu6o') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(0, 3, 'tinytable_css_idr7r310tr4sncrxm4fu6o') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(0, 4, 'tinytable_css_idr7r310tr4sncrxm4fu6o') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(1, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(1, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(1, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(1, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(1, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(2, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(2, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(2, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(2, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(2, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(3, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(3, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(3, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(3, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(3, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(4, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(4, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(4, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(4, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(4, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(5, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(5, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(5, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(5, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(5, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(6, 0, 'tinytable_css_id063dwphkssyu9yxnsc4x') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(6, 1, 'tinytable_css_id2gi623ej9cwkb7576kfn') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(6, 2, 'tinytable_css_id2gi623ej9cwkb7576kfn') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(6, 3, 'tinytable_css_id2gi623ej9cwkb7576kfn') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(6, 4, 'tinytable_css_id2gi623ej9cwkb7576kfn') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(7, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(7, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(7, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(7, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(7, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(8, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(8, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(8, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(8, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(8, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 0, 'tinytable_css_idjup28ulukmajslpg78e6') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 1, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 2, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 3, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
-window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 4, 'tinytable_css_id2gbod94y4ezjzlvp5pd1') })
+      // Create table-specific functions using external factory
+      const tableFns_bxto459tjr99i9glqyp8 = TinyTable.createTableFunctions("tinytable_bxto459tjr99i9glqyp8");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '7', j: 3 }, { i: '8', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '7', j: 4 }, { i: '8', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '4', j: 5 }, { i: '5', j: 5 }, { i: '7', j: 5 }, { i: '8', j: 5 } ], css_id: 'tinytable_css_nyzv4kwcexcf5z8ujscd',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 } ], css_id: 'tinytable_css_emd6bu9t58jh2bomgc2p',}, 
+          { positions: [ { i: '9', j: 2 }, { i: '9', j: 3 }, { i: '9', j: 4 }, { i: '9', j: 5 } ], css_id: 'tinytable_css_4u4u0401blswfo8zh4gt',}, 
+          { positions: [ { i: '9', j: 1 } ], css_id: 'tinytable_css_mo98l2fyn5a3m2plrtvc',}, 
+          { positions: [ { i: '6', j: 2 }, { i: '6', j: 3 }, { i: '6', j: 4 }, { i: '6', j: 5 } ], css_id: 'tinytable_css_so0qvz41tchsm8luq40h',}, 
+          { positions: [ { i: '6', j: 1 } ], css_id: 'tinytable_css_zv5wqyj44pdom4eevfas',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 } ], css_id: 'tinytable_css_7ioealvmeh41dsbsladj',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_zsjfdi1f55ubcfccw91h',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_bxto459tjr99i9glqyp8.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
     </script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
     <style>
-    .table td.tinytable_css_idlg1r5wd3n9otchb1stqh, .table th.tinytable_css_idlg1r5wd3n9otchb1stqh {  text-align: left;  border-bottom: solid 0.1em #d3d8dc; }
-    .table td.tinytable_css_idr7r310tr4sncrxm4fu6o, .table th.tinytable_css_idr7r310tr4sncrxm4fu6o {  text-align: center;  border-bottom: solid 0.1em #d3d8dc; }
-    .table td.tinytable_css_idjup28ulukmajslpg78e6, .table th.tinytable_css_idjup28ulukmajslpg78e6 {  text-align: left; }
-    .table td.tinytable_css_id2gbod94y4ezjzlvp5pd1, .table th.tinytable_css_id2gbod94y4ezjzlvp5pd1 {  text-align: center; }
-    .table td.tinytable_css_id063dwphkssyu9yxnsc4x, .table th.tinytable_css_id063dwphkssyu9yxnsc4x {  border-bottom: solid 0.05em black;  text-align: left; }
-    .table td.tinytable_css_id2gi623ej9cwkb7576kfn, .table th.tinytable_css_id2gi623ej9cwkb7576kfn {  border-bottom: solid 0.05em black;  text-align: center; }
+    /* tinytable css entries after */
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_nyzv4kwcexcf5z8ujscd, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_nyzv4kwcexcf5z8ujscd { text-align: center }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_emd6bu9t58jh2bomgc2p, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_emd6bu9t58jh2bomgc2p { text-align: left }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_4u4u0401blswfo8zh4gt, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_4u4u0401blswfo8zh4gt {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_mo98l2fyn5a3m2plrtvc, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_mo98l2fyn5a3m2plrtvc {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.1em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_so0qvz41tchsm8luq40h, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_so0qvz41tchsm8luq40h {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_zv5wqyj44pdom4eevfas, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_zv5wqyj44pdom4eevfas {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_7ioealvmeh41dsbsladj, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_7ioealvmeh41dsbsladj {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_bxto459tjr99i9glqyp8 td.tinytable_css_zsjfdi1f55ubcfccw91h, #tinytable_bxto459tjr99i9glqyp8 th.tinytable_css_zsjfdi1f55ubcfccw91h {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: black; --line-color-left: black; --line-color-right: black; --line-color-top: black; --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
     </style>
     <div class="container">
-      <table class="table table-borderless" id="tinytable_urt4szq7nsl3m4p09vcm" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
-        <thead>
+      <table class="tinytable" id="tinytable_bxto459tjr99i9glqyp8" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         
+        <thead>
               <tr>
-                <th scope="col"> </th>
-                <th scope="col">(1)</th>
-                <th scope="col">(2)</th>
-                <th scope="col">(3)</th>
-                <th scope="col">(4)</th>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">(1)</th>
+                <th scope="col" data-row="0" data-col="3">(2)</th>
+                <th scope="col" data-row="0" data-col="4">(3)</th>
+                <th scope="col" data-row="0" data-col="5">(4)</th>
               </tr>
         </thead>
         
         <tbody>
                 <tr>
-                  <td>Raw Score    </td>
-                  <td>0.010  </td>
-                  <td>-0.277 </td>
-                  <td>-0.141 </td>
-                  <td>-0.204 </td>
+                  <td data-row="1" data-col="1">Raw Score</td>
+                  <td data-row="1" data-col="2">0.010</td>
+                  <td data-row="1" data-col="3">-0.277</td>
+                  <td data-row="1" data-col="4">-0.141</td>
+                  <td data-row="1" data-col="5">-0.204</td>
                 </tr>
                 <tr>
-                  <td>             </td>
-                  <td>(0.021)</td>
-                  <td>(0.038)</td>
-                  <td>(0.050)</td>
-                  <td>(0.054)</td>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.021)</td>
+                  <td data-row="2" data-col="3">(0.038)</td>
+                  <td data-row="2" data-col="4">(0.050)</td>
+                  <td data-row="2" data-col="5">(0.054)</td>
                 </tr>
                 <tr>
-                  <td>Treatment    </td>
-                  <td>0.012  </td>
-                  <td>0.058  </td>
-                  <td>0.066  </td>
-                  <td>0.070  </td>
+                  <td data-row="3" data-col="1">Treatment</td>
+                  <td data-row="3" data-col="2">0.012</td>
+                  <td data-row="3" data-col="3">0.058</td>
+                  <td data-row="3" data-col="4">0.066</td>
+                  <td data-row="3" data-col="5">0.070</td>
                 </tr>
                 <tr>
-                  <td>             </td>
-                  <td>(0.006)</td>
-                  <td>(0.008)</td>
-                  <td>(0.008)</td>
-                  <td>(0.010)</td>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.006)</td>
+                  <td data-row="4" data-col="3">(0.008)</td>
+                  <td data-row="4" data-col="4">(0.008)</td>
+                  <td data-row="4" data-col="5">(0.010)</td>
                 </tr>
                 <tr>
-                  <td>Score x Treat</td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>-0.328 </td>
-                  <td>-0.255 </td>
+                  <td data-row="5" data-col="1">Score x Treat</td>
+                  <td data-row="5" data-col="2"></td>
+                  <td data-row="5" data-col="3"></td>
+                  <td data-row="5" data-col="4">-0.328</td>
+                  <td data-row="5" data-col="5">-0.255</td>
                 </tr>
                 <tr>
-                  <td>             </td>
-                  <td>       </td>
-                  <td>       </td>
-                  <td>(0.078)</td>
-                  <td>(0.117)</td>
+                  <td data-row="6" data-col="1"></td>
+                  <td data-row="6" data-col="2"></td>
+                  <td data-row="6" data-col="3"></td>
+                  <td data-row="6" data-col="4">(0.078)</td>
+                  <td data-row="6" data-col="5">(0.117)</td>
                 </tr>
                 <tr>
-                  <td>Bandwidth    </td>
-                  <td>0.25   </td>
-                  <td>0.175  </td>
-                  <td>0.175  </td>
-                  <td>0.125  </td>
+                  <td data-row="7" data-col="1">Bandwidth</td>
+                  <td data-row="7" data-col="2">0.25</td>
+                  <td data-row="7" data-col="3">0.175</td>
+                  <td data-row="7" data-col="4">0.175</td>
+                  <td data-row="7" data-col="5">0.125</td>
                 </tr>
                 <tr>
-                  <td>Num.Obs.     </td>
-                  <td>6935   </td>
-                  <td>4605   </td>
-                  <td>4605   </td>
-                  <td>4422   </td>
+                  <td data-row="8" data-col="1">Num.Obs.</td>
+                  <td data-row="8" data-col="2">6935</td>
+                  <td data-row="8" data-col="3">4605</td>
+                  <td data-row="8" data-col="4">4605</td>
+                  <td data-row="8" data-col="5">4422</td>
                 </tr>
                 <tr>
-                  <td>R2           </td>
-                  <td>0.009  </td>
-                  <td>0.012  </td>
-                  <td>0.016  </td>
-                  <td>0.013  </td>
+                  <td data-row="9" data-col="1">R2</td>
+                  <td data-row="9" data-col="2">0.009</td>
+                  <td data-row="9" data-col="3">0.012</td>
+                  <td data-row="9" data-col="4">0.016</td>
+                  <td data-row="9" data-col="5">0.013</td>
                 </tr>
         </tbody>
       </table>
@@ -965,7 +1002,7 @@ window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 
 <section id="interpretation" class="slide level2">
 <h2>Interpretation</h2>
 <ul>
-<li>OLS on full sample: 1.2% increase in market shares among 4-star plans versus 3.5-star plan</li>
+<li>OLS on full sample: 1.2% increase in market share for 2.5-star versus 2.0-star plans</li>
 <li>RD on 0.175 bandwidth: 5.8% increase when imposing constant slopes, 6.6% increase when allowing for differential slopes</li>
 <li>RD on 0.125 bandwidth: 7% increase (again allowing for differential slopes)</li>
 </ul>
@@ -977,92 +1014,73 @@ window.addEventListener('load', function () { styleCell_urt4szq7nsl3m4p09vcm(9, 
 <div class="tab-content">
 <div id="tabset-6-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="do">## fixed bandwidth</span></span>
-<span id="cb17-2"><a href=""></a>est1 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd1<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb17-3"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>)</span>
-<span id="cb17-4"><a href=""></a></span>
-<span id="cb17-5"><a href=""></a><span class="do">## optimal bandwidth</span></span>
-<span id="cb17-6"><a href=""></a>estopt <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd1<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb17-7"><a href=""></a>                 <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="do">## fixed bandwidth</span></span>
+<span id="cb15-2"><a href=""></a>est1 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd1<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
+<span id="cb15-3"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>)</span>
+<span id="cb15-4"><a href=""></a></span>
+<span id="cb15-5"><a href=""></a><span class="do">## optimal bandwidth</span></span>
+<span id="cb15-6"><a href=""></a>estopt <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd1<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
+<span id="cb15-7"><a href=""></a>                 <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-6-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rdrobust</span>
-<span id="cb18-2"><a href=""></a></span>
-<span id="cb18-3"><a href=""></a><span class="co"># Fixed bandwidth</span></span>
-<span id="cb18-4"><a href=""></a>est1 <span class="op">=</span> rdrobust(</span>
-<span id="cb18-5"><a href=""></a>    y<span class="op">=</span>ma_rd1[<span class="st">"mkt_share"</span>].values,</span>
-<span id="cb18-6"><a href=""></a>    x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values,</span>
-<span id="cb18-7"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb18-8"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
-<span id="cb18-9"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb18-10"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,</span>
-<span id="cb18-11"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb18-12"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span>,</span>
-<span id="cb18-13"><a href=""></a>)</span>
-<span id="cb18-14"><a href=""></a></span>
-<span id="cb18-15"><a href=""></a><span class="co"># Optimal bandwidth (letting rdrobust choose h)</span></span>
-<span id="cb18-16"><a href=""></a>estopt <span class="op">=</span> rdrobust(</span>
-<span id="cb18-17"><a href=""></a>    y<span class="op">=</span>ma_rd1[<span class="st">"mkt_share"</span>].values,</span>
-<span id="cb18-18"><a href=""></a>    x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values,</span>
-<span id="cb18-19"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb18-20"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb18-21"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,</span>
-<span id="cb18-22"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb18-23"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span>,</span>
-<span id="cb18-24"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rdrobust</span>
+<span id="cb16-2"><a href=""></a></span>
+<span id="cb16-3"><a href=""></a><span class="co"># Fixed bandwidth</span></span>
+<span id="cb16-4"><a href=""></a>est1 <span class="op">=</span> rdrobust(</span>
+<span id="cb16-5"><a href=""></a>    y<span class="op">=</span>ma_rd1[<span class="st">"mkt_share"</span>].values,</span>
+<span id="cb16-6"><a href=""></a>    x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values,</span>
+<span id="cb16-7"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb16-8"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
+<span id="cb16-9"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb16-10"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,</span>
+<span id="cb16-11"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
+<span id="cb16-12"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span>,</span>
+<span id="cb16-13"><a href=""></a>)</span>
+<span id="cb16-14"><a href=""></a></span>
+<span id="cb16-15"><a href=""></a><span class="co"># Optimal bandwidth (letting rdrobust choose h)</span></span>
+<span id="cb16-16"><a href=""></a>estopt <span class="op">=</span> rdrobust(</span>
+<span id="cb16-17"><a href=""></a>    y<span class="op">=</span>ma_rd1[<span class="st">"mkt_share"</span>].values,</span>
+<span id="cb16-18"><a href=""></a>    x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values,</span>
+<span id="cb16-19"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb16-20"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb16-21"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,</span>
+<span id="cb16-22"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
+<span id="cb16-23"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span>,</span>
+<span id="cb16-24"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-6-3">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                 6935
-BW type                      Manual
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 4303         2632
-Eff. Number of Obs.            4129          293
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.125        0.125
-BW bias (b)                   0.125        0.125
-rho (h/b)                     1.000        1.000
-Unique Obs.                    4303         2632
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     0.070     0.016     4.253     0.000     [0.038 , 0.102]     
-        Robust         -         -     6.045     0.000     [0.151 , 0.295]     
-=============================================================================</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                 6935
-BW type                       mserd
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 4303         2632
-Eff. Number of Obs.             274           41
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.033        0.033
-BW bias (b)                   0.068        0.068
-rho (h/b)                     0.478        0.478
-Unique Obs.                      14           22
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     0.181     0.053     3.438     0.001     [0.078 , 0.284]     
-        Robust         -         -     3.741     0.000     [0.096 , 0.306]     
-=============================================================================</code></pre>
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Spec</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: left;">Robust CI</th>
+<th style="text-align: right;">BW</th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Fixed (h=0.125)</td>
+<td style="text-align: right;">0.0701</td>
+<td style="text-align: left;">[0.1506, 0.2952]</td>
+<td style="text-align: right;">0.125</td>
+<td style="text-align: right;">6935</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Optimal</td>
+<td style="text-align: right;">0.1809</td>
+<td style="text-align: left;">[0.0957, 0.3062]</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">6935</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -1081,8 +1099,8 @@ Unique Obs.                      14           22
 <div class="tab-content">
 <div id="tabset-7-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>dens1 <span class="ot">&lt;-</span> <span class="fu">rddensity</span>(ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>)</span>
-<span id="cb21-2"><a href=""></a>densplot <span class="ot">&lt;-</span> <span class="fu">rdplotdensity</span>(dens1, ma.rd1<span class="sc">$</span>score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>dens1 <span class="ot">&lt;-</span> <span class="fu">rddensity</span>(ma.rd1<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>)</span>
+<span id="cb17-2"><a href=""></a>densplot <span class="ot">&lt;-</span> <span class="fu">rdplotdensity</span>(dens1, ma.rd1<span class="sc">$</span>score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -1094,64 +1112,50 @@ Unique Obs.                      14           22
 </div>
 <div id="tabset-7-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rddensity, rdplotdensity</span>
-<span id="cb22-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb22-3"><a href=""></a></span>
-<span id="cb22-4"><a href=""></a><span class="co"># Run McCrary-style density test at cutoff 0</span></span>
-<span id="cb22-5"><a href=""></a>dens1 <span class="op">=</span> rddensity(x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values, c<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb22-6"><a href=""></a></span>
-<span id="cb22-7"><a href=""></a><span class="co"># Create the density plot object (rdplotdensity returns a matplotlib figure/axes)</span></span>
-<span id="cb22-8"><a href=""></a>densplot <span class="op">=</span> rdplotdensity(dens1, x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values)</span>
-<span id="cb22-9"><a href=""></a></span>
-<span id="cb22-10"><a href=""></a><span class="co"># If you want to explicitly show or tweak:</span></span>
-<span id="cb22-11"><a href=""></a>fig <span class="op">=</span> densplot[<span class="st">"fig"</span>]</span>
-<span id="cb22-12"><a href=""></a>ax <span class="op">=</span> densplot[<span class="st">"ax"</span>]</span>
-<span id="cb22-13"><a href=""></a></span>
-<span id="cb22-14"><a href=""></a>ax.set_title(<span class="st">"Density test around cutoff"</span>)</span>
-<span id="cb22-15"><a href=""></a>ax.set_xlabel(<span class="st">"Score"</span>)</span>
-<span id="cb22-16"><a href=""></a>ax.set_ylabel(<span class="st">"Estimated density"</span>)</span>
-<span id="cb22-17"><a href=""></a></span>
-<span id="cb22-18"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rddensity, rdplotdensity</span>
+<span id="cb18-2"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb18-3"><a href=""></a></span>
+<span id="cb18-4"><a href=""></a><span class="co"># Run McCrary-style density test at cutoff 0</span></span>
+<span id="cb18-5"><a href=""></a>dens1 <span class="op">=</span> rddensity(x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values, c<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb18-6"><a href=""></a></span>
+<span id="cb18-7"><a href=""></a><span class="co"># Create the density plot object (rdplotdensity returns a matplotlib figure/axes)</span></span>
+<span id="cb18-8"><a href=""></a>densplot <span class="op">=</span> rdplotdensity(dens1, x<span class="op">=</span>ma_rd1[<span class="st">"score"</span>].values)</span>
+<span id="cb18-9"><a href=""></a></span>
+<span id="cb18-10"><a href=""></a><span class="co"># If you want to explicitly show or tweak:</span></span>
+<span id="cb18-11"><a href=""></a>fig <span class="op">=</span> densplot[<span class="st">"fig"</span>]</span>
+<span id="cb18-12"><a href=""></a>ax <span class="op">=</span> densplot[<span class="st">"ax"</span>]</span>
+<span id="cb18-13"><a href=""></a></span>
+<span id="cb18-14"><a href=""></a>ax.set_title(<span class="st">"Density test around cutoff"</span>)</span>
+<span id="cb18-15"><a href=""></a>ax.set_xlabel(<span class="st">"Score"</span>)</span>
+<span id="cb18-16"><a href=""></a>ax.set_ylabel(<span class="st">"Estimated density"</span>)</span>
+<span id="cb18-17"><a href=""></a></span>
+<span id="cb18-18"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-7-3">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Manipulation testing using local polynomial density estimation.
-
-Number of obs =       6935
-Model =               unrestricted
-Kernel =              triangular
-BW method =           estimated
-VCE method =          jackknife
-
-c = 0                 Left of c           Right of c          
-Number of obs         4303                2632                
-Eff. Number of obs    4303                2632                
-Order est. (p)        2                   2                   
-Order bias (q)        3                   3                   
-BW est. (h)           0.25                0.25                
-
-Method                T                   P &gt; |T|             
-Robust                55.9095             0                   
-
-
-P-values of binomial tests (H0: p=0.5).
-
-Window Length / 2          &lt;c     &gt;=c    P&gt;|T|
-0.028                     274      41    0.0000
-0.052                     322      97    0.0000
-0.077                     368     168    0.0000
-0.102                    4123     182    0.0000
-0.127                    4129     293    0.0000
-0.151                    4164     293    0.0000
-0.176                    4184     421    0.0000
-0.201                    4195     573    0.0000
-0.225                    4207     573    0.0000
-0.250                    4303    2632    0.0000</code></pre>
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">T-statistic</td>
+<td style="text-align: right;">55.91</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P-value</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
+<p><strong>Interpretation</strong>: A large p-value means we cannot reject equal density on both sides of the cutoff, which is what we want. No evidence of manipulation.</p>
 </div>
 </div>
 </div>
@@ -1163,95 +1167,95 @@ Window Length / 2          &lt;c     &gt;=c    P&gt;|T|
 <div class="tab-content">
 <div id="tabset-8-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href=""></a>match.dat <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat<span class="sc">~</span>premium_partc <span class="sc">+</span> ma_rate, </span>
-<span id="cb24-2"><a href=""></a>                     <span class="at">data=</span>ma.rd1 <span class="sc">%&gt;%</span> </span>
-<span id="cb24-3"><a href=""></a>                       <span class="fu">filter</span>(window2<span class="sc">==</span><span class="cn">TRUE</span>, </span>
-<span id="cb24-4"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(treat), </span>
-<span id="cb24-5"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(premium_partc), </span>
-<span id="cb24-6"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(ma_rate)),</span>
-<span id="cb24-7"><a href=""></a>                     <span class="at">method=</span><span class="cn">NULL</span>, <span class="at">distance=</span><span class="st">"mahalanobis"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>match.dat <span class="ot">&lt;-</span> <span class="fu">matchit</span>(treat<span class="sc">~</span>premium_partc <span class="sc">+</span> ma_rate, </span>
+<span id="cb19-2"><a href=""></a>                     <span class="at">data=</span>ma.rd1 <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href=""></a>                       <span class="fu">filter</span>(window2<span class="sc">==</span><span class="cn">TRUE</span>, </span>
+<span id="cb19-4"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(treat), </span>
+<span id="cb19-5"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(premium_partc), </span>
+<span id="cb19-6"><a href=""></a>                              <span class="sc">!</span><span class="fu">is.na</span>(ma_rate)),</span>
+<span id="cb19-7"><a href=""></a>                     <span class="at">method=</span><span class="cn">NULL</span>, <span class="at">distance=</span><span class="st">"mahalanobis"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-8-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb25-2"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb25-3"><a href=""></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> NearestNeighbors</span>
-<span id="cb25-4"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb25-5"><a href=""></a></span>
-<span id="cb25-6"><a href=""></a><span class="co"># 1. Subset data as in your R code</span></span>
-<span id="cb25-7"><a href=""></a>sub <span class="op">=</span> (</span>
-<span id="cb25-8"><a href=""></a>    ma_rd1</span>
-<span id="cb25-9"><a href=""></a>    .loc[</span>
-<span id="cb25-10"><a href=""></a>        (ma_rd1[<span class="st">"window2"</span>]) <span class="op">&amp;</span></span>
-<span id="cb25-11"><a href=""></a>        ma_rd1[<span class="st">"treat"</span>].notna() <span class="op">&amp;</span></span>
-<span id="cb25-12"><a href=""></a>        ma_rd1[<span class="st">"premium_partc"</span>].notna() <span class="op">&amp;</span></span>
-<span id="cb25-13"><a href=""></a>        ma_rd1[<span class="st">"ma_rate"</span>].notna()</span>
-<span id="cb25-14"><a href=""></a>    ]</span>
-<span id="cb25-15"><a href=""></a>    .copy()</span>
-<span id="cb25-16"><a href=""></a>)</span>
-<span id="cb25-17"><a href=""></a></span>
-<span id="cb25-18"><a href=""></a>covariates <span class="op">=</span> [<span class="st">"premium_partc"</span>, <span class="st">"ma_rate"</span>]</span>
-<span id="cb25-19"><a href=""></a></span>
-<span id="cb25-20"><a href=""></a>X <span class="op">=</span> sub[covariates].to_numpy()</span>
-<span id="cb25-21"><a href=""></a>t <span class="op">=</span> sub[<span class="st">"treat"</span>].astype(<span class="bu">int</span>).to_numpy()</span>
-<span id="cb25-22"><a href=""></a></span>
-<span id="cb25-23"><a href=""></a><span class="co"># 2. Mahalanobis nearest-neighbor matching (1:1)</span></span>
-<span id="cb25-24"><a href=""></a><span class="co">#    Estimate covariance matrix of covariates and its inverse</span></span>
-<span id="cb25-25"><a href=""></a>V <span class="op">=</span> np.cov(X, rowvar<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb25-26"><a href=""></a>V_inv <span class="op">=</span> np.linalg.inv(V)</span>
-<span id="cb25-27"><a href=""></a></span>
-<span id="cb25-28"><a href=""></a><span class="co"># Fit NN on controls only</span></span>
-<span id="cb25-29"><a href=""></a>nn <span class="op">=</span> NearestNeighbors(</span>
-<span id="cb25-30"><a href=""></a>    n_neighbors<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb25-31"><a href=""></a>    metric<span class="op">=</span><span class="st">"mahalanobis"</span>,</span>
-<span id="cb25-32"><a href=""></a>    metric_params<span class="op">=</span>{<span class="st">"V"</span>: V}</span>
-<span id="cb25-33"><a href=""></a>)</span>
-<span id="cb25-34"><a href=""></a>nn.fit(X[t <span class="op">==</span> <span class="dv">0</span>])</span>
-<span id="cb25-35"><a href=""></a></span>
-<span id="cb25-36"><a href=""></a><span class="co"># For each treated unit, find nearest control</span></span>
-<span id="cb25-37"><a href=""></a>dist, idx <span class="op">=</span> nn.kneighbors(X[t <span class="op">==</span> <span class="dv">1</span>])</span>
-<span id="cb25-38"><a href=""></a>control_matches <span class="op">=</span> sub.loc[t <span class="op">==</span> <span class="dv">0</span>].iloc[idx[:, <span class="dv">0</span>]].copy()</span>
-<span id="cb25-39"><a href=""></a>treated_matched <span class="op">=</span> sub.loc[t <span class="op">==</span> <span class="dv">1</span>].copy()</span>
-<span id="cb25-40"><a href=""></a></span>
-<span id="cb25-41"><a href=""></a><span class="co"># Build matched sample</span></span>
-<span id="cb25-42"><a href=""></a>matched <span class="op">=</span> pd.concat(</span>
-<span id="cb25-43"><a href=""></a>    [</span>
-<span id="cb25-44"><a href=""></a>        treated_matched.reset_index(drop<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb25-45"><a href=""></a>        control_matches.reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-46"><a href=""></a>    ],</span>
-<span id="cb25-47"><a href=""></a>    axis<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb25-48"><a href=""></a>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb25-49"><a href=""></a>matched[<span class="st">"treat"</span>] <span class="op">=</span> np.r_[np.ones(<span class="bu">len</span>(treated_matched)), np.zeros(<span class="bu">len</span>(control_matches))]</span>
-<span id="cb25-50"><a href=""></a></span>
-<span id="cb25-51"><a href=""></a><span class="co"># 3. Function for standardized mean differences (SMD)</span></span>
-<span id="cb25-52"><a href=""></a><span class="kw">def</span> smd(df, var, treat_col<span class="op">=</span><span class="st">"treat"</span>):</span>
-<span id="cb25-53"><a href=""></a>    g1 <span class="op">=</span> df[df[treat_col] <span class="op">==</span> <span class="dv">1</span>][var]</span>
-<span id="cb25-54"><a href=""></a>    g0 <span class="op">=</span> df[df[treat_col] <span class="op">==</span> <span class="dv">0</span>][var]</span>
-<span id="cb25-55"><a href=""></a>    m1, m0 <span class="op">=</span> g1.mean(), g0.mean()</span>
-<span id="cb25-56"><a href=""></a>    s <span class="op">=</span> np.sqrt(<span class="fl">0.5</span> <span class="op">*</span> (g1.var(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">+</span> g0.var(ddof<span class="op">=</span><span class="dv">1</span>)))</span>
-<span id="cb25-57"><a href=""></a>    <span class="cf">return</span> (m1 <span class="op">-</span> m0) <span class="op">/</span> s</span>
-<span id="cb25-58"><a href=""></a></span>
-<span id="cb25-59"><a href=""></a><span class="co"># SMDs before and after matching</span></span>
-<span id="cb25-60"><a href=""></a>smd_before <span class="op">=</span> [smd(sub, v) <span class="cf">for</span> v <span class="kw">in</span> covariates]</span>
-<span id="cb25-61"><a href=""></a>smd_after  <span class="op">=</span> [smd(matched, v) <span class="cf">for</span> v <span class="kw">in</span> covariates]</span>
-<span id="cb25-62"><a href=""></a></span>
-<span id="cb25-63"><a href=""></a><span class="co"># 4. “Love plot” (absolute SMDs)</span></span>
-<span id="cb25-64"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb25-65"><a href=""></a></span>
-<span id="cb25-66"><a href=""></a>y_pos <span class="op">=</span> np.arange(<span class="bu">len</span>(covariates))</span>
-<span id="cb25-67"><a href=""></a></span>
-<span id="cb25-68"><a href=""></a>ax.scatter(np.<span class="bu">abs</span>(smd_before), y_pos, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"Unmatched"</span>)</span>
-<span id="cb25-69"><a href=""></a>ax.scatter(np.<span class="bu">abs</span>(smd_after),  y_pos, marker<span class="op">=</span><span class="st">"s"</span>, label<span class="op">=</span><span class="st">"Matched"</span>)</span>
-<span id="cb25-70"><a href=""></a></span>
-<span id="cb25-71"><a href=""></a>ax.set_yticks(y_pos)</span>
-<span id="cb25-72"><a href=""></a>ax.set_yticklabels(covariates)</span>
-<span id="cb25-73"><a href=""></a>ax.set_xlabel(<span class="st">"Absolute standardized mean difference"</span>)</span>
-<span id="cb25-74"><a href=""></a>ax.axvline(<span class="fl">0.1</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)  <span class="co"># common reference line</span></span>
-<span id="cb25-75"><a href=""></a>ax.legend()</span>
-<span id="cb25-76"><a href=""></a>ax.invert_yaxis()  <span class="co"># to mimic cobalt’s ordering</span></span>
-<span id="cb25-77"><a href=""></a>plt.tight_layout()</span>
-<span id="cb25-78"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb20-2"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb20-3"><a href=""></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> NearestNeighbors</span>
+<span id="cb20-4"><a href=""></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb20-5"><a href=""></a></span>
+<span id="cb20-6"><a href=""></a><span class="co"># 1. Subset data as in your R code</span></span>
+<span id="cb20-7"><a href=""></a>sub <span class="op">=</span> (</span>
+<span id="cb20-8"><a href=""></a>    ma_rd1</span>
+<span id="cb20-9"><a href=""></a>    .loc[</span>
+<span id="cb20-10"><a href=""></a>        (ma_rd1[<span class="st">"window2"</span>]) <span class="op">&amp;</span></span>
+<span id="cb20-11"><a href=""></a>        ma_rd1[<span class="st">"treat"</span>].notna() <span class="op">&amp;</span></span>
+<span id="cb20-12"><a href=""></a>        ma_rd1[<span class="st">"premium_partc"</span>].notna() <span class="op">&amp;</span></span>
+<span id="cb20-13"><a href=""></a>        ma_rd1[<span class="st">"ma_rate"</span>].notna()</span>
+<span id="cb20-14"><a href=""></a>    ]</span>
+<span id="cb20-15"><a href=""></a>    .copy()</span>
+<span id="cb20-16"><a href=""></a>)</span>
+<span id="cb20-17"><a href=""></a></span>
+<span id="cb20-18"><a href=""></a>covariates <span class="op">=</span> [<span class="st">"premium_partc"</span>, <span class="st">"ma_rate"</span>]</span>
+<span id="cb20-19"><a href=""></a></span>
+<span id="cb20-20"><a href=""></a>X <span class="op">=</span> sub[covariates].to_numpy()</span>
+<span id="cb20-21"><a href=""></a>t <span class="op">=</span> sub[<span class="st">"treat"</span>].astype(<span class="bu">int</span>).to_numpy()</span>
+<span id="cb20-22"><a href=""></a></span>
+<span id="cb20-23"><a href=""></a><span class="co"># 2. Mahalanobis nearest-neighbor matching (1:1)</span></span>
+<span id="cb20-24"><a href=""></a><span class="co">#    Estimate covariance matrix of covariates and its inverse</span></span>
+<span id="cb20-25"><a href=""></a>V <span class="op">=</span> np.cov(X, rowvar<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb20-26"><a href=""></a>V_inv <span class="op">=</span> np.linalg.inv(V)</span>
+<span id="cb20-27"><a href=""></a></span>
+<span id="cb20-28"><a href=""></a><span class="co"># Fit NN on controls only</span></span>
+<span id="cb20-29"><a href=""></a>nn <span class="op">=</span> NearestNeighbors(</span>
+<span id="cb20-30"><a href=""></a>    n_neighbors<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb20-31"><a href=""></a>    metric<span class="op">=</span><span class="st">"mahalanobis"</span>,</span>
+<span id="cb20-32"><a href=""></a>    metric_params<span class="op">=</span>{<span class="st">"V"</span>: V}</span>
+<span id="cb20-33"><a href=""></a>)</span>
+<span id="cb20-34"><a href=""></a>nn.fit(X[t <span class="op">==</span> <span class="dv">0</span>])</span>
+<span id="cb20-35"><a href=""></a></span>
+<span id="cb20-36"><a href=""></a><span class="co"># For each treated unit, find nearest control</span></span>
+<span id="cb20-37"><a href=""></a>dist, idx <span class="op">=</span> nn.kneighbors(X[t <span class="op">==</span> <span class="dv">1</span>])</span>
+<span id="cb20-38"><a href=""></a>control_matches <span class="op">=</span> sub.loc[t <span class="op">==</span> <span class="dv">0</span>].iloc[idx[:, <span class="dv">0</span>]].copy()</span>
+<span id="cb20-39"><a href=""></a>treated_matched <span class="op">=</span> sub.loc[t <span class="op">==</span> <span class="dv">1</span>].copy()</span>
+<span id="cb20-40"><a href=""></a></span>
+<span id="cb20-41"><a href=""></a><span class="co"># Build matched sample</span></span>
+<span id="cb20-42"><a href=""></a>matched <span class="op">=</span> pd.concat(</span>
+<span id="cb20-43"><a href=""></a>    [</span>
+<span id="cb20-44"><a href=""></a>        treated_matched.reset_index(drop<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb20-45"><a href=""></a>        control_matches.reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb20-46"><a href=""></a>    ],</span>
+<span id="cb20-47"><a href=""></a>    axis<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb20-48"><a href=""></a>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb20-49"><a href=""></a>matched[<span class="st">"treat"</span>] <span class="op">=</span> np.r_[np.ones(<span class="bu">len</span>(treated_matched)), np.zeros(<span class="bu">len</span>(control_matches))]</span>
+<span id="cb20-50"><a href=""></a></span>
+<span id="cb20-51"><a href=""></a><span class="co"># 3. Function for standardized mean differences (SMD)</span></span>
+<span id="cb20-52"><a href=""></a><span class="kw">def</span> smd(df, var, treat_col<span class="op">=</span><span class="st">"treat"</span>):</span>
+<span id="cb20-53"><a href=""></a>    g1 <span class="op">=</span> df[df[treat_col] <span class="op">==</span> <span class="dv">1</span>][var]</span>
+<span id="cb20-54"><a href=""></a>    g0 <span class="op">=</span> df[df[treat_col] <span class="op">==</span> <span class="dv">0</span>][var]</span>
+<span id="cb20-55"><a href=""></a>    m1, m0 <span class="op">=</span> g1.mean(), g0.mean()</span>
+<span id="cb20-56"><a href=""></a>    s <span class="op">=</span> np.sqrt(<span class="fl">0.5</span> <span class="op">*</span> (g1.var(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">+</span> g0.var(ddof<span class="op">=</span><span class="dv">1</span>)))</span>
+<span id="cb20-57"><a href=""></a>    <span class="cf">return</span> (m1 <span class="op">-</span> m0) <span class="op">/</span> s</span>
+<span id="cb20-58"><a href=""></a></span>
+<span id="cb20-59"><a href=""></a><span class="co"># SMDs before and after matching</span></span>
+<span id="cb20-60"><a href=""></a>smd_before <span class="op">=</span> [smd(sub, v) <span class="cf">for</span> v <span class="kw">in</span> covariates]</span>
+<span id="cb20-61"><a href=""></a>smd_after  <span class="op">=</span> [smd(matched, v) <span class="cf">for</span> v <span class="kw">in</span> covariates]</span>
+<span id="cb20-62"><a href=""></a></span>
+<span id="cb20-63"><a href=""></a><span class="co"># 4. “Love plot” (absolute SMDs)</span></span>
+<span id="cb20-64"><a href=""></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb20-65"><a href=""></a></span>
+<span id="cb20-66"><a href=""></a>y_pos <span class="op">=</span> np.arange(<span class="bu">len</span>(covariates))</span>
+<span id="cb20-67"><a href=""></a></span>
+<span id="cb20-68"><a href=""></a>ax.scatter(np.<span class="bu">abs</span>(smd_before), y_pos, marker<span class="op">=</span><span class="st">"o"</span>, label<span class="op">=</span><span class="st">"Unmatched"</span>)</span>
+<span id="cb20-69"><a href=""></a>ax.scatter(np.<span class="bu">abs</span>(smd_after),  y_pos, marker<span class="op">=</span><span class="st">"s"</span>, label<span class="op">=</span><span class="st">"Matched"</span>)</span>
+<span id="cb20-70"><a href=""></a></span>
+<span id="cb20-71"><a href=""></a>ax.set_yticks(y_pos)</span>
+<span id="cb20-72"><a href=""></a>ax.set_yticklabels(covariates)</span>
+<span id="cb20-73"><a href=""></a>ax.set_xlabel(<span class="st">"Absolute standardized mean difference"</span>)</span>
+<span id="cb20-74"><a href=""></a>ax.axvline(<span class="fl">0.1</span>, linestyle<span class="op">=</span><span class="st">"--"</span>)  <span class="co"># common reference line</span></span>
+<span id="cb20-75"><a href=""></a>ax.legend()</span>
+<span id="cb20-76"><a href=""></a>ax.invert_yaxis()  <span class="co"># to mimic cobalt’s ordering</span></span>
+<span id="cb20-77"><a href=""></a>plt.tight_layout()</span>
+<span id="cb20-78"><a href=""></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-8-3">
@@ -1280,320 +1284,178 @@ Window Length / 2          &lt;c     &gt;=c    P&gt;|T|
 <div class="tab-content">
 <div id="tabset-9-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href=""></a>ma.rd225 <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href=""></a>  <span class="fu">filter</span>(Star_Rating<span class="sc">==</span><span class="dv">2</span> <span class="sc">|</span> Star_Rating<span class="sc">==</span><span class="fl">2.5</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">2.25</span>,</span>
-<span id="cb26-4"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
-<span id="cb26-5"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
-<span id="cb26-6"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
-<span id="cb26-7"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
-<span id="cb26-8"><a href=""></a></span>
-<span id="cb26-9"><a href=""></a>est225 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd225<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd225<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb26-10"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
-<span id="cb26-11"><a href=""></a>                 <span class="at">masspoints=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>ma.rd225 <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href=""></a>  <span class="fu">filter</span>(Star_Rating<span class="sc">==</span><span class="dv">2</span> <span class="sc">|</span> Star_Rating<span class="sc">==</span><span class="fl">2.5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">2.25</span>,</span>
+<span id="cb21-4"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
+<span id="cb21-5"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
+<span id="cb21-6"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
+<span id="cb21-7"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
+<span id="cb21-8"><a href=""></a></span>
+<span id="cb21-9"><a href=""></a>est225 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd225<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd225<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
+<span id="cb21-10"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
+<span id="cb21-11"><a href=""></a>                 <span class="at">masspoints=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-9-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb27-2"><a href=""></a><span class="im">from</span> py_rdpackages <span class="im">import</span> rdrobust   <span class="co"># wrapper around rdrobust in R</span></span>
-<span id="cb27-3"><a href=""></a></span>
-<span id="cb27-4"><a href=""></a><span class="co"># starting from ma_2009 as a pandas DataFrame</span></span>
-<span id="cb27-5"><a href=""></a>ma_rd225 <span class="op">=</span> (</span>
-<span id="cb27-6"><a href=""></a>    ma_2009</span>
-<span id="cb27-7"><a href=""></a>    .loc[ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="dv">2</span>, <span class="fl">2.5</span>])]</span>
-<span id="cb27-8"><a href=""></a>    .assign(</span>
-<span id="cb27-9"><a href=""></a>        score<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">2.25</span>,</span>
-<span id="cb27-10"><a href=""></a>        treat<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
-<span id="cb27-11"><a href=""></a>        window1<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>),</span>
-<span id="cb27-12"><a href=""></a>        window2<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>),</span>
-<span id="cb27-13"><a href=""></a>        score_treat<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>] <span class="op">*</span> d[<span class="st">"treat"</span>],</span>
-<span id="cb27-14"><a href=""></a>    )</span>
-<span id="cb27-15"><a href=""></a>)</span>
-<span id="cb27-16"><a href=""></a></span>
-<span id="cb27-17"><a href=""></a>est225 <span class="op">=</span> rdrobust(</span>
-<span id="cb27-18"><a href=""></a>    y<span class="op">=</span>ma_rd225[<span class="st">"mkt_share"</span>].to_numpy(),</span>
-<span id="cb27-19"><a href=""></a>    x<span class="op">=</span>ma_rd225[<span class="st">"score"</span>].to_numpy(),</span>
-<span id="cb27-20"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb27-21"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
-<span id="cb27-22"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb27-23"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,   <span class="co"># if this errors, try kernel="uni"</span></span>
-<span id="cb27-24"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb27-25"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span></span>
-<span id="cb27-26"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb22-2"><a href=""></a><span class="im">from</span> py_rdpackages <span class="im">import</span> rdrobust   <span class="co"># wrapper around rdrobust in R</span></span>
+<span id="cb22-3"><a href=""></a></span>
+<span id="cb22-4"><a href=""></a><span class="co"># starting from ma_2009 as a pandas DataFrame</span></span>
+<span id="cb22-5"><a href=""></a>ma_rd225 <span class="op">=</span> (</span>
+<span id="cb22-6"><a href=""></a>    ma_2009</span>
+<span id="cb22-7"><a href=""></a>    .loc[ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="dv">2</span>, <span class="fl">2.5</span>])]</span>
+<span id="cb22-8"><a href=""></a>    .assign(</span>
+<span id="cb22-9"><a href=""></a>        score<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">2.25</span>,</span>
+<span id="cb22-10"><a href=""></a>        treat<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
+<span id="cb22-11"><a href=""></a>        window1<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>),</span>
+<span id="cb22-12"><a href=""></a>        window2<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>),</span>
+<span id="cb22-13"><a href=""></a>        score_treat<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>] <span class="op">*</span> d[<span class="st">"treat"</span>],</span>
+<span id="cb22-14"><a href=""></a>    )</span>
+<span id="cb22-15"><a href=""></a>)</span>
+<span id="cb22-16"><a href=""></a></span>
+<span id="cb22-17"><a href=""></a>est225 <span class="op">=</span> rdrobust(</span>
+<span id="cb22-18"><a href=""></a>    y<span class="op">=</span>ma_rd225[<span class="st">"mkt_share"</span>].to_numpy(),</span>
+<span id="cb22-19"><a href=""></a>    x<span class="op">=</span>ma_rd225[<span class="st">"score"</span>].to_numpy(),</span>
+<span id="cb22-20"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb22-21"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
+<span id="cb22-22"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb22-23"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,   <span class="co"># if this errors, try kernel="uni"</span></span>
+<span id="cb22-24"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
+<span id="cb22-25"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span></span>
+<span id="cb22-26"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-9-3">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                12127
-BW type                      Manual
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 4545         7582
-Eff. Number of Obs.            4129          293
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.125        0.125
-BW bias (b)                   0.125        0.125
-rho (h/b)                     1.000        1.000
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     0.070     0.016     4.253     0.000     [0.038 , 0.102]     
-        Robust         -         -     6.045     0.000     [0.151 , 0.295]     
-=============================================================================</code></pre>
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Spec</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: left;">Robust CI</th>
+<th style="text-align: right;">BW</th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2.5 vs 2.0 (h=0.125)</td>
+<td style="text-align: right;">0.0701</td>
+<td style="text-align: left;">[0.1506, 0.2952]</td>
+<td style="text-align: right;">0.125</td>
+<td style="text-align: right;">12127</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
 </div>
 </div>
 </section>
-<section id="effects-for-3.0-versus-2.5-stars" class="slide level2">
-<h2>Effects for 3.0 versus 2.5 Stars</h2>
+<section id="effects-across-all-thresholds" class="slide level2">
+<h2>Effects across all thresholds</h2>
+<p>Same approach, applied to every half-star cutoff. The code below loops over each threshold and collects the <code>rdrobust</code> estimates into a single data frame.</p>
 <div class="panel-tabset">
 <ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">R</a></li><li><a href="#tabset-10-2">Python</a></li><li><a href="#tabset-10-3">Output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-10-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href=""></a>ma.rd275 <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
-<span id="cb29-2"><a href=""></a>  <span class="fu">filter</span>(Star_Rating<span class="sc">==</span><span class="fl">2.5</span> <span class="sc">|</span> Star_Rating<span class="sc">==</span><span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">2.75</span>,</span>
-<span id="cb29-4"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
-<span id="cb29-5"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
-<span id="cb29-6"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
-<span id="cb29-7"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
-<span id="cb29-8"><a href=""></a></span>
-<span id="cb29-9"><a href=""></a>est275 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd275<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd275<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb29-10"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
-<span id="cb29-11"><a href=""></a>                 <span class="at">masspoints=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a>cutoffs <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb23-2"><a href=""></a>  <span class="at">lower =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="fl">2.5</span>, <span class="dv">3</span>, <span class="fl">3.5</span>),</span>
+<span id="cb23-3"><a href=""></a>  <span class="at">upper =</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="dv">3</span>, <span class="fl">3.5</span>, <span class="dv">4</span>),</span>
+<span id="cb23-4"><a href=""></a>  <span class="at">cutoff =</span> <span class="fu">c</span>(<span class="fl">2.25</span>, <span class="fl">2.75</span>, <span class="fl">3.25</span>, <span class="fl">3.75</span>)</span>
+<span id="cb23-5"><a href=""></a>)</span>
+<span id="cb23-6"><a href=""></a></span>
+<span id="cb23-7"><a href=""></a>rd_results <span class="ot">&lt;-</span> cutoffs <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href=""></a>  <span class="fu">pmap_dfr</span>(<span class="cf">function</span>(lower, upper, cutoff) {</span>
+<span id="cb23-9"><a href=""></a>    dat <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
+<span id="cb23-10"><a href=""></a>      <span class="fu">filter</span>(Star_Rating <span class="sc">==</span> lower <span class="sc">|</span> Star_Rating <span class="sc">==</span> upper) <span class="sc">%&gt;%</span></span>
+<span id="cb23-11"><a href=""></a>      <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> cutoff)</span>
+<span id="cb23-12"><a href=""></a></span>
+<span id="cb23-13"><a href=""></a>    est <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>dat<span class="sc">$</span>mkt_share, <span class="at">x=</span>dat<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
+<span id="cb23-14"><a href=""></a>                    <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
+<span id="cb23-15"><a href=""></a>                    <span class="at">masspoints=</span><span class="st">"off"</span>)</span>
+<span id="cb23-16"><a href=""></a></span>
+<span id="cb23-17"><a href=""></a>    <span class="fu">tibble</span>(</span>
+<span id="cb23-18"><a href=""></a>      <span class="at">threshold =</span> <span class="fu">paste0</span>(upper, <span class="st">" vs "</span>, lower),</span>
+<span id="cb23-19"><a href=""></a>      <span class="at">estimate =</span> est<span class="sc">$</span>coef[<span class="dv">2</span>],</span>
+<span id="cb23-20"><a href=""></a>      <span class="at">ci_lower =</span> est<span class="sc">$</span>ci[<span class="dv">3</span>,<span class="dv">1</span>],</span>
+<span id="cb23-21"><a href=""></a>      <span class="at">ci_upper =</span> est<span class="sc">$</span>ci[<span class="dv">3</span>,<span class="dv">2</span>],</span>
+<span id="cb23-22"><a href=""></a>      <span class="at">n =</span> est<span class="sc">$</span>N[<span class="dv">1</span>] <span class="sc">+</span> est<span class="sc">$</span>N[<span class="dv">2</span>]</span>
+<span id="cb23-23"><a href=""></a>    )</span>
+<span id="cb23-24"><a href=""></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-10-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href=""></a><span class="co"># assuming ma_2009 is a pandas DataFrame and rdrobust is already imported</span></span>
-<span id="cb30-2"><a href=""></a></span>
-<span id="cb30-3"><a href=""></a>ma_rd275 <span class="op">=</span> (</span>
-<span id="cb30-4"><a href=""></a>    ma_2009</span>
-<span id="cb30-5"><a href=""></a>    .loc[ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="fl">2.5</span>, <span class="dv">3</span>])]</span>
-<span id="cb30-6"><a href=""></a>    .assign(</span>
-<span id="cb30-7"><a href=""></a>        score<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">2.75</span>,</span>
-<span id="cb30-8"><a href=""></a>        treat<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
-<span id="cb30-9"><a href=""></a>        window1<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>),</span>
-<span id="cb30-10"><a href=""></a>        window2<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>),</span>
-<span id="cb30-11"><a href=""></a>        score_treat<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>] <span class="op">*</span> d[<span class="st">"treat"</span>],</span>
-<span id="cb30-12"><a href=""></a>    )</span>
-<span id="cb30-13"><a href=""></a>)</span>
-<span id="cb30-14"><a href=""></a></span>
-<span id="cb30-15"><a href=""></a>est275 <span class="op">=</span> rdrobust(</span>
-<span id="cb30-16"><a href=""></a>    y<span class="op">=</span>ma_rd275[<span class="st">"mkt_share"</span>].to_numpy(),</span>
-<span id="cb30-17"><a href=""></a>    x<span class="op">=</span>ma_rd275[<span class="st">"score"</span>].to_numpy(),</span>
-<span id="cb30-18"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb30-19"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
-<span id="cb30-20"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb30-21"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,   <span class="co"># or "uni" if required by your wrapper</span></span>
-<span id="cb30-22"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb30-23"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span></span>
-<span id="cb30-24"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href=""></a><span class="im">from</span> rdrobust <span class="im">import</span> rdrobust</span>
+<span id="cb24-2"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb24-3"><a href=""></a></span>
+<span id="cb24-4"><a href=""></a>cutoffs <span class="op">=</span> [</span>
+<span id="cb24-5"><a href=""></a>    (<span class="dv">2</span>, <span class="fl">2.5</span>, <span class="fl">2.25</span>),</span>
+<span id="cb24-6"><a href=""></a>    (<span class="fl">2.5</span>, <span class="dv">3</span>, <span class="fl">2.75</span>),</span>
+<span id="cb24-7"><a href=""></a>    (<span class="dv">3</span>, <span class="fl">3.5</span>, <span class="fl">3.25</span>),</span>
+<span id="cb24-8"><a href=""></a>    (<span class="fl">3.5</span>, <span class="dv">4</span>, <span class="fl">3.75</span>),</span>
+<span id="cb24-9"><a href=""></a>]</span>
+<span id="cb24-10"><a href=""></a></span>
+<span id="cb24-11"><a href=""></a>results <span class="op">=</span> []</span>
+<span id="cb24-12"><a href=""></a><span class="cf">for</span> lower, upper, cutoff <span class="kw">in</span> cutoffs:</span>
+<span id="cb24-13"><a href=""></a>    dat <span class="op">=</span> ma_2009[ma_2009[<span class="st">"Star_Rating"</span>].isin([lower, upper])].copy()</span>
+<span id="cb24-14"><a href=""></a>    dat[<span class="st">"score"</span>] <span class="op">=</span> dat[<span class="st">"raw_rating"</span>] <span class="op">-</span> cutoff</span>
+<span id="cb24-15"><a href=""></a></span>
+<span id="cb24-16"><a href=""></a>    est <span class="op">=</span> rdrobust(</span>
+<span id="cb24-17"><a href=""></a>        y<span class="op">=</span>dat[<span class="st">"mkt_share"</span>].values,</span>
+<span id="cb24-18"><a href=""></a>        x<span class="op">=</span>dat[<span class="st">"score"</span>].values,</span>
+<span id="cb24-19"><a href=""></a>        c<span class="op">=</span><span class="dv">0</span>, h<span class="op">=</span><span class="fl">0.125</span>, p<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb24-20"><a href=""></a>        kernel<span class="op">=</span><span class="st">"uniform"</span>, vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
+<span id="cb24-21"><a href=""></a>        masspoints<span class="op">=</span><span class="st">"off"</span></span>
+<span id="cb24-22"><a href=""></a>    )</span>
+<span id="cb24-23"><a href=""></a></span>
+<span id="cb24-24"><a href=""></a>    results.append({</span>
+<span id="cb24-25"><a href=""></a>        <span class="st">"threshold"</span>: <span class="ss">f"</span><span class="sc">{</span>upper<span class="sc">}</span><span class="ss"> vs </span><span class="sc">{</span>lower<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb24-26"><a href=""></a>        <span class="st">"estimate"</span>: est.coef.iloc[<span class="dv">1</span>, <span class="dv">0</span>],  <span class="co"># bias-corrected</span></span>
+<span id="cb24-27"><a href=""></a>        <span class="st">"ci_lower"</span>: est.ci.iloc[<span class="dv">2</span>, <span class="dv">0</span>],    <span class="co"># robust CI</span></span>
+<span id="cb24-28"><a href=""></a>        <span class="st">"ci_upper"</span>: est.ci.iloc[<span class="dv">2</span>, <span class="dv">1</span>],</span>
+<span id="cb24-29"><a href=""></a>    })</span>
+<span id="cb24-30"><a href=""></a></span>
+<span id="cb24-31"><a href=""></a>rd_results <span class="op">=</span> pd.DataFrame(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div id="tabset-10-3">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                11735
-BW type                      Manual
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 7582         4153
-Eff. Number of Obs.             313         1869
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.125        0.125
-BW bias (b)                   0.125        0.125
-rho (h/b)                     1.000        1.000
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     0.082     0.015     5.507     0.000     [0.053 , 0.111]     
-        Robust         -         -     1.448     0.148    [-0.023 , 0.151]     
-=============================================================================</code></pre>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="rd-04_files/figure-revealjs/unnamed-chunk-30-1.png" width="960"></p>
+</figure>
+</div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </section>
-<section id="effects-for-3.5-versus-3.0-stars" class="slide level2">
-<h2>Effects for 3.5 versus 3.0 Stars</h2>
-<div class="panel-tabset">
-<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">R</a></li><li><a href="#tabset-11-2">Python</a></li><li><a href="#tabset-11-3">Output</a></li></ul>
-<div class="tab-content">
-<div id="tabset-11-1">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href=""></a>ma.rd325 <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
-<span id="cb32-2"><a href=""></a>  <span class="fu">filter</span>(Star_Rating<span class="sc">==</span><span class="dv">3</span> <span class="sc">|</span> Star_Rating<span class="sc">==</span><span class="fl">3.5</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb32-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">3.25</span>,</span>
-<span id="cb32-4"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
-<span id="cb32-5"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
-<span id="cb32-6"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
-<span id="cb32-7"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
-<span id="cb32-8"><a href=""></a></span>
-<span id="cb32-9"><a href=""></a>est325 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd325<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd325<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb32-10"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
-<span id="cb32-11"><a href=""></a>                 <span class="at">masspoints=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-<div id="tabset-11-2">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href=""></a><span class="co"># assuming ma_2009 is a pandas DataFrame and rdrobust is already imported</span></span>
-<span id="cb33-2"><a href=""></a></span>
-<span id="cb33-3"><a href=""></a>ma_rd325 <span class="op">=</span> (</span>
-<span id="cb33-4"><a href=""></a>    ma_2009</span>
-<span id="cb33-5"><a href=""></a>    .loc[ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="dv">3</span>, <span class="fl">3.5</span>])]</span>
-<span id="cb33-6"><a href=""></a>    .assign(</span>
-<span id="cb33-7"><a href=""></a>        score<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">3.25</span>,</span>
-<span id="cb33-8"><a href=""></a>        treat<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
-<span id="cb33-9"><a href=""></a>        window1<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>),</span>
-<span id="cb33-10"><a href=""></a>        window2<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>),</span>
-<span id="cb33-11"><a href=""></a>        score_treat<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>] <span class="op">*</span> d[<span class="st">"treat"</span>],</span>
-<span id="cb33-12"><a href=""></a>    )</span>
-<span id="cb33-13"><a href=""></a>)</span>
-<span id="cb33-14"><a href=""></a></span>
-<span id="cb33-15"><a href=""></a>est325 <span class="op">=</span> rdrobust(</span>
-<span id="cb33-16"><a href=""></a>    y<span class="op">=</span>ma_rd325[<span class="st">"mkt_share"</span>].to_numpy(),</span>
-<span id="cb33-17"><a href=""></a>    x<span class="op">=</span>ma_rd325[<span class="st">"score"</span>].to_numpy(),</span>
-<span id="cb33-18"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb33-19"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
-<span id="cb33-20"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb33-21"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,   <span class="co"># or "uni" depending on the Python wrapper</span></span>
-<span id="cb33-22"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb33-23"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span></span>
-<span id="cb33-24"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-<div id="tabset-11-3">
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                 6704
-BW type                      Manual
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 4635         2069
-Eff. Number of Obs.            1020          784
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.125        0.125
-BW bias (b)                   0.125        0.125
-rho (h/b)                     1.000        1.000
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     0.007     0.009     0.744     0.457    [-0.011 , 0.025]     
-        Robust         -         -     5.536     0.000     [0.050 , 0.105]     
-=============================================================================</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="effects-for-4-versus-3.5-stars" class="slide level2">
-<h2>Effects for 4 versus 3.5 Stars</h2>
-<div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">R</a></li><li><a href="#tabset-12-2">Python</a></li><li><a href="#tabset-12-3">Output</a></li></ul>
-<div class="tab-content">
-<div id="tabset-12-1">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href=""></a>ma.rd375 <span class="ot">&lt;-</span> ma_2009 <span class="sc">%&gt;%</span></span>
-<span id="cb35-2"><a href=""></a>  <span class="fu">filter</span>(Star_Rating<span class="sc">==</span><span class="fl">3.5</span> <span class="sc">|</span> Star_Rating<span class="sc">==</span><span class="dv">4</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb35-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">score =</span> raw_rating <span class="sc">-</span> <span class="fl">3.75</span>,</span>
-<span id="cb35-4"><a href=""></a>         <span class="at">treat =</span> (score<span class="sc">&gt;=</span><span class="dv">0</span>),</span>
-<span id="cb35-5"><a href=""></a>         <span class="at">window1 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">175</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">175</span>),</span>
-<span id="cb35-6"><a href=""></a>         <span class="at">window2 =</span> (score<span class="sc">&gt;=-</span>.<span class="dv">125</span> <span class="sc">&amp;</span> score<span class="sc">&lt;=</span>.<span class="dv">125</span>),</span>
-<span id="cb35-7"><a href=""></a>         <span class="at">score_treat=</span>score<span class="sc">*</span>treat)</span>
-<span id="cb35-8"><a href=""></a></span>
-<span id="cb35-9"><a href=""></a>est375 <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y=</span>ma.rd375<span class="sc">$</span>mkt_share, <span class="at">x=</span>ma.rd375<span class="sc">$</span>score, <span class="at">c=</span><span class="dv">0</span>,</span>
-<span id="cb35-10"><a href=""></a>                 <span class="at">h=</span><span class="fl">0.125</span>, <span class="at">p=</span><span class="dv">1</span>, <span class="at">kernel=</span><span class="st">"uniform"</span>, <span class="at">vce=</span><span class="st">"hc0"</span>,</span>
-<span id="cb35-11"><a href=""></a>                 <span class="at">masspoints=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-<div id="tabset-12-2">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href=""></a><span class="co"># assuming ma_2009 is a pandas DataFrame and rdrobust is already imported</span></span>
-<span id="cb36-2"><a href=""></a></span>
-<span id="cb36-3"><a href=""></a>ma_rd375 <span class="op">=</span> (</span>
-<span id="cb36-4"><a href=""></a>    ma_2009</span>
-<span id="cb36-5"><a href=""></a>    .loc[ma_2009[<span class="st">"Star_Rating"</span>].isin([<span class="fl">3.5</span>, <span class="dv">4</span>])]</span>
-<span id="cb36-6"><a href=""></a>    .assign(</span>
-<span id="cb36-7"><a href=""></a>        score<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"raw_rating"</span>] <span class="op">-</span> <span class="fl">3.75</span>,</span>
-<span id="cb36-8"><a href=""></a>        treat<span class="op">=</span><span class="kw">lambda</span> d: (d[<span class="st">"score"</span>] <span class="op">&gt;=</span> <span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
-<span id="cb36-9"><a href=""></a>        window1<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.175</span>, <span class="fl">0.175</span>),</span>
-<span id="cb36-10"><a href=""></a>        window2<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>].between(<span class="op">-</span><span class="fl">0.125</span>, <span class="fl">0.125</span>),</span>
-<span id="cb36-11"><a href=""></a>        score_treat<span class="op">=</span><span class="kw">lambda</span> d: d[<span class="st">"score"</span>] <span class="op">*</span> d[<span class="st">"treat"</span>],</span>
-<span id="cb36-12"><a href=""></a>    )</span>
-<span id="cb36-13"><a href=""></a>)</span>
-<span id="cb36-14"><a href=""></a></span>
-<span id="cb36-15"><a href=""></a>est375 <span class="op">=</span> rdrobust(</span>
-<span id="cb36-16"><a href=""></a>    y<span class="op">=</span>ma_rd375[<span class="st">"mkt_share"</span>].to_numpy(),</span>
-<span id="cb36-17"><a href=""></a>    x<span class="op">=</span>ma_rd375[<span class="st">"score"</span>].to_numpy(),</span>
-<span id="cb36-18"><a href=""></a>    c<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb36-19"><a href=""></a>    h<span class="op">=</span><span class="fl">0.125</span>,</span>
-<span id="cb36-20"><a href=""></a>    p<span class="op">=</span><span class="dv">1</span>,</span>
-<span id="cb36-21"><a href=""></a>    kernel<span class="op">=</span><span class="st">"uniform"</span>,   <span class="co"># or "uni" if that's the accepted alias</span></span>
-<span id="cb36-22"><a href=""></a>    vce<span class="op">=</span><span class="st">"hc0"</span>,</span>
-<span id="cb36-23"><a href=""></a>    masspoints<span class="op">=</span><span class="st">"off"</span></span>
-<span id="cb36-24"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-<div id="tabset-12-3">
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Sharp RD estimates using local polynomial regression.
-
-Number of Obs.                 4238
-BW type                      Manual
-Kernel                      Uniform
-VCE method                      HC0
-
-Number of Obs.                 3179         1059
-Eff. Number of Obs.             755          737
-Order est. (p)                    1            1
-Order bias  (q)                   2            2
-BW est. (h)                   0.125        0.125
-BW bias (b)                   0.125        0.125
-rho (h/b)                     1.000        1.000
-
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional    -0.019     0.007    -2.663     0.008    [-0.033 , -0.005]    
-        Robust         -         -    -2.217     0.027    [-0.053 , -0.003]    
-=============================================================================</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="rd-with-discrete-variables" class="slide level2">
-<h2>RD with discrete variables</h2>
+<section id="what-do-we-see" class="slide level2">
+<h2>What do we see?</h2>
 <ul>
-<li>Allow for fewer mass points</li>
-<li>Assume random assignment between mass points</li>
-<li>Inference using Fisher’s exact test</li>
+<li>Largest effects at the <strong>lower end</strong> of the star rating distribution (2.5 vs 2.0)</li>
+<li>Effects shrink and become noisier at higher thresholds</li>
+<li>Consistent with consumers responding more to quality signals when baseline quality is low</li>
 </ul>
+</section>
+<section id="a-note-on-discrete-running-variables" class="slide level2">
+<h2>A note on discrete running variables</h2>
+<p>Star ratings are discrete (only a few unique values of the running variable). Standard RD asymptotics assume a continuous running variable, so we need adjustments.</p>
+<ul>
+<li><strong>Fewer mass points</strong> means less variation near the cutoff. <code>rdrobust</code> has a <code>masspoints</code> option to handle this.</li>
+<li><strong>Local randomization</strong>: if we believe assignment is as-good-as-random between adjacent mass points, we can use randomization inference instead of large-sample asymptotics.</li>
+<li><strong>Fisher’s exact test</strong>: test the sharp null of no treatment effect by permuting treatment labels among units near the cutoff.</li>
+</ul>
+<p>See Cattaneo, Idrobo, and Titiunik (2020), Chapter 4 for details.</p>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
 

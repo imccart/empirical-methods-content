@@ -50,7 +50,7 @@ pacman::p_load(tidyverse, ggplot2, lubridate, gapminder, scales, gganimate, here
 
 ## Types of RD
 
-1. *Sharp regression discontinuity:* those above the threshold guaranteed to participate<
+1. *Sharp regression discontinuity:* those above the threshold guaranteed to participate
 2. *Fuzzy regression discontinuity:* those above the threshold are eligible but may not participate
 
 
@@ -118,7 +118,7 @@ plot3
 
 
 
-## Different averages
+## Why bandwidth matters
 
 ```{r}
 #| echo: false
@@ -197,11 +197,19 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime))+geom_point()+
   exit_fade()+enter_fade()
 
 anim.rd <- animate(p,nframes=175)
-anim_save("images/rd_animate.gif", anim.rd)
+anim_save("../images/rd_animate.gif", anim.rd)
 
 ```
 
 ![](../images/rd_animate.gif)
+
+## RD in five steps
+
+1. Start with raw data on both sides of the cutoff
+2. Bin observations along the running variable
+3. Collapse to bin averages to remove noise
+4. Zoom in on the bins just around the cutoff
+5. The **jump** at the cutoff is the treatment effect
 
 
 # Implementing RD
@@ -212,10 +220,29 @@ Goal is to estimate $E[Y_{1}|X=c] - E[Y_{0}|X=c]$
 
 1. Trim to reasonable window around threshold ("bandwidth"), $X \in [c-h, c+h]$
 2. Transform running variable, $\tilde{X}=X-c$
-3. Estimate regressions...
-  - Linear, same slope: $y = \alpha + \delta D + \beta \tilde{X} + \varepsilon$
-  - Linear, different slope: $y = \alpha + \delta D + \beta \tilde{X} + \gamma D\tilde{X} + \varepsilon$
-  - Nonlinear: add polynomials in $\tilde{X}$ and interactions $D \tilde{X}$
+3. Estimate regressions within that window
+
+## Starting point: linear, same slope
+
+$$y = \alpha + \delta D + \beta \tilde{X} + \varepsilon$$
+
+- $D = 1(X > c)$ is the treatment indicator
+- $\delta$ is the RD estimate (the jump at the cutoff)
+- Forces the slope on $\tilde{X}$ to be the same on both sides
+
+## Allowing differential slopes
+
+$$y = \alpha + \delta D + \beta \tilde{X} + \gamma D\tilde{X} + \varepsilon$$
+
+- Now the slope can differ above and below the cutoff
+- $\gamma$ captures the difference in slopes
+- More flexible, but uses more degrees of freedom in small bandwidths
+
+## Beyond linear
+
+- Can add polynomials in $\tilde{X}$ and interactions with $D$
+- In practice, **local linear** (the previous two slides) is the standard
+- Higher-order polynomials are generally discouraged (more on this later)
 
 ## Key RD Steps
 
@@ -350,11 +377,15 @@ plot.bin
 
 ## Selecting "bin" width
 
-1. Dummy variables: Create dummies for each bin, regress the outcome on the set of all dummies and form r-square $R^{2}_{r}$, repeat with double the number of bins and find r-square value $R^{2}_{u}$, form F-stat, $\frac{R^{2}_{u}-R^{2}_{r}}{1-R^{2}_{u}}\times \frac{n-K-1}{K}$.
+How many bins should we use? Too few and we obscure the discontinuity; too many and the graph is noisy.
 
-2. Interaction terms: Include interactions between dummies and the running variable, joint F-test for the interaction terms
+## Bin width: formal tests
 
-If F-test suggests significance, then we have too few bins and need to narrow the bin width.
+1. **Dummy variable approach**: Create dummies for each bin, regress outcome on the dummies ($R^{2}_{r}$). Double the number of bins ($R^{2}_{u}$). F-test: $$F = \frac{R^{2}_{u}-R^{2}_{r}}{1-R^{2}_{u}}\times \frac{n-K-1}{K}$$
+
+2. **Interaction approach**: Include interactions between bin dummies and the running variable, then joint F-test on the interaction terms
+
+If significant, we have too few bins and should narrow the width.
 
 
 ## 2. Balance
@@ -537,9 +568,12 @@ Cattaneo et al. (2020) argue:
 
 ## 5. Robustness and sensitivity
 
-- Different bandwidths
-- Different kernels or polynomials
-- Role of covariates in RD estimates
+Results should be stable across reasonable specification choices:
+
+- **Bandwidths**: try half and double the optimal bandwidth. If the estimate swings wildly, the result is fragile.
+- **Kernels**: uniform (equal weight) vs. triangular (more weight near cutoff). Should tell similar stories.
+- **Polynomials**: linear vs. quadratic. If you need a cubic to find the effect, worry.
+- **Covariates**: adding pre-treatment controls shouldn't change the estimate much (they should be balanced at the cutoff). But they can improve precision.
 
 
 ## Pitfalls of polynomials

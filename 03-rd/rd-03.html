@@ -443,7 +443,7 @@ Ian McCarthy | Emory University
 <section id="types-of-rd" class="slide level2">
 <h2>Types of RD</h2>
 <ol type="1">
-<li><em>Sharp regression discontinuity:</em> those above the threshold guaranteed to participate&lt;</li>
+<li><em>Sharp regression discontinuity:</em> those above the threshold guaranteed to participate</li>
 <li><em>Fuzzy regression discontinuity:</em> those above the threshold are eligible but may not participate</li>
 </ol>
 </section>
@@ -508,11 +508,11 @@ Ian McCarthy | Emory University
 
 </div>
 <img data-src="rd-03_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"></section>
-<section id="different-averages" class="slide level2">
-<h2>Different averages</h2>
+<section id="why-bandwidth-matters" class="slide level2">
+<h2>Why bandwidth matters</h2>
 <ul>
-<li>Mean difference around threshold of 0.2, 3.91 - 2.26 = 1.65</li>
-<li>Mean overall difference, 3.71 - 1.51 = 2.19</li>
+<li>Mean difference around threshold of 0.2, 3.99 - 2.23 = 1.76</li>
+<li>Mean overall difference, 3.77 - 1.48 = 2.29</li>
 </ul>
 </section>
 <section id="more-generally" class="slide level2">
@@ -531,7 +531,17 @@ Ian McCarthy | Emory University
 <section id="animations" class="slide level2">
 <h2>Animations!</h2>
 
-<img data-src="../images/rd_animate.gif" class="r-stretch"></section></section>
+<img data-src="../images/rd_animate.gif" class="r-stretch"></section>
+<section id="rd-in-five-steps" class="slide level2">
+<h2>RD in five steps</h2>
+<ol type="1">
+<li>Start with raw data on both sides of the cutoff</li>
+<li>Bin observations along the running variable</li>
+<li>Collapse to bin averages to remove noise</li>
+<li>Zoom in on the bins just around the cutoff</li>
+<li>The <strong>jump</strong> at the cutoff is the treatment effect</li>
+</ol>
+</section></section>
 <section>
 <section id="implementing-rd" class="title-slide slide level1 center">
 <h1>Implementing RD</h1>
@@ -543,12 +553,33 @@ Ian McCarthy | Emory University
 <ol type="1">
 <li>Trim to reasonable window around threshold (“bandwidth”), <span class="math inline">\(X \in [c-h, c+h]\)</span></li>
 <li>Transform running variable, <span class="math inline">\(\tilde{X}=X-c\)</span></li>
-<li>Estimate regressions…</li>
+<li>Estimate regressions within that window</li>
 </ol>
+</section>
+<section id="starting-point-linear-same-slope" class="slide level2">
+<h2>Starting point: linear, same slope</h2>
+<p><span class="math display">\[y = \alpha + \delta D + \beta \tilde{X} + \varepsilon\]</span></p>
 <ul>
-<li>Linear, same slope: <span class="math inline">\(y = \alpha + \delta D + \beta \tilde{X} + \varepsilon\)</span></li>
-<li>Linear, different slope: <span class="math inline">\(y = \alpha + \delta D + \beta \tilde{X} + \gamma D\tilde{X} + \varepsilon\)</span></li>
-<li>Nonlinear: add polynomials in <span class="math inline">\(\tilde{X}\)</span> and interactions <span class="math inline">\(D \tilde{X}\)</span></li>
+<li><span class="math inline">\(D = 1(X &gt; c)\)</span> is the treatment indicator</li>
+<li><span class="math inline">\(\delta\)</span> is the RD estimate (the jump at the cutoff)</li>
+<li>Forces the slope on <span class="math inline">\(\tilde{X}\)</span> to be the same on both sides</li>
+</ul>
+</section>
+<section id="allowing-differential-slopes" class="slide level2">
+<h2>Allowing differential slopes</h2>
+<p><span class="math display">\[y = \alpha + \delta D + \beta \tilde{X} + \gamma D\tilde{X} + \varepsilon\]</span></p>
+<ul>
+<li>Now the slope can differ above and below the cutoff</li>
+<li><span class="math inline">\(\gamma\)</span> captures the difference in slopes</li>
+<li>More flexible, but uses more degrees of freedom in small bandwidths</li>
+</ul>
+</section>
+<section id="beyond-linear" class="slide level2">
+<h2>Beyond linear</h2>
+<ul>
+<li>Can add polynomials in <span class="math inline">\(\tilde{X}\)</span> and interactions with <span class="math inline">\(D\)</span></li>
+<li>In practice, <strong>local linear</strong> (the previous two slides) is the standard</li>
+<li>Higher-order polynomials are generally discouraged (more on this later)</li>
 </ul>
 </section>
 <section id="key-rd-steps" class="slide level2">
@@ -675,11 +706,15 @@ Ian McCarthy | Emory University
 </section>
 <section id="selecting-bin-width" class="slide level2">
 <h2>Selecting “bin” width</h2>
+<p>How many bins should we use? Too few and we obscure the discontinuity; too many and the graph is noisy.</p>
+</section>
+<section id="bin-width-formal-tests" class="slide level2">
+<h2>Bin width: formal tests</h2>
 <ol type="1">
-<li><p>Dummy variables: Create dummies for each bin, regress the outcome on the set of all dummies and form r-square <span class="math inline">\(R^{2}_{r}\)</span>, repeat with double the number of bins and find r-square value <span class="math inline">\(R^{2}_{u}\)</span>, form F-stat, <span class="math inline">\(\frac{R^{2}_{u}-R^{2}_{r}}{1-R^{2}_{u}}\times \frac{n-K-1}{K}\)</span>.</p></li>
-<li><p>Interaction terms: Include interactions between dummies and the running variable, joint F-test for the interaction terms</p></li>
+<li><p><strong>Dummy variable approach</strong>: Create dummies for each bin, regress outcome on the dummies (<span class="math inline">\(R^{2}_{r}\)</span>). Double the number of bins (<span class="math inline">\(R^{2}_{u}\)</span>). F-test: <span class="math display">\[F = \frac{R^{2}_{u}-R^{2}_{r}}{1-R^{2}_{u}}\times \frac{n-K-1}{K}\]</span></p></li>
+<li><p><strong>Interaction approach</strong>: Include interactions between bin dummies and the running variable, then joint F-test on the interaction terms</p></li>
 </ol>
-<p>If F-test suggests significance, then we have too few bins and need to narrow the bin width.</p>
+<p>If significant, we have too few bins and should narrow the width.</p>
 </section>
 <section id="balance" class="slide level2">
 <h2>2. Balance</h2>
@@ -799,8 +834,8 @@ Ian McCarthy | Emory University
 <div id="tabset-2-3">
 <ul>
 <li>True effect: 1.5</li>
-<li>Standard linear regression with same slopes: 1.49</li>
-<li>RD (linear with same slopes): 1.69</li>
+<li>Standard linear regression with same slopes: 1.56</li>
+<li>RD (linear with same slopes): 1.81</li>
 </ul>
 </div>
 </div>
@@ -843,21 +878,21 @@ BW type                       mserd
 Kernel                   Triangular
 VCE method                       NN
 
-Number of Obs.                  498          502
-Eff. Number of Obs.             126          121
+Number of Obs.                  490          510
+Eff. Number of Obs.             152          166
 Order est. (p)                    1            1
 Order bias  (q)                   2            2
-BW est. (h)                   0.260        0.260
-BW bias (b)                   0.417        0.417
-rho (h/b)                     0.623        0.623
-Unique Obs.                     498          502
+BW est. (h)                   0.320        0.320
+BW bias (b)                   0.497        0.497
+rho (h/b)                     0.644        0.644
+Unique Obs.                     490          510
 
-=============================================================================
-        Method     Coef. Std. Err.         z     P&gt;|z|      [ 95% C.I. ]       
-=============================================================================
-  Conventional     1.634     0.124    13.223     0.000     [1.392 , 1.877]     
-        Robust         -         -    11.503     0.000     [1.381 , 1.949]     
-=============================================================================</code></pre>
+=====================================================================
+                   Point    Robust Inference
+                Estimate         z     P&gt;|z|      [ 95% C.I. ]       
+---------------------------------------------------------------------
+     RD Effect     1.739    12.381     0.000     [1.475 , 2.030]     
+=====================================================================</code></pre>
 </div>
 </div>
 <p>Cattaneo et al.&nbsp;(2020) argue:</p>
@@ -871,10 +906,12 @@ Unique Obs.                     498          502
 </section>
 <section id="robustness-and-sensitivity" class="slide level2">
 <h2>5. Robustness and sensitivity</h2>
+<p>Results should be stable across reasonable specification choices:</p>
 <ul>
-<li>Different bandwidths</li>
-<li>Different kernels or polynomials</li>
-<li>Role of covariates in RD estimates</li>
+<li><strong>Bandwidths</strong>: try half and double the optimal bandwidth. If the estimate swings wildly, the result is fragile.</li>
+<li><strong>Kernels</strong>: uniform (equal weight) vs.&nbsp;triangular (more weight near cutoff). Should tell similar stories.</li>
+<li><strong>Polynomials</strong>: linear vs.&nbsp;quadratic. If you need a cubic to find the effect, worry.</li>
+<li><strong>Covariates</strong>: adding pre-treatment controls shouldn’t change the estimate much (they should be balanced at the cutoff). But they can improve precision.</li>
 </ul>
 </section>
 <section id="pitfalls-of-polynomials" class="slide level2">
