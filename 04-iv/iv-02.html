@@ -478,7 +478,7 @@ Ian McCarthy | Emory University
 <div id="tabset-1-3">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 17
+<pre><code># A tibble: 6 × 18
   provider_number fy_end     name     beds tot_charges net_pat_rev tot_discounts
             &lt;dbl&gt; &lt;date&gt;     &lt;chr&gt;   &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;
 1          110010 1999-08-31 EMORY …   388   482698158   320561077     162137081
@@ -487,10 +487,10 @@ Ian McCarthy | Emory University
 4          110010 2002-08-31 EMORY …   429   669164752   427398291     241766461
 5          110010 2003-08-31 EMORY …   429   760913657   410665393     350248264
 6          110010 2004-08-31 EMORY …   424   898891053   470083388     428807665
-# ℹ 10 more variables: tot_operating_exp &lt;dbl&gt;, ip_charges &lt;dbl&gt;,
+# ℹ 11 more variables: tot_operating_exp &lt;dbl&gt;, ip_charges &lt;dbl&gt;,
 #   icu_charges &lt;dbl&gt;, ancillary_charges &lt;dbl&gt;, tot_discharges &lt;dbl&gt;,
 #   mcare_discharges &lt;dbl&gt;, mcaid_discharges &lt;dbl&gt;, tot_mcare_payment &lt;dbl&gt;,
-#   hrrp_payment &lt;dbl&gt;, year &lt;dbl&gt;</code></pre>
+#   hrrp_payment &lt;dbl&gt;, year &lt;dbl&gt;, uncomp_care &lt;dbl&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -512,7 +512,7 @@ Ian McCarthy | Emory University
 <span id="cb4-6"><a href=""></a></span>
 <span id="cb4-7"><a href=""></a>rev.plot <span class="ot">&lt;-</span> plot.dat <span class="sc">%&gt;%</span></span>
 <span id="cb4-8"><a href=""></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as.factor</span>(year), <span class="at">y=</span>net_rev)) <span class="sc">+</span> </span>
-<span id="cb4-9"><a href=""></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href=""></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>), <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-10"><a href=""></a>  <span class="fu">labs</span>(</span>
 <span id="cb4-11"><a href=""></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
 <span id="cb4-12"><a href=""></a>    <span class="at">y =</span> <span class="st">"$ in millions"</span>,</span>
@@ -523,7 +523,7 @@ Ian McCarthy | Emory University
 <span id="cb4-17"><a href=""></a>  </span>
 <span id="cb4-18"><a href=""></a>mcare.plot <span class="ot">&lt;-</span> plot.dat <span class="sc">%&gt;%</span></span>
 <span id="cb4-19"><a href=""></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as.factor</span>(year), <span class="at">y=</span>mcare)) <span class="sc">+</span> </span>
-<span id="cb4-20"><a href=""></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-20"><a href=""></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>), <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-21"><a href=""></a>  <span class="fu">labs</span>(</span>
 <span id="cb4-22"><a href=""></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
 <span id="cb4-23"><a href=""></a>    <span class="at">y =</span> <span class="st">"Discharges"</span>,</span>
@@ -668,7 +668,7 @@ Ian McCarthy | Emory University
 <span id="cb8-10"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">mean_price=</span><span class="fu">mean</span>(price, <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb8-11"><a href=""></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb8-12"><a href=""></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as.factor</span>(year), <span class="at">y=</span>mean_price)) <span class="sc">+</span> </span>
-<span id="cb8-13"><a href=""></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href=""></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>), <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb8-14"><a href=""></a>  <span class="fu">labs</span>(</span>
 <span id="cb8-15"><a href=""></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
 <span id="cb8-16"><a href=""></a>    <span class="at">y =</span> <span class="st">"Dollars"</span>,</span>
@@ -1006,10 +1006,10 @@ Ian McCarthy | Emory University
 <pre><code># A tibble: 4 × 5
    year    mean     max mean_percent max_percent
   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
-1  2012  33177.  479553     0.000802      0.0209
-2  2013  99257. 2259874     0.00262       0.0142
-3  2014  94899. 2490722     0.00271       0.0187
-4  2015 145433. 3286700     0.00430       0.0278</code></pre>
+1  2012  34525.  479553     0.000757     0.00260
+2  2013 105655. 2259874     0.00252      0.0107 
+3  2014 102632. 2490722     0.00262      0.0164 
+4  2015 157428. 3286700     0.00417      0.0260 </code></pre>
 </div>
 </div>
 </div>

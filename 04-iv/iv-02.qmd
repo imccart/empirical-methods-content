@@ -118,7 +118,7 @@ plot.dat <- hcris.emory %>%
 
 rev.plot <- plot.dat %>%
   ggplot(aes(x=as.factor(year), y=net_rev)) + 
-  geom_line(linewidth = 1) +
+  geom_line(aes(group=1), linewidth = 1) +
   labs(
     x = "Year",
     y = "$ in millions",
@@ -129,7 +129,7 @@ rev.plot <- plot.dat %>%
   
 mcare.plot <- plot.dat %>%
   ggplot(aes(x=as.factor(year), y=mcare)) + 
-  geom_line(linewidth = 1) +
+  geom_line(aes(group=1), linewidth = 1) +
   labs(
     x = "Year",
     y = "Discharges",
@@ -275,7 +275,7 @@ emory.price.plot <- emory.price %>%
   summarize(mean_price=mean(price, na.rm=TRUE)) %>%
   ungroup() %>%
   ggplot(aes(x=as.factor(year), y=mean_price)) + 
-  geom_line(linewidth = 1) +
+  geom_line(aes(group=1), linewidth = 1) +
   labs(
     x = "Year",
     y = "Dollars",

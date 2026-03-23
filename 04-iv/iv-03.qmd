@@ -35,7 +35,7 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes,
 
 ## What is instrumental variables
 
-Instrumental Variables (IV) is a way to identify causal effects using variation in treatment particpation that is due to an *exogenous* variable that is only related to the outcome through treatment.
+Instrumental Variables (IV) is a way to identify causal effects using variation in treatment participation that is due to an *exogenous* variable that is only related to the outcome through treatment.
 
 
 ## Why bother with IV?
@@ -97,7 +97,7 @@ Recall "long" regression: $Y=\alpha + \delta S + \gamma A + \epsilon$.
 
 $$\begin{align}
 COV(Y,Z) & = E[YZ] - E[Y] E[Z] \\
-         & = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon)]E[Z] \\
+         & = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon]E[Z] \\
          & = \alpha E[Z] + \delta E[SZ] + \gamma E[AZ] + E[\epsilon Z] \\
          & \hspace{.2in} - \alpha E[Z] - \delta E[S]E[Z] - \gamma E[A] E[Z] - E[\epsilon]E[Z] \\
          & = \delta (E[SZ] - E[S] E[Z]) + \gamma (E[AZ] - E[A] E[Z]) \\
@@ -215,7 +215,7 @@ p <- ggplot(dffull,aes(y=Y,x=X,color=as.factor(Z)))+geom_point()+
   exit_fade()+enter_fade()
 
 anim.iv <- animate(p,nframes=175)
-anim_save("images/iv_animate.gif", anim.iv)
+anim_save("../images/iv_animate.gif", anim.iv)
 ```
 
 ![](../images/iv_animate.gif)
@@ -331,7 +331,7 @@ $$Bias_{IV} \approx \frac{Cov(S, \epsilon)}{V(S)} \frac{1}{F+1} = Bias_{OLS} \fr
 1. Homoskedasticity
     - Stock & Yogo with Cragg & Donald statistic, Sanderson & Windmeijer (2016), effective F-stat
 2. Heteroskedasticity
-    - Kleibergen & Papp Wald is robust analog of Cragg & Donald statistic, effective F-stat
+    - Kleibergen & Paap Wald is robust analog of Cragg & Donald statistic, effective F-stat
 :::
 
 ::::

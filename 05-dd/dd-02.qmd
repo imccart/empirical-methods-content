@@ -127,7 +127,7 @@ $$y_{it} - y_{i,t-1} = \delta(D_{it} - D_{i,t-1}) + (\gamma_{i} - \gamma_{i}) + 
 ## Within Estimator (Default) in practice
 
 ```{r}
-#| eval=FALSE
+#| eval: false
 
 library(fixest)
 library(causaldata)
@@ -161,7 +161,7 @@ modelsummary(list("Default FE"=m1),
 ## Within Estimator (Manually Demean) in practice
 
 ```{r}
-#| eval=FALSE
+#| eval: false
 
 library(causaldata)
 reg.dat <- causaldata::gapminder %>%
@@ -199,7 +199,7 @@ modelsummary(list("Default FE"=m1, "Manual FE"=m2),
 ## First differencing (default) in practice
 
 ```{r}
-#| eval=FALSE
+#| eval: false
 
 library(plm)
 reg.dat <- causaldata::gapminder %>%
@@ -232,7 +232,7 @@ modelsummary(list("Default FE"=m1, "Manual FE"=m2, "Default FD"=m3),
 ## First differencing (manual) in practice
 
 ```{r}
-#| eval=FALSE
+#| eval: false
 
 reg.dat <- causaldata::gapminder %>%
   mutate(lgdp_pc=log(gdpPercap)) %>%  

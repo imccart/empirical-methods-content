@@ -420,7 +420,7 @@ Ian McCarthy | Emory University
 </section>
 <section id="what-is-instrumental-variables" class="slide level2">
 <h2>What is instrumental variables</h2>
-<p>Instrumental Variables (IV) is a way to identify causal effects using variation in treatment particpation that is due to an <em>exogenous</em> variable that is only related to the outcome through treatment.</p>
+<p>Instrumental Variables (IV) is a way to identify causal effects using variation in treatment participation that is due to an <em>exogenous</em> variable that is only related to the outcome through treatment.</p>
 </section>
 <section id="why-bother-with-iv" class="slide level2">
 <h2>Why bother with IV?</h2>
@@ -468,7 +468,7 @@ Ian McCarthy | Emory University
 <p>Recall “long” regression: <span class="math inline">\(Y=\alpha + \delta S + \gamma A + \epsilon\)</span>.</p>
 <p><span class="math display">\[\begin{align}
 COV(Y,Z) &amp; = E[YZ] - E[Y] E[Z] \\
-         &amp; = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon)]E[Z] \\
+         &amp; = E[(\alpha + \delta S + \gamma A + \epsilon)\times Z] - E[\alpha + \delta S + \gamma A + \epsilon]E[Z] \\
          &amp; = \alpha E[Z] + \delta E[SZ] + \gamma E[AZ] + E[\epsilon Z] \\
          &amp; \hspace{.2in} - \alpha E[Z] - \delta E[S]E[Z] - \gamma E[A] E[Z] - E[\epsilon]E[Z] \\
          &amp; = \delta (E[SZ] - E[S] E[Z]) + \gamma (E[AZ] - E[A] E[Z]) \\
@@ -666,7 +666,7 @@ COV(Y,Z) &amp; = E[YZ] - E[Y] E[Z] \\
 </ul></li>
 <li>Heteroskedasticity
 <ul>
-<li>Kleibergen &amp; Papp Wald is robust analog of Cragg &amp; Donald statistic, effective F-stat</li>
+<li>Kleibergen &amp; Paap Wald is robust analog of Cragg &amp; Donald statistic, effective F-stat</li>
 </ul></li>
 </ol>
 </div></div>
@@ -773,18 +773,18 @@ lm(formula = y ~ d, data = iv.dat)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.5067 -0.6911 -0.0121  0.6953  4.2129 
+-3.5988 -0.7071  0.0141  0.6875  3.9679 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  2.10849    0.01956   107.8   &lt;2e-16 ***
-dTRUE        6.12514    0.02911   210.4   &lt;2e-16 ***
+(Intercept)  2.09456    0.01995   105.0   &lt;2e-16 ***
+dTRUE        6.13007    0.02925   209.6   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 1.024 on 4998 degrees of freedom
-Multiple R-squared:  0.8986,    Adjusted R-squared:  0.8986 
-F-statistic: 4.428e+04 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 1.032 on 4998 degrees of freedom
+Multiple R-squared:  0.8978,    Adjusted R-squared:  0.8978 
+F-statistic: 4.392e+04 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TSLS estimation - Dep. Var.: y
@@ -794,13 +794,13 @@ Second stage: Dep. Var.: y
 Observations: 5,000
 Standard-errors: IID 
             Estimate Std. Error t value  Pr(&gt;|t|)    
-(Intercept)   2.5275   0.029102 86.8488 &lt; 2.2e-16 ***
-fit_dTRUE     5.1977   0.053966 96.3136 &lt; 2.2e-16 ***
+(Intercept)  2.50530   0.029548 84.7877 &lt; 2.2e-16 ***
+fit_dTRUE    5.24675   0.053608 97.8716 &lt; 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 1.1233   Adj. R2: 0.877955
-F-test (1st stage), dTRUE: stat = 2,691.2, p &lt; 2.2e-16, on 1 and 4,998 DoF.
-               Wu-Hausman: stat =   613.7, p &lt; 2.2e-16, on 1 and 4,997 DoF.</code></pre>
+RMSE: 1.12156   Adj. R2: 0.231381
+F-test (1st stage), dTRUE: stat = 2,715.24, p &lt; 2.2e-16, on 1 and 4,998 DoF.
+               Wu-Hausman: stat =   549.86, p &lt; 2.2e-16, on 1 and 4,997 DoF.</code></pre>
 </div>
 </div>
 </div>
@@ -841,19 +841,19 @@ Call:
 lm(formula = y ~ z, data = iv.dat)
 
 Residuals:
-   Min     1Q Median     3Q    Max 
--9.164 -2.179 -0.139  2.188  9.412 
+    Min      1Q  Median      3Q     Max 
+-8.0911 -2.1728 -0.0365  2.1631  9.1191 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  4.88881    0.04001  122.20   &lt;2e-16 ***
-z            0.75967    0.01986   38.25   &lt;2e-16 ***
+(Intercept)  4.94776    0.04001  123.66   &lt;2e-16 ***
+z            0.77845    0.02006   38.81   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 2.829 on 4998 degrees of freedom
-Multiple R-squared:  0.2265,    Adjusted R-squared:  0.2263 
-F-statistic:  1463 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
+Multiple R-squared:  0.2315,    Adjusted R-squared:  0.2314 
+F-statistic:  1506 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
@@ -887,18 +887,18 @@ lm(formula = d ~ z, data = iv.dat)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--1.14708 -0.32529 -0.02808  0.33542  1.23159 
+-1.03085 -0.32969 -0.01796  0.33273  1.11780 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept) 0.454299   0.005676   80.04   &lt;2e-16 ***
-z           0.146155   0.002817   51.88   &lt;2e-16 ***
+(Intercept) 0.465519   0.005679   81.97   &lt;2e-16 ***
+z           0.148368   0.002847   52.11   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.4013 on 4998 degrees of freedom
-Multiple R-squared:   0.35, Adjusted R-squared:  0.3499 
-F-statistic:  2691 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 0.4016 on 4998 degrees of freedom
+Multiple R-squared:  0.352, Adjusted R-squared:  0.3519 
+F-statistic:  2715 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
@@ -942,19 +942,19 @@ Call:
 lm(formula = y ~ d.hat, data = iv.dat)
 
 Residuals:
-   Min     1Q Median     3Q    Max 
--9.164 -2.179 -0.139  2.188  9.412 
+    Min      1Q  Median      3Q     Max 
+-8.0911 -2.1728 -0.0365  2.1631  9.1191 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  2.52750    0.07327   34.49   &lt;2e-16 ***
-d.hat        5.19770    0.13588   38.25   &lt;2e-16 ***
+(Intercept)  2.50530    0.07452   33.62   &lt;2e-16 ***
+d.hat        5.24675    0.13521   38.81   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 2.829 on 4998 degrees of freedom
-Multiple R-squared:  0.2265,    Adjusted R-squared:  0.2263 
-F-statistic:  1463 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
+Multiple R-squared:  0.2315,    Adjusted R-squared:  0.2314 
+F-statistic:  1506 on 1 and 4998 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>

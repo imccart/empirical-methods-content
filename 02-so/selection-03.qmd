@@ -361,7 +361,7 @@ p <- ggplot(dffull,aes(y=Y,x=xaxisTime,color=Treated,size=Treated))+geom_point()
   exit_fade()+enter_fade()
 
 anim.p <- animate(p,nframes=200)
-anim_save("images/match_animate.gif", anim.p)
+anim_save("../images/match_animate.gif", anim.p)
 ```
 
 ![](../images/match_animate.gif)
@@ -479,7 +479,7 @@ p <- ggplot(dffull,aes(y=Y,x=X,color=as.factor(W)))+geom_point()+
   exit_fade()+enter_fade()
 
 anim.reg <- animate(p,nframes=200)
-anim_save("images/reg_animate.gif", anim.reg)
+anim_save("../images/reg_animate.gif", anim.reg)
 ```
 
 ![](../images/reg_animate.gif)

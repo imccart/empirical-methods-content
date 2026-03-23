@@ -273,7 +273,7 @@ modelsummary(list("DD" = m.dd, "TWFE" = m.twfe),
 
 Event study is poorly named:
 
-- In finance, even study is just an *interrupted time series*
+- In finance, event study is just an *interrupted time series*
 - In econ and other areas, we usually have a treatment/control group *and* a break in time
 
 

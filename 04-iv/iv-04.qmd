@@ -262,7 +262,7 @@ mcare.hrrp.plot
 
 ## Assessment of Instrument
 
-Before looking at IV results, Let's examine the first-stage and the reduced form:
+Before looking at IV results, let's examine the first-stage and the reduced form:
 
 ::: {.panel-tabset}
 
@@ -428,7 +428,7 @@ modelsummary(list("OLS"=ols, "IV"=iv),
 3. What about lots of instruments? The finite sample problem is more important and we may try other things (JIVE).
 
 ::: {.fragment}
-The National Bureau of Economic Researh (NBER) has a great resource [here](https://www.nber.org/econometrics_minicourse_2018/2018si_methods.pdf) for understanding instruments in practice.
+The National Bureau of Economic Research (NBER) has a great resource [here](https://www.nber.org/econometrics_minicourse_2018/2018si_methods.pdf) for understanding instruments in practice.
 :::
 
 
